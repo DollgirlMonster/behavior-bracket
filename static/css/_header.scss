@@ -1,0 +1,81 @@
+// Header
+#ctl__pwrOff {
+    position: fixed;
+    top: 1em;
+    left: 1em;
+}
+
+#stat__battery--container {
+    position: fixed;
+    top: 1em;
+    right: 1em;
+    
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#stat__battery--text {
+    margin-right: 0.5em;
+}
+
+#stat__battery--outer {
+    border-radius: 2px;
+    border: 1px solid $text-color;
+    padding: 1px;
+    width: 25px;
+    height: 12px;
+
+    &::after {
+        content: "";
+        background-color: $text-color;
+        position: relative;
+        display: block;
+
+        left: 24px;
+        bottom: 7px;
+        width: 1px;
+        height: 6px;
+    }
+}
+
+#stat__battery--level {
+    border-radius: 1px;
+    background-color: $text-color;
+
+    width: 21px;
+    height: 8px;
+
+    &.lowBatt {
+        background-color: $key-color;
+    }
+}
+
+#stat__battery--charging {
+    position: fixed;
+    right: 1.45em;
+    width: 10px;
+    top: 17px;
+    fill: $text-color;
+
+    .charging__stroke {
+        fill: $bg-color;
+    }
+}
+
+#stat__battery--dock-lock {
+    position: fixed;
+    right: 1.45em;
+    width: 10px;
+    top: 17px;
+    fill: $text-color;
+    transition: fill $transition-time;
+
+    .charging__stroke {
+        fill: $bg-color;
+    }
+
+    &.shock {
+        fill: $key-color;
+    }
+}

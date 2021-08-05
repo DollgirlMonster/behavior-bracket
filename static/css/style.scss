@@ -1,0 +1,63 @@
+// Theme variables
+$key-color: #e30400;
+$bg-color: #efeae7;
+$bg-text-color: darken($bg-color, 5%);
+$link-color: #591f1c;
+$text-color: #6d6161;
+
+$header-font-stack: mencken-std-head-narrow, serif;
+$body-font-stack: neuzeit-grotesk, sans-serif;
+
+$ui-border-radius: 2px;
+
+$transition-time: 0.1s;
+
+*,
+*:before,
+*:after {
+  box-sizing: border-box;
+}
+
+html {
+    background-color: $bg-color;
+    color: $text-color;
+    font-family: sans-serif;
+    overflow: hidden;
+    user-select: none;
+}
+
+@import 'typography';
+@import 'header';
+@import 'footer';
+@import 'modal';
+@import 'controls';
+@import 'loading-spinner';
+
+@import 'jqueryui/jquery-ui';
+@import 'jqueryui/jquery-ui-structure';
+
+ul, menu {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+menu {
+    margin: 8em 0.5em;
+}
+
+#stat__bigMode--container {
+    position: fixed;
+    overflow: hidden;
+    z-index: -1;
+    top: -4em;
+    left: -1em;
+}
+
+.ui__hidden {
+    display: none;
+}
+
+.ui__hidden--show {
+    display: block !important;
+}

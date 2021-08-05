@@ -1,0 +1,21 @@
+// Footer
+#ctl__intensity {
+    position: fixed;
+    bottom: 2em;
+    left: 1em;
+    right: 1em;
+
+    &.shock {
+        span {
+            color: $key-color;
+        }
+
+        input[type="range"], .ui-slider {
+            background: $key-color;
+
+            & .ui-slider-handle {
+                border: 1px solid $key-color;
+            }
+        }
+    }
+}

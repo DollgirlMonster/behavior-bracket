@@ -1,0 +1,68 @@
+
+a.link {
+    transition: color $transition-time;
+    font-family: $body-font-stack;
+
+    &:hover {
+        color: $key-color;
+    }
+}
+
+a[class^="button"] {
+    border: 1px solid $link-color;
+    font-family: $body-font-stack;
+    padding: 6px 20px;
+    border-radius: $ui-border-radius;
+    transition: all $transition-time;
+    display: block;
+    text-align: center;
+    margin: auto;
+    width: 100%;
+
+    &:active {
+        background-color: $key-color !important;
+        border: 1px solid $key-color;
+        color: $bg-color;
+    }
+
+    &.button__filled {
+        background-color: $link-color;
+        color: $bg-color;
+    }
+}
+
+.ctl__mode--container {
+    li, a {
+        width: 100%;
+    }
+}
+
+.ctl__buttons {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
+    grid-gap: 1em;
+
+    li {
+        width: auto;
+    }
+}
+
+input[type="range"], .ui-slider {
+    margin-top: 0.7rem;
+    margin-bottom: 1.5rem;
+    
+    background: $text-color;
+    outline: none;
+    height: 1px !important;
+    width: 100%;
+    transition: $transition-time;
+
+    & .ui-slider-handle {
+        top: -7px !important;
+
+        border: 1px solid $text-color;
+        background-color: $bg-color;
+        border-radius: 999px;
+        position: relative;
+    }
+}
