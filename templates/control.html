@@ -21,9 +21,12 @@
 
 <body>
     <header>
+        <!-- Power Off button -->
         <div id="ctl__pwrOff">
             <a id="ctl__pwrOff--button" class="link">Power Off</a>
         </div>
+
+        <!-- Battery widget -->
         <div id="stat__battery--container">
             <div id="stat__battery--text"><span id="stat__battery--percent">??</span>%</div>
             <!-- Charging icon -->
@@ -69,6 +72,7 @@
         </div>
     </header>
 
+    <!-- Mode switch -->
     <menu>
         <div id="stat__bigMode--container">
             <h1 id="stat__bigMode">Connecting</h1>
@@ -95,7 +99,9 @@
         </ul>
     </menu>
 
+    <!-- Punishment controls -->
     <footer>
+        <!-- Intensity slider -->
         <div id="ctl__intensity">
             <span>Punishment Intensity</span>
             <span id="stat__intensity--safetyMode" class="ui__hidden">Safety Mode enabled</span>
@@ -103,9 +109,12 @@
             <div id="ctl__intensity--input"></div>
 
             <ul class="ctl__buttons">
+                <!-- Warning button -->
                 <li>
                     <a id="ctl__manual--warn" class="button">Warn</a>
                 </li>
+
+                <!-- Punish button -->
                 <li>
                     <a id="ctl__manual--punish" class="button">Punish</a>
                 </li>
@@ -113,11 +122,13 @@
         </div>
     </footer>
 
+    <!-- Modal: Connecting spinner -->
     <div id="ui__connecting" class="ui__modal--centered">
         <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
         <p>Connecting to collar...</p>
     </div>
 
+    <!-- Modal: Hardware power off confirmation -->
     <div id="ui__pwrOff--confirmation-dialog" class="ui__hidden ui__modal--centered">
         <p>Turn off the collar?</p>
         <ul class="ctl__buttons">
@@ -130,11 +141,13 @@
         </ul>
     </div>
 
+    <!-- Modal: Shutdown spinner -->
     <div id="ui__pwrOff--shutdown" class="ui__modal--centered ui__hidden">
         <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
         <p>Shutting down...</p>
     </div>
 
+    <!-- Modal: Dock Lock toggle -->
     <div id="ui__dock-lock--enable" class="ui__hidden ui__modal--centered">
         <p>Enable Dock Lock?</p>
         <p>Dock Lock punishes the wearer for disconnecting the charger before the collar is charged past 90%.</p>
@@ -148,6 +161,7 @@
         </ul>
     </div>
 
+    <!-- Modal: Low battery warning -->
     <div id="ui__batt-warning" class="ui__hidden ui__modal--centered">
         <p>The collar's battery is low. Charge the battery soon or the collar will turn off.</p>
         <ul class="ctl__buttons">
@@ -174,26 +188,25 @@
         // SOCKETIO
         // Connect to socket server
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
-        console.log("Connected to Socket")
+        console.log("Connected to Socket");
 
-        // Recieve information from server
-
-        // Battery level
+        // When we recieve information from server
+        //   Battery level
         socket.on('battery', function(msg) {
-            console.log("Recieved battery status update");
-
-            // Update percent string
+            // Update battery status indicator
+            //   Update percent string
             var percent = parseInt(msg.percent);
             $('#stat__battery--percent').html(percent.toString());
 
-            // Update battery icon width
+            //   Update battery fill width
             var pxWidth = 21 * (msg.percent / 100);
             $('#stat__battery--level').css('width',  pxWidth.toString() + 'px');
 
-            // Update battery icon color
+            //   Update battery icon color
             if (msg.percent <= 20) {
                 $('#stat__battery--level').addClass('lowBatt');
                 // If this is the first time the battery has dropped below 20%, show a warning
+                // TODO: This needs better logic, the dock lock window trigger does too
                 if (hasShownBattWarning == false) {
                     $('#ui__batt-warning').addClass('ui__hidden--show');
                     hasShownBattWarning = true;
@@ -202,50 +215,48 @@
                 $('#stat__battery--level').removeClass('lowBatt');
             }
 
-            // Reset warning bools if battery has certain values
+            // Reset warning trigger if battery has certain values
             if (msg.percent >= 25) {
-                // Reset low battery warning if battery goes above 25%
-                hasShownBattWarning = false;
+                hasShownBattWarning = false;    // Reset low battery warning if battery goes above 25%
             } else if (msg.percent >= 90) {
-                // Reset dock lock if battery goes above 90%
-                hasShownDockLockModal = false;
+                hasShownDockLockModal = false;  // Reset dock lock if battery goes above 90%
             }
 
-            // Update charging icon
+            // Charging status-related checks
             if (msg.charging == true) {
-                $('#stat__battery--dock-lock').removeClass('shock');    // Remove dock lock punishment state
+                $('#stat__battery--dock-lock').removeClass('shock');                // If the device is charging, don't light up the battery icon
 
-                if (msg.dockLock == true) {
-                    dockLock = true;
-                    $('#stat__battery--dock-lock').addClass('ui__hidden--show');
-                    $('#stat__battery--charging').removeClass('ui__hidden--show');
-                } else {
-                    dockLock = false;
-                    $('#stat__battery--charging').addClass('ui__hidden--show');
-                    $('#stat__battery--dock-lock').removeClass('ui__hidden--show');
+                // Check Dock Lock status on charging status update
+                if (msg.dockLock == true) {                                         // DL on and device is charging
+                    dockLock = true;                                                //   Keep track of DL status clientside
+                    $('#stat__battery--dock-lock').addClass('ui__hidden--show');    //   Show DL icon
+                    $('#stat__battery--charging').removeClass('ui__hidden--show');  //   Hide charging bolt icon
+                } else {                                                            // DL off
+                    dockLock = false;                                               //   Keep track of DL status clientside
+                    $('#stat__battery--charging').addClass('ui__hidden--show');     //   Show charging bolt icon
+                    $('#stat__battery--dock-lock').removeClass('ui__hidden--show'); //   Hide DL icon
                 }
 
                 // Ask user if Dock Lock should be enabled
-                if (hasShownDockLockModal == false) {
-                    $('#ui__dock-lock--enable').addClass('ui__hidden--show');
-                    hasShownDockLockModal = true;
+                if (hasShownDockLockModal == false) {                               // If we haven't shown the DL modal before
+                    $('#ui__dock-lock--enable').addClass('ui__hidden--show');       // Show the modal
+                    hasShownDockLockModal = true;                                   // Remember that we have shown the modal
                 }
-            } else {
-                if (dockLock == true) {
-                    // If dockLock is on and we aren't charging, notify the user
-                    $('#stat__battery--dock-lock').addClass('shock');
-                } else {
-                    $('#stat__battery--dock-lock').removeClass('ui__hidden--show');
+            } else {    // msg.charging == false
+                $('#stat__battery--charging').removeClass('ui__hidden--show');      // Hide charging bolt icon
+
+                // Check Dock Lock status on charging status update
+                if (dockLock == true) {                                             // DL on and device not charging
+                    $('#stat__battery--dock-lock').addClass('shock');               //   Light up the battery icon
+                } else {                                                            // DL off
+                    $('#stat__battery--dock-lock').removeClass('ui__hidden--show'); //   Hide DL icon
                 }
-                
-                $('#stat__battery--charging').removeClass('ui__hidden--show');
             }
         })
 
-        // Compliance
+        //   Compliance
         socket.on('compliance', function(msg) {
-            // console.log("Recieved compliance update: " + msg.compliance.toString());
-
+            // If wearer is being punished, flash the intensity controls
             if (msg.requestPunishment == true) {
                 $("#ctl__intensity").addClass('shock');
             } else {
@@ -253,21 +264,33 @@
             }
         })
 
-        // Shutdown hardware switch confirmation
+        //   Hardware shutdown switch actuated
         socket.on('shutdownConfirmation', function(msg) {
-            $("#ui__pwrOff--confirmation-dialog").addClass('ui__hidden--show');
+            $("#ui__pwrOff--confirmation-dialog").addClass('ui__hidden--show'); // Show power off confirmation dialog
         })
 
-        // Set up intensity slider
+        // Request inital state
+        socket.emit('update', {'foo': 'bar'});
+        socket.on('update', function(msg) {
+            switchMode(msg.mode);                                       // Get current mode
+            $('#ctl__intensity--input').slider("value", msg.intensity); // Set intensity slider to serverside intensity value
+            safetyModeNotificationCheck();                              //   Check if we're in safety mode (intensity <= 3) and show notification if so
+            if (msg.dockLock) {dockLock = true;}                        // Keep track of Dock Lock status clientside
+
+            $('#ui__connecting').addClass('ui__hidden');                // Finished connecting, hide spinner
+        })
+
+        // Safety mode notification check
         function safetyModeNotificationCheck() {
             // Show vibrate mode notification if value <= 3
-            var intensity = $("#ctl__intensity--input").slider("value");
+            var intensity = $("#ctl__intensity--input").slider("value");            // Get intensity value
             if (intensity <= 3) {
-                $('#stat__intensity--safetyMode').addClass('ui__hidden--show');
+                $('#stat__intensity--safetyMode').addClass('ui__hidden--show');     // Show warning
             } else {
-                $('#stat__intensity--safetyMode').removeClass('ui__hidden--show');
+                $('#stat__intensity--safetyMode').removeClass('ui__hidden--show');  // Hide warning
             }
         }
+        // Initialize intensity slider
         $("#ctl__intensity--input").slider({
             range: false,
             min: 0,
@@ -275,7 +298,7 @@
             value: 50,
             
             slide: function(event, ui) {
-                console.log(ui.value)
+                // console.log(ui.value)
                 socket.emit('intensity', {'intensity': ui.value})
 
                 safetyModeNotificationCheck();
@@ -317,6 +340,7 @@
             }
         }
 
+        // Mode switch
         $('#ctl__mode--disable').click(function(event) {
             switchMode('off');
         });
@@ -342,19 +366,6 @@
         })
         $('#ctl__manual--warn').click(function(event) {
             socket.emit('manualControl', {'command': 'warn'});
-        })
-
-        // Request inital state
-        socket.emit('update', {'foo': 'bar'});
-        socket.on('update', function(msg) {
-            switchMode(msg.mode);   // Get current mode
-            $('#ctl__intensity--input').slider("value", msg.intensity); // Get intensity
-            safetyModeNotificationCheck();  // Check if we're in safety mode (intensity <= 3) and show notification if so
-            if (msg.dockLock) {
-                dockLock = true;
-            }
-
-            $('#ui__connecting').addClass('ui__hidden');
         })
 
         // UI popup window button functions
