@@ -38,8 +38,6 @@ safetyMode = True           # Vibrate only -- change to False to enable shock
 
 # Set up GPIO
 gpio = pigpio.pi()                       # tell pigpio we want to access local pi
-radioPin = 25                            # board pin 22
-gpio.set_mode(radioPin, pigpio.OUTPUT)   # Set up pin 22 as output
 
 class EdgeDetector:
     """ Detects false/true transitions on an external signal"""
@@ -75,6 +73,7 @@ class EdgeDetector:
 class radioThread(Thread):
     def __init__(self):
         self.txKey = '00101100101001010'
+        self.radioPin = 25  # Board pin 22
 
         self.transmitting = False
 
@@ -92,7 +91,7 @@ class radioThread(Thread):
             gpio.wave_send_repeat(waveID)  # transmit waveform
             sleep(txTime)
             gpio.wave_tx_stop()            # stop transmitting waveform
-            gpio.write(radioPin, 0)
+            gpio.write(self.radioPin, 0)
             gpio.wave_clear     # clear existing waveforms
 
             self.transmitting = False
@@ -123,16 +122,16 @@ class radioThread(Thread):
         one_delay = space - one_bit 
         EOS_delay = 7600
 
-        sequence_wave.append(pigpio.pulse(1<<radioPin, 0, start_bit))
-        sequence_wave.append(pigpio.pulse(0, 1<<radioPin, start_delay))
+        sequence_wave.append(pigpio.pulse(1<<self.radioPin, 0, start_bit))
+        sequence_wave.append(pigpio.pulse(0, 1<<self.radioPin, start_delay))
 
         for x in range(0, 40): #adds the sequence bits to the waveform, in order.
             if int(sequence[x]) == 0:
-                sequence_wave.append(pigpio.pulse(1<<radioPin, 0, zero_bit)) ## fix
-                sequence_wave.append(pigpio.pulse(0, 1<<radioPin, zero_delay))
+                sequence_wave.append(pigpio.pulse(1<<self.radioPin, 0, zero_bit)) ## fix
+                sequence_wave.append(pigpio.pulse(0, 1<<self.radioPin, zero_delay))
             else:
-                sequence_wave.append(pigpio.pulse(1<<radioPin, 0, one_bit)) ## fix
-                sequence_wave.append(pigpio.pulse(0, 1<<radioPin, one_delay))
+                sequence_wave.append(pigpio.pulse(1<<self.radioPin, 0, one_bit)) ## fix
+                sequence_wave.append(pigpio.pulse(0, 1<<self.radioPin, one_delay))
 
         sequence_wave.append(pigpio.pulse(0, 0, EOS_delay))
 
@@ -203,9 +202,10 @@ class radioThread(Thread):
         return sequence
 
     def run(self):
-        global requestPunishment   # Get visibility of bool that determines whether we should transmit
-
-        gpio.wave_clear     # clear existing waveforms
+        global requestPunishment                    # Get visibility of bool that determines whether we should transmit
+        
+        gpio.set_mode(self.radioPin, pigpio.OUTPUT) # Set up pin 22 as output
+        gpio.wave_clear                             # clear existing waveforms
 
         while not thread_stop_event.isSet():
             # Punish if requested
@@ -220,8 +220,8 @@ class radioThread(Thread):
                 # We want to ping every two minutes on the first second
                 # Unless we're already transmitting a punishment
                 t = localtime()
-                if t[4] % 2 == 0 and t[5] < 1:  # Minutes are even and seconds are less than 1
-                    KAsequence = self.makeSequence(txMode=1)   # Flash LED
+                if t[4] % 2 == 0 and t[5] < 1:                  # Minutes are even and seconds are less than 1
+                    KAsequence = self.makeSequence(txMode=1)    # Flash LED
                     KAwaveID = self.makeWaveform(KAsequence)
                     self.transmit(KAwaveID, 0.5)
 
