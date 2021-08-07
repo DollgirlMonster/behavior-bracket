@@ -1,7 +1,0 @@
-# These lines must be added to /boot/config.txt on raspi
-
-# Enable i2c bus 0 on GPIO 0 and 1
-dtoverlay=i2c-gpio,bus=2,i2c_gpio_sda=0,i2c_gpio_scl=1
-
-# Move i2c bus 1 to GPIO 5 and 6
-dtoverlay=i2c-gpio,bus=1,i2c_gpio_sda=6,i2c_gpio_scl=5
