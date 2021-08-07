@@ -15,9 +15,7 @@ import battery
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_mapping(
     SECRET_KEY='dev',
-    DATABASE=os.path.join(app.instance_path, 'data.db'),
-    # TODO: use db for settings and stuff
-    DEBUG=True,
+    DEBUG=False,
 )
 
 # Turn the flask app into a socketio app
@@ -36,8 +34,7 @@ enableDockLock = False      # Whether or not we should punish the wearer if the 
 
 safetyMode = True           # Vibrate only -- change to False to enable shock
 
-# Set up GPIO
-gpio = pigpio.pi()                       # tell pigpio we want to access local pi
+gpio = pigpio.pi()          # Set up gpio
 
 class EdgeDetector:
     """ Detects false/true transitions on an external signal"""
