@@ -6,7 +6,7 @@
 
 html {
   background-color: #efeae7;
-  color: #6d6161;
+  color: #6c6060;
   font-family: sans-serif;
   overflow: hidden;
   user-select: none;
@@ -17,30 +17,31 @@ h1, h2 {
 }
 
 h1 {
-  color: #e5ddd8;
   font-size: 14em;
+  line-height: normal;
+  color: #e4dcd7;
 }
 
 h2 {
-  color: #591f1c;
   font-size: 3em;
   line-height: 0.8em;
+  color: #591f1c;
 }
 
 @keyframes shockFlash {
   0% {
-    color: #6d6161;
+    color: #6c6060;
   }
   10% {
-    color: #e30400;
+    color: #e60400;
   }
   100% {
-    color: #6d6161;
+    color: #6c6060;
   }
 }
 p, span {
   font-family: neuzeit-grotesk, sans-serif;
-  color: #6d6161;
+  color: #6c6060;
   transition: color 0.1s;
 }
 
@@ -51,7 +52,7 @@ a:hover {
   cursor: pointer;
 }
 a.ctl__mode--active {
-  color: #e30400;
+  color: #e60400;
 }
 
 #ctl__pwrOff {
@@ -75,14 +76,14 @@ a.ctl__mode--active {
 
 #stat__battery--outer {
   border-radius: 2px;
-  border: 1px solid #6d6161;
+  border: 1px solid #6c6060;
   padding: 1px;
   width: 25px;
   height: 12px;
 }
 #stat__battery--outer::after {
   content: "";
-  background-color: #6d6161;
+  background-color: #6c6060;
   position: relative;
   display: block;
   left: 24px;
@@ -93,12 +94,12 @@ a.ctl__mode--active {
 
 #stat__battery--level {
   border-radius: 1px;
-  background-color: #6d6161;
+  background-color: #6c6060;
   width: 21px;
   height: 8px;
 }
 #stat__battery--level.lowBatt {
-  background-color: #e30400;
+  background-color: #e60400;
 }
 
 #stat__battery--charging {
@@ -106,7 +107,7 @@ a.ctl__mode--active {
   right: 1.45em;
   width: 10px;
   top: 17px;
-  fill: #6d6161;
+  fill: #6c6060;
 }
 #stat__battery--charging .charging__stroke {
   fill: #efeae7;
@@ -117,14 +118,14 @@ a.ctl__mode--active {
   right: 1.45em;
   width: 10px;
   top: 17px;
-  fill: #6d6161;
+  fill: #6c6060;
   transition: fill 0.1s;
 }
 #stat__battery--dock-lock .charging__stroke {
   fill: #efeae7;
 }
 #stat__battery--dock-lock.shock {
-  fill: #e30400;
+  fill: #e60400;
 }
 
 #ctl__intensity {
@@ -134,13 +135,13 @@ a.ctl__mode--active {
   right: 1em;
 }
 #ctl__intensity.shock span {
-  color: #e30400;
+  color: #e60400;
 }
 #ctl__intensity.shock input[type=range], #ctl__intensity.shock .ui-slider {
-  background: #e30400;
+  background: #e60400;
 }
 #ctl__intensity.shock input[type=range] .ui-slider-handle, #ctl__intensity.shock .ui-slider .ui-slider-handle {
-  border: 1px solid #e30400;
+  border: 1px solid #e60400;
 }
 
 div[id^=ui__] {
@@ -149,7 +150,7 @@ div[id^=ui__] {
   top: 40%;
   margin: auto 10% auto 8%;
   padding: 0 1em 1em;
-  border: 1px solid #6d6161;
+  border: 1px solid #6c6060;
   background-color: #efeae7;
 }
 
@@ -162,7 +163,7 @@ a.link {
   font-family: neuzeit-grotesk, sans-serif;
 }
 a.link:hover {
-  color: #e30400;
+  color: #e60400;
 }
 
 a[class^=button] {
@@ -177,8 +178,8 @@ a[class^=button] {
   width: 100%;
 }
 a[class^=button]:active {
-  background-color: #e30400 !important;
-  border: 1px solid #e30400;
+  background-color: #e60400 !important;
+  border: 1px solid #e60400;
   color: #efeae7;
 }
 a[class^=button].button__filled {
@@ -202,7 +203,7 @@ a[class^=button].button__filled {
 input[type=range], .ui-slider {
   margin-top: 0.7rem;
   margin-bottom: 1.5rem;
-  background: #6d6161;
+  background: #6c6060;
   outline: none;
   height: 1px !important;
   width: 100%;
@@ -210,7 +211,7 @@ input[type=range], .ui-slider {
 }
 input[type=range] .ui-slider-handle, .ui-slider .ui-slider-handle {
   top: -7px !important;
-  border: 1px solid #6d6161;
+  border: 1px solid #6c6060;
   background-color: #efeae7;
   border-radius: 999px;
   position: relative;
@@ -229,7 +230,7 @@ input[type=range] .ui-slider-handle, .ui-slider .ui-slider-handle {
   width: 13px;
   height: 13px;
   border-radius: 50%;
-  background: #6d6161;
+  background: #6c6060;
   animation-timing-function: cubic-bezier(0, 1, 1, 0);
 }
 
