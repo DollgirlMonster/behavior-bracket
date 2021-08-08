@@ -11,7 +11,7 @@ Once the case is finalized I'll upload the .stl file to this repo.
 ### Donate/Contact
 If you like or use this project, please consider [donating](https://ko-fi.com/penelopede) so that I can keep working on this and other kinky engineering stuff!
 
-If you build this project or fork it to make something cool, I'd love to hear about it! Hit me up on Mastodon @deersyrup@yiff.life
+If you build this project or fork it to make something cool, I'd love to hear about it! Hit me up on Mastodon [@deersyrup@yiff.life](https://yiff.life/@deersyrup)
 
 ### Future Plans
  1. Design and implement a TENS board to replace the E-Sky shock unit
@@ -61,6 +61,7 @@ If you build this project or fork it to make something cool, I'd love to hear ab
 ## Special Thanks
 Shout-outs to the following folx for their help and ideas:
  - Friday Katte, for concepts and testing
+ - Dahlia Bee, for naming the device
 
 ## Includes
 This project incorporates code from the following repositories:
