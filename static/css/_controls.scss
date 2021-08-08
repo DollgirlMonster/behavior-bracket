@@ -1,4 +1,3 @@
-
 a.link {
     transition: color $transition-time;
     font-family: $body-font-stack;
@@ -9,9 +8,9 @@ a.link {
 }
 
 a[class^="button"] {
-    border: 1px solid $link-color;
+    border: $button-border-style-inactive;
     font-family: $body-font-stack;
-    padding: 6px 20px;
+    padding: $button-padding;
     border-radius: $ui-border-radius;
     transition: all $transition-time;
     display: block;
@@ -21,7 +20,7 @@ a[class^="button"] {
 
     &:active {
         background-color: $key-color !important;
-        border: 1px solid $key-color;
+        border: $button-border-style-active;
         color: $bg-color;
     }
 
@@ -60,7 +59,7 @@ input[type="range"], .ui-slider {
     & .ui-slider-handle {
         top: -7px !important;
 
-        border: 1px solid $text-color;
+        border: $ui-border-style;
         background-color: $bg-color;
         border-radius: 999px;
         position: relative;

@@ -1,16 +1,33 @@
 // Theme variables
-$key-color: #e30400;
-$bg-color: #efeae7;
-$bg-text-color: darken($bg-color, 5%);
-$link-color: #591f1c;
-$text-color: #6d6161;
+//   Colors
+$key-color:     hsl(1, 100%, 45%);
+$bg-color:      hsl(22, 20%, 92%);
+$link-color:    hsl(3, 52%, 23%);
+$text-color:    hsl(0, 6%, 40%);
 
+//   Typography
 $header-font-stack: mencken-std-head-narrow, serif;
-$body-font-stack: neuzeit-grotesk, sans-serif;
+$body-font-stack:   neuzeit-grotesk, sans-serif;
 
-$ui-border-radius: 2px;
+$h1-font-size:      14em;
+$h1-line-height:    normal;
+$h1-color:          darken($bg-color, 5%);
 
-$transition-time: 0.1s;
+$h2-font-size:      3em;
+$h2-line-height:    0.8em;
+$h2-color:          $link-color;
+
+//   Style
+$ui-border-style:   1px solid $text-color;
+$ui-border-radius:  2px;
+
+//   Animation
+$transition-time:   0.1s;
+
+//   Buttons
+$button-border-style-inactive:  1px solid $link-color;
+$button-border-style-active:    1px solid $key-color;
+$button-padding:                6px 20px;
 
 *,
 *:before,

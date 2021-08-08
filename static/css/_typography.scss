@@ -1,18 +1,18 @@
-// TYPOGRAPHY
 // Headers
 h1, h2 {
     font-family: $header-font-stack;
 }
 
 h1 {
-    color: $bg-text-color;
-    font-size: 14em;
+    font-size: $h1-font-size;
+    line-height: $h1-line-height;
+    color: $h1-color;
 }
 
 h2 {
-    color: $link-color;
-    font-size: 3em;
-    line-height: 0.8em;
+    font-size: $h2-font-size;
+    line-height: $h2-line-height;
+    color: $h2-color;
 }
 
 // Body

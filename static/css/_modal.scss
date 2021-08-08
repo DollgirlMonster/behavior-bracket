@@ -6,7 +6,7 @@ div[id^="ui__"] {
     top: 40%;
     margin: auto 10% auto 8%;
     padding: 0 1em 1em;
-    border: 1px solid $text-color;
+    border: $ui-border-style;
     background-color: $bg-color;
 }
 
