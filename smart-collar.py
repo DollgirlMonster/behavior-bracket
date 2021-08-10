@@ -362,8 +362,6 @@ class beepThread(Thread):
 # Thread: Motion update thread
 class motionThread(Thread):
     def __init__(self):
-        self.delay = 0.03
-
         berryimu.init()
 
         # Data vars so we can reference later
@@ -600,8 +598,6 @@ class motionThread(Thread):
 
             # Check for compliance
             self.testCompliance(motion)
-            
-            sleep(self.delay)
 
     def run(self):
         self.getMotion()
