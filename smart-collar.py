@@ -362,16 +362,16 @@ class motionThread(Thread):
         berryimu.init()
 
         # Data vars so we can reference later
-        # self.AccX = 0
-        # self.AccY = 0
-        # self.AccZ = 0
+        self.AccX = 0
+        self.AccY = 0
+        self.AccZ = 0
         # self.AccXAngle = 0
         # self.AccYangle = 0
-        # self.gyroXangle = 0
-        # self.gyroYangle = 0
-        # self.gyroZangle = 0
-        # self.CFangleX = 0
-        # self.CFangleY = 0
+        self.gyroXangle = 0
+        self.gyroYangle = 0
+        self.gyroZangle = 0
+        self.CFangleX = 0
+        self.CFangleY = 0
         # self.heading = 0
         # self.tiltCompensatedHeading = 0
         self.kalmanX = 0
@@ -514,16 +514,16 @@ class motionThread(Thread):
             motion = berryimu.getValues()
 
             # Update values
-            # self.AccX = motion['AccX']
-            # self.AccY = motion['AccX']
-            # self.AccZ = motion['AccX']
+            self.AccX = motion['AccX']
+            self.AccY = motion['AccX']
+            self.AccZ = motion['AccX']
             # self.AccXAngle = motion['AccXangle']
             # self.AccYangle = motion['AccYangle']
-            # self.gyroXangle = motion['gyroXangle']
-            # self.gyroYangle = motion['gyroYangle']
-            # self.gyroZangle = motion['gyroZangle']
-            # self.CFangleX = motion['CFangleX']
-            # self.CFangleY = motion['CFangleY']
+            self.gyroXangle = motion['gyroXangle']
+            self.gyroYangle = motion['gyroYangle']
+            self.gyroZangle = motion['gyroZangle']
+            self.CFangleX = motion['CFangleX']
+            self.CFangleY = motion['CFangleY']
             # self.heading = motion['heading']
             # self.tiltCompensatedHeading = motion['tiltCompensatedHeading']
             self.kalmanX = motion['kalmanX']

@@ -18,23 +18,23 @@
             <b>Mode:</b> <span id="mode">off</span><br />
             <b>Compliance:</b> <span id="compliance">??</span>
         </p>
-        <!-- <p>
+        <p>
             <b>AccX:</b> <span id="AccX">??</span> <br />
             <b>AccY:</b> <span id="AccY">??</span> <br />
             <b>AccZ:</b> <span id="AccZ">??</span> <br />
 
-            <b>AccXangle:</b> <span id="AccXangle">??</span> <br />
-            <b>AccYangle:</b> <span id="AccYangle">??</span> <br />
-        </p> -->
+            <!-- <b>AccXangle:</b> <span id="AccXangle">??</span> <br />
+            <b>AccYangle:</b> <span id="AccYangle">??</span> <br /> -->
+        </p>
         <p>
             <b>CFangleX</b> <span id="CFangleX">??</span> <br />
             <b>CFangleY:</b> <span id="CFangleY">??</span> <br />
         </p>
-        <!-- <p>
+        <p>
             <b>GyroX:</b> <span id="gyroXangle">??</span> <br />
             <b>GyroY:</b> <span id="gyroYangle">??</span> <br />
             <b>GyroZ:</b> <span id="gyroZangle">??</span> <br />
-        </p> -->
+        </p>
         <!-- <p>
             <b>Heading:</b> <span id="heading">??</span> <br />
             <b>Heading (Tilt Compensated):</b> <span id="tiltCompensatedHeading">??</span> <br />
@@ -125,19 +125,19 @@
         // Motion data
         socket.on('motion', function(msg) {
             // console.log("Recieved motion update")
-            // $('#AccX').html(msg.AccX.toString())
-            // $('#AccY').html(msg.AccY.toString())
-            // $('#AccZ').html(msg.AccZ.toString())
+            $('#AccX').html(msg.AccX.toString())
+            $('#AccY').html(msg.AccY.toString())
+            $('#AccZ').html(msg.AccZ.toString())
 
             // $('#AccXangle').html(msg.AccXangle.toString())
             // $('#AccYangle').html(msg.AccYangle.toString())
 
-            // $('#gyroXangle').html(msg.gyroXangle.toString())
-            // $('#gyroYangle').html(msg.gyroYangle.toString())
-            // $('#gyroZangle').html(msg.gyroZangle.toString()) 
+            $('#gyroXangle').html(msg.gyroXangle.toString())
+            $('#gyroYangle').html(msg.gyroYangle.toString())
+            $('#gyroZangle').html(msg.gyroZangle.toString()) 
 
-            // $('#CFangleX').html(msg.CFangleX.toString())
-            // $('#CFangleY').html(msg.CFangleY.toString())
+            $('#CFangleX').html(msg.CFangleX.toString())
+            $('#CFangleY').html(msg.CFangleY.toString())
 
             // $('#heading').html(msg.heading.toString())
             // $('#tiltCompensatedHeading').html(msg.tiltCompensatedHeading.toString())
