@@ -31,7 +31,6 @@ mode = 'off'                # Operation mode for the collar -- determines what l
 requestPunishment = False   # Whether or not the collar should be transmitting the punish signal
 requestBeep = 0             # Whether the collar should beep: 0 is no beeps, set number for number of beeps
 punishmentIntensity = 50    # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
-enableDockLock = False      # Whether or not we should punish the wearer if the charger is disconnected
 
 safetyMode = True           # Vibrate only -- change to False to enable shock
 
@@ -60,7 +59,8 @@ class EdgeDetector:
 # Init config
 # TODO: Most globals will slowly be ported over to here as I get around to it
 app.config.update(
-    moCap = False,  # Whether we should log motion data
+    moCap =     False,  # Whether we should log motion data
+    dockLock =  False,  # Whether to enable Dock Lock (punish wearer if charger disconnected)
 )
 
 # ooooooooooooo oooo                                           .o8           
@@ -259,10 +259,8 @@ class pwrThread(Thread):
                 'foo': 'bar',
             }, namespace='/test')
 
-    def dockLockCheck(self):
+    def chargingCheck(self):
         """ Returns false if the collar should be charging and is not """
-        # Need visibility of enableDockLock
-        global enableDockLock
         
         if self.charging.value:       # If the charger is connected, wearer is in the clear
             return True
@@ -275,7 +273,6 @@ class pwrThread(Thread):
         Check the system battery level and broadcast to a socketio instance
         """
         # Need visiblity of global vars for communication
-        global enableDockLock
         global requestPunishment
         global requestBeep
 
@@ -306,8 +303,8 @@ class pwrThread(Thread):
                 self.charging.value = False
 
             # If the state just changed, do dock lock check
-            if enableDockLock:   # If Dock Lock enabled
-                if self.dockLockCheck():    # User just plugged in and dock lock passed
+            if app.config['dockLock']:   # If Dock Lock enabled
+                if self.chargingCheck():    # User just plugged in and dock lock passed
                     if self.charging.edgeDetect():
                         requestBeep = 2
                 else:                       # User is unplugged when they shouldn't be
@@ -317,13 +314,13 @@ class pwrThread(Thread):
                 
             # If charge is over 90, disable Dock Lock
             # if self.percent >= 90:
-            #     enableDockLock = False
+            #     app.config.update(dockLock = False)
 
             # Broadcast to WebUI
             socketio.emit('battery', {
                 'percent': self.avgPercent,
                 'charging': self.charging.value,
-                'dockLock': enableDockLock,
+                'dockLock': app.config['dockLock'],
             }, namespace='/test')
 
             sleep(0.25)
@@ -658,10 +655,7 @@ def intensity_select(msg):
 # Dock Lock
 @socketio.on('dockLock', namespace='/test')
 def dock_lock(msg):
-    # Need visibility of global dock lock var
-    global enableDockLock
-
-    enableDockLock = msg['enabled']
+    app.config.update(dockLock = msg['enabled'])
 
 # Update request
 @socketio.on('update', namespace='/test')
@@ -669,13 +663,12 @@ def update(msg):
     # Need visibility of global vars to display in UI
     global mode
     global punishmentIntensity
-    global enableDockLock
 
     socketio.emit('update', 
         {
             'mode': mode,
             'intensity': punishmentIntensity,
-            'dockLock': enableDockLock,
+            'dockLock': app.config['dockLock'],
         }, namespace='/test')
 
 # Shut down request
