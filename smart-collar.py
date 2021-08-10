@@ -31,8 +31,6 @@ requestPunishment = False   # Whether or not the collar should be transmitting t
 requestBeep = 0             # Whether the collar should beep: 0 is no beeps, set number for number of beeps
 punishmentIntensity = 50    # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
 
-safetyMode = True           # Vibrate only -- change to False to enable shock
-
 gpio = pigpio.pi()          # Set up gpio
 
 class EdgeDetector:
@@ -58,9 +56,10 @@ class EdgeDetector:
 # Init config
 # TODO: Most globals will slowly be ported over to here as I get around to it
 app.config.update(
-    mode =      'off',  # Operation mode for the device -- decides what logic is used for compliance determination
-    moCap =     False,  # Whether we should log motion data
-    dockLock =  False,  # Whether to enable Dock Lock (punish wearer if charger disconnected)
+    mode =          'off',  # Operation mode for the device -- decides what logic is used for compliance determination
+    safetyMode =    True,   # If true, shocks will instead be delivered as vibrations
+    moCap =         False,  # Whether we should log motion data
+    dockLock =      False,  # Whether to enable Dock Lock (punish wearer if charger disconnected)
 )
 
 # ooooooooooooo oooo                                           .o8           
@@ -148,19 +147,21 @@ class radioThread(Thread):
         Create a bytestring to transmit to the shock unit using a given mode, power, and channel
         By default vibrates at 50 power for 1 second
         """
-        # Need visibility of intensity so we know what power to set, safetyMode to know if shock or vibrate
+        # Need visibility of intensity so we know what power to set
         global punishmentIntensity
-        global safetyMode
+        
         txPower = punishmentIntensity
 
         # Power 0-2 causes errors, so we just set to vibrate mode if power is low
-        # something something experience design
-        if int(txPower) < 3 and txMode is not 2:
-            txPower = 30
-            if safetyMode:  txMode = 3  # Vibrate
-            else:           txMode = 4  # Shock
+        if int(txPower) < 3:    # If power is less than 3
+            txPower = 30    # Set power to 30
+            txMode = 3      # Set mode to vibrate
         elif txMode is 1:   # Set power for LED flash
             txPower = 10
+
+        # Check safety
+        if app.config['safetyMode'] and txMode == 4:    # If we're about to shock and safety mode is on
+            txMode = 3                                  # Vibrate instead
 
         # Set power
         # power_binary = '0000101'
