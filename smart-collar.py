@@ -411,9 +411,9 @@ class motionThread(Thread):
         Mdelta = (self.motionHistory[-1]['AccX'] + self.motionHistory[-1]['AccY'] + self.motionHistory[-1]['AccZ']) - m
 
         # Send to the debug page
-        # socketio.emit('Mdelta', {
-        #     'Mdelta': Mdelta,
-        # }, namespace='/test')
+        socketio.emit('Mdelta', {
+            'Mdelta': Mdelta,
+        }, namespace='/test')
 
         return Mdelta
 
@@ -434,8 +434,9 @@ class motionThread(Thread):
         """
         Mdelta = self.getMotionDelta()
 
+        motionThreshold = 80    # Activation threshold
+
         # Check values against threshold
-        motionThreshold = 50
         if Mdelta > motionThreshold or Mdelta < - motionThreshold:
             return False
         else:
@@ -467,10 +468,11 @@ class motionThread(Thread):
         """
         Posture mode: wearer must remain completely upright
         """
-        postureThreshold = 8
+        postureThreshold = 8    # Activation threshold
+        Ycalibration = 30       # Account for the angle of the collar itself on the Y axis
 
         if self.kalmanX < -postureThreshold or self.kalmanX > postureThreshold \
-        or self.kalmanY < -postureThreshold or self.kalmanY > postureThreshold:
+        or self.kalmanY < -postureThreshold - Ycalibration or self.kalmanY > postureThreshold - Ycalibration:
             return False
         else:
             return True
