@@ -381,6 +381,7 @@ class motionThread(Thread):
         # self.tiltCompensatedHeading = 0
         self.kalmanX = 0
         self.kalmanY = 0
+        self.loopTime = 0
 
         self.motionHistory = []         # List of dicts with values AccX, AccY, AccZ, kalmanX, kalmanY
         self.stickyPunishment = False   # Bool to punish user "until something happens"
@@ -533,6 +534,7 @@ class motionThread(Thread):
             # self.tiltCompensatedHeading = motion['tiltCompensatedHeading']
             self.kalmanX = motion['kalmanX']
             self.kalmanY = motion['kalmanY']
+            self.loopTime = motion['loopTime']
 
             # Update web UI with motion data
             socketio.emit('motion', {
@@ -555,6 +557,8 @@ class motionThread(Thread):
 
                 'kalmanX': motion['kalmanX'],
                 'kalmanY': motion['kalmanY'],
+
+                'loopTime': motion['loopTime'],
             }, namespace='/test')
 
             # Update history with acceleration & rotation

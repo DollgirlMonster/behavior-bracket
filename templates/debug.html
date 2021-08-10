@@ -45,6 +45,7 @@
         </p>
         <p>
             <b>Motion Delta:</b> <span id="Mdelta">??</span> <br />
+            <b>Motion Loop Time:</b> <span id="loopTime">??</span> <br />
         </p>
         <p>
             <b>Motion Snapshot:</b> <span id="moCap--status">Not Capturing</span>
@@ -158,6 +159,8 @@
 
             $('#kalmanX').html((msg.kalmanX).toString())
             $('#kalmanY').html((msg.kalmanY).toString())
+
+            $('#loopTime').html((msg.loopTime).toString())
 
             // Animate the boi
             const animate = function () {

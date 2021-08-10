@@ -437,7 +437,9 @@ def getValues():
         'tiltCompensatedHeading': tiltCompensatedHeading,
 
         'kalmanX': kalmanX,
-        'kalmanY': kalmanY
+        'kalmanY': kalmanY,
+
+        'loopTime': LP,
     }
 
     # #slow program down a bit, makes the output more readable
