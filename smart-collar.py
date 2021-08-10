@@ -27,7 +27,6 @@ thread = Thread()
 thread_stop_event = Event()
 
 # Init global variables
-mode = 'off'                # Operation mode for the collar -- determines what logic is used for compliance determination
 requestPunishment = False   # Whether or not the collar should be transmitting the punish signal
 requestBeep = 0             # Whether the collar should beep: 0 is no beeps, set number for number of beeps
 punishmentIntensity = 50    # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
@@ -59,6 +58,7 @@ class EdgeDetector:
 # Init config
 # TODO: Most globals will slowly be ported over to here as I get around to it
 app.config.update(
+    mode =      'off',  # Operation mode for the device -- decides what logic is used for compliance determination
     moCap =     False,  # Whether we should log motion data
     dockLock =  False,  # Whether to enable Dock Lock (punish wearer if charger disconnected)
 )
@@ -482,12 +482,12 @@ class motionThread(Thread):
         global requestPunishment    # Get visibility of should transmit bool
         global requestBeep          # Get visibility of beep queue
 
-        if mode == 'off':           self.compliance.value = True
-        elif mode == 'freeze':      self.compliance.value = self.freezeTest()
-        elif mode == 'pet':         self.compliance.value = self.petTest()
-        elif mode == 'sleepDep':    self.compliance.value = self.sleepDepTest()
-        elif mode == 'random':      self.compliance.value = self.randomTest()
-        elif mode == 'posture':     self.compliance.value = self.postureTest()
+        if app.config['mode'] == 'off':           self.compliance.value = True
+        elif app.config['mode'] == 'freeze':      self.compliance.value = self.freezeTest()
+        elif app.config['mode'] == 'pet':         self.compliance.value = self.petTest()
+        elif app.config['mode'] == 'sleepDep':    self.compliance.value = self.sleepDepTest()
+        elif app.config['mode'] == 'random':      self.compliance.value = self.randomTest()
+        elif app.config['mode'] == 'posture':     self.compliance.value = self.postureTest()
 
         socketio.emit('compliance', {
             'compliance': self.compliance.value,
@@ -639,10 +639,7 @@ def test_connect():
 # Mode selection
 @socketio.on('mode', namespace='/test')
 def mode_select(msg):
-    # Need visibility of global mode var
-    global mode
-
-    mode = msg['mode']
+    app.config.update(mode = msg['mode'])
 
 # Intenstiy setting
 @socketio.on('intensity', namespace='/test')
@@ -666,7 +663,7 @@ def update(msg):
 
     socketio.emit('update', 
         {
-            'mode': mode,
+            'mode': app.config['mode'],
             'intensity': punishmentIntensity,
             'dockLock': app.config['dockLock'],
         }, namespace='/test')
