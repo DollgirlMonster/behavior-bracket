@@ -7,7 +7,7 @@
 
 <body>
     <div>
-        <canvas id="livePreview" width="700" height="300"><p class="noCanvas">Sorry, your browser doesn't support HTML5 Canvas</p></canvas>
+        <canvas id="livePreview" width="300" height="300"><p class="noCanvas">Sorry, your browser doesn't support HTML5 Canvas</p></canvas>
     </div>
 
     <div>
@@ -26,10 +26,10 @@
             <b>AccXangle:</b> <span id="AccXangle">??</span> <br />
             <b>AccYangle:</b> <span id="AccYangle">??</span> <br />
         </p> -->
-        <!-- <p>
+        <p>
             <b>CFangleX</b> <span id="CFangleX">??</span> <br />
             <b>CFangleY:</b> <span id="CFangleY">??</span> <br />
-        </p> -->
+        </p>
         <!-- <p>
             <b>GyroX:</b> <span id="gyroXangle">??</span> <br />
             <b>GyroY:</b> <span id="gyroYangle">??</span> <br />
@@ -46,13 +46,6 @@
         <p>
             <b>Motion Delta:</b> <span id="Mdelta">??</span> <br />
         </p>
-    </div>
-
-    <div id="mode-select">
-        <a class="button" id="modeOff" checked>Off</a>
-        <a class="button" id="modeFreeze" checked>Freeze Mode</a>
-        <a class="button" id="modePet" checked>Pet Mode</a>
-        <a class="button" id="modeSleepDep" checked>Sleep Deprivation Mode</a>
     </div>
 </body>
 
@@ -78,9 +71,17 @@
 
     // https://youtu.be/4aGDCE6Nrz0 CYOOB
     const geometry = new THREE.BoxGeometry();
-    const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+    const material = new THREE.MeshBasicMaterial( { 
+        color: 0x00ff00,
+        wireframe: true,
+    } );
     const cube = new THREE.Mesh( geometry, material );
     scene.add( cube );
+    const light = new THREE.HemisphereLight(0xd90368, 0x64a6bd, 2);
+    scene.add(light);
+    var frontLight = new THREE.DirectionalLight(0xffffff, 1);
+    frontLight.position.set(3000, 300, 3000).normalize();
+    scene.add(frontLight);
 
     // Plonk camera
     camera.position.y = 3;
