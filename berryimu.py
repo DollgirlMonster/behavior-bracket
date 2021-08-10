@@ -153,16 +153,14 @@ def kalmanFilterX ( accAngle, gyroRate, DT):
     return KFangleX
 
 def init():
-    for i in range(0, 5):   # Try a couple times to detect IMU
-        IMU.detectIMU()     #Detect if BerryIMU is connected.
-        if(IMU.BerryIMUversion == 99):
-            print(" No BerryIMU found... exiting ")
-            continue
-        else:
+    for i in range(0, 5):       # Try a couple times to detect IMU
+        if(IMU.detectIMU()):    # Detect if BerryIMU is connected.
             break
+        else:
+            print(" No BerryIMU found!")
+            continue
+
     IMU.initIMU()       #Initialise the accelerometer, gyroscope and compass
-
-
 
 #Setup the tables for the mdeian filter. Fill them all with '1' so we dont get devide by zero error
 acc_medianTable1X = [1] * ACC_MEDIANTABLESIZE

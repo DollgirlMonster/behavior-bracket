@@ -16,11 +16,11 @@ def detectIMU():
         LIS3MDL_WHO_AM_I_response = (bus.read_byte_data(LIS3MDL_ADDRESS, LIS3MDL_WHO_AM_I))
 
     except IOError as f:
-        print('')        #need to do something here, so we just print a space
+        return False    # IMU detection failed
     else:
         if (LSM6DSL_WHO_AM_I_response == 0x6A) and (LIS3MDL_WHO_AM_I_response == 0x3D):
             print("Found BerryIMUv3 (LSM6DSL and LIS3MDL)")
-    time.sleep(1)
+            return True # IMU detection success
 
 def writeByte(device_address,register,value):
     bus.write_byte_data(device_address, register, value)
