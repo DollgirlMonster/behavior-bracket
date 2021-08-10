@@ -1,6 +1,7 @@
 import os
 import subprocess
 import random
+import csv
 from threading import Thread, Event
 from time import sleep, localtime
 
@@ -55,6 +56,12 @@ class EdgeDetector:
         else: 
             self.last_value = self.value
             return False
+
+# Init config
+# TODO: Most globals will slowly be ported over to here as I get around to it
+app.config.update(
+    moCap = False,  # Whether we should log motion data
+)
 
 # ooooooooooooo oooo                                           .o8           
 # 8'   888   `8 `888                                          "888           
@@ -531,19 +538,19 @@ class motionThread(Thread):
 
             # Update web UI with motion data
             socketio.emit('motion', {
-                # 'AccX': motion['AccX'], 
-                # 'AccY': motion['AccY'], 
-                # 'AccZ': motion['AccZ'], 
+                'AccX': motion['AccX'], 
+                'AccY': motion['AccY'], 
+                'AccZ': motion['AccZ'], 
 
                 # 'AccXangle': motion['AccXangle'], 
                 # 'AccYangle': motion['AccYangle'],
 
-                # 'gyroXangle': motion['gyroXangle'],
-                # 'gyroYangle': motion['gyroYangle'],
-                # 'gyroZangle': motion['gyroZangle'],
+                'gyroXangle': motion['gyroXangle'],
+                'gyroYangle': motion['gyroYangle'],
+                'gyroZangle': motion['gyroZangle'],
 
-                # 'CFangleX': motion['CFangleX'],
-                # 'CFangleY': motion['CFangleY'],
+                'CFangleX': motion['CFangleX'],
+                'CFangleY': motion['CFangleY'],
 
                 # 'heading': motion['heading'],
                 # 'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
@@ -562,6 +569,32 @@ class motionThread(Thread):
             })
             if len(self.motionHistory) > 20:
                 del self.motionHistory[0]
+
+            # Motion snapshot
+            if app.config['moCap']:     # If motion logging enabled
+                with open('motion.csv', 'w', newline='') as file:
+                    writer = csv.DictWriter(file, fieldnames = motion.keys())
+                    writer.writerow({
+                        'AccX': motion['AccX'], 
+                        'AccY': motion['AccY'], 
+                        'AccZ': motion['AccZ'], 
+
+                        'AccXangle': motion['AccXangle'], 
+                        'AccYangle': motion['AccYangle'],
+
+                        'gyroXangle': motion['gyroXangle'],
+                        'gyroYangle': motion['gyroYangle'],
+                        'gyroZangle': motion['gyroZangle'],
+
+                        'CFangleX': motion['CFangleX'],
+                        'CFangleY': motion['CFangleY'],
+
+                        'heading': motion['heading'],
+                        'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
+
+                        'kalmanX': motion['kalmanX'],
+                        'kalmanY': motion['kalmanY'],
+                    })
 
             # Check for compliance
             self.testCompliance(motion)
@@ -587,6 +620,12 @@ def debug():
         'debug.html',
         title = 'Smart Collar Debug',
     )
+
+# Motion Data Snapshot
+@socketio.on('moCap', namespace='/test')
+def mocap_toggle(msg):
+    if msg['moCap']:    app.config.update(moCap = True)
+    else:               app.config.update(moCap = False)
 
 @app.route('/', methods=["GET"])
 def control():

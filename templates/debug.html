@@ -46,6 +46,20 @@
         <p>
             <b>Motion Delta:</b> <span id="Mdelta">??</span> <br />
         </p>
+        <p>
+            <b>Motion Snapshot:</b> <span id="moCap--status">Not Capturing</span>
+        </p>
+    </div>
+
+    <div>
+        <ul class="ctl__buttons">
+            <li>
+                <a id="ctl__moCap--on" class="button">Start Motion Snapshot</a>
+            </li>
+            <li>
+                <a id="ctl__moCap--off" class="button">End Motion Snapshot</a>
+            </li>
+        </ul>
     </div>
 </body>
 
@@ -168,24 +182,13 @@
             $('#Mdelta').html(msg.Mdelta.toString());
         })
 
-        // Mode buttons
-        function switchMode(mode) {
-            console.log("Changed mode to " + mode)
-            socket.emit('mode', {'mode': mode});
-            $('#mode').html(mode)
-        }
-
-        $('#modeOff').click(function(event) {
-            switchMode('off');
+        $('#ctl__moCap--on').click(function(event) {
+            socket.emit('moCap', {'moCap': true});
+            $('#moCap--status').html("Capturing")
         });
-        $('#modeFreeze').click(function(event) {
-            switchMode('freeze');
-        });
-        $('#modePet').click(function(event) {
-            switchMode('pet');
-        });
-        $('#modeSleepDep').click(function(event) {
-            switchMode('sleepDep');
+        $('#ctl__moCap--off').click(function(event) {
+            socket.emit('moCap', {'moCap': false});
+            $('#moCap--status').html("Not Capturing")
         });
     })
 </script>
