@@ -3,7 +3,7 @@ import subprocess
 import random
 import csv
 from threading import Thread, Event
-from time import sleep, localtime
+from time import sleep, localtime, strftime
 
 from flask import Flask, request, abort, redirect, render_template  # Flask
 from flask_socketio import SocketIO, emit                           # flask-socketio
@@ -577,7 +577,7 @@ class motionThread(Thread):
                 with open('motion.csv', 'a', newline='') as file:
                     writer = csv.DictWriter(file, fieldnames = ['time'] + list(motion.keys()))
                     writer.writerow({
-                        'time': time.strftime('%a, %d %b %Y %H:%M:%S GMT', localtime()),
+                        'time': strftime('%a, %d %b %Y %H:%M:%S GMT', localtime()),
 
                         'AccX': motion['AccX'], 
                         'AccY': motion['AccY'], 
