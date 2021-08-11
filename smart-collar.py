@@ -575,7 +575,7 @@ class motionThread(Thread):
             # Motion snapshot
             if app.config['moCap']:     # If motion logging enabled
                 with open('motion.csv', 'a', newline='') as file:
-                    writer = csv.DictWriter(file, fieldnames = ['time'] + motion.keys())
+                    writer = csv.DictWriter(file, fieldnames = ['time'] + list(motion.keys()))
                     writer.writerow({
                         'time': localtime(),
 
