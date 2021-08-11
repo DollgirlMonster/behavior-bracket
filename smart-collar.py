@@ -629,7 +629,7 @@ def mocap_toggle(msg):
             writer = csv.DictWriter(file, fieldnames = ['AccX', 'AccY', 'AccZ', 'AccXangle', 'AccYangle', 'gyroXangle', 'gyroYangle', 'gyroZangle', 'CFangleX', 'CFangleY', 'heading', 'tiltCompensatedHeading', 'kalmanX', 'kalmanY'])
             writer.writeheader()
         app.config.update(moCap = True)                                 # Turn on motion capture
-    else:               +
+    else:
         app.config.update(moCap = False)
 
 @app.route('/', methods=["GET"])
