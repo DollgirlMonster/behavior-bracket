@@ -577,6 +577,8 @@ class motionThread(Thread):
                 with open('motion.csv', 'a', newline='') as file:
                     writer = csv.DictWriter(file, fieldnames = motion.keys())
                     writer.writerow({
+                        'time': localtime(),
+
                         'AccX': motion['AccX'], 
                         'AccY': motion['AccY'], 
                         'AccZ': motion['AccZ'], 
@@ -626,7 +628,7 @@ def debug():
 def mocap_toggle(msg):
     if msg['moCap']:    
         with open('motion.csv', 'a', newline='') as file:               # Set up the .csv file headers
-            writer = csv.DictWriter(file, fieldnames = ['AccX', 'AccY', 'AccZ', 'AccXangle', 'AccYangle', 'gyroXangle', 'gyroYangle', 'gyroZangle', 'CFangleX', 'CFangleY', 'heading', 'tiltCompensatedHeading', 'kalmanX', 'kalmanY'])
+            writer = csv.DictWriter(file, fieldnames = ['time', 'AccX', 'AccY', 'AccZ', 'AccXangle', 'AccYangle', 'gyroXangle', 'gyroYangle', 'gyroZangle', 'CFangleX', 'CFangleY', 'heading', 'tiltCompensatedHeading', 'kalmanX', 'kalmanY'])
             writer.writeheader()
         app.config.update(moCap = True)                                 # Turn on motion capture
     else:
