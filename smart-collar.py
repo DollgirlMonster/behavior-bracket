@@ -624,8 +624,13 @@ def debug():
 # Motion Data Snapshot
 @socketio.on('moCap', namespace='/test')
 def mocap_toggle(msg):
-    if msg['moCap']:    app.config.update(moCap = True)
-    else:               app.config.update(moCap = False)
+    if msg['moCap']:    
+        with open('motion.csv', 'a', newline='') as file:               # Set up the .csv file headers
+            writer = csv.DictWriter(file, fieldnames = ['AccX', 'AccY', 'AccZ', 'AccXangle', 'AccYangle', 'gyroXangle', 'gyroYangle', 'gyroZangle', 'CFangleX', 'CFangleY', 'heading', 'tiltCompensatedHeading', 'kalmanX', 'kalmanY'])
+            writer.writeheader()
+        app.config.update(moCap = True)                                 # Turn on motion capture
+    else:               +
+        app.config.update(moCap = False)
 
 @app.route('/', methods=["GET"])
 def control():
