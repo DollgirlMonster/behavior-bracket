@@ -577,7 +577,7 @@ class motionThread(Thread):
                 with open('motion.csv', 'a', newline='') as file:
                     writer = csv.DictWriter(file, fieldnames = ['time'] + list(motion.keys()))
                     writer.writerow({
-                        'time': localtime(),
+                        'time': time.strftime('%a, %d %b %Y %H:%M:%S GMT', localtime()),
 
                         'AccX': motion['AccX'], 
                         'AccY': motion['AccY'], 
