@@ -6,8 +6,6 @@ This project pairs a gyroscope and accelerometer with a Raspberry Pi Zero W and 
 
 For now, the collar pairs with an E-Sky 998DR-1 shock collar to deliver the shock. This model is tricky to find these days, but similar models from other manufactuers are available. Beware however, as other collars may operate on a different frequency or protocol -- YMMV.
 
-Once the case is finalized I'll upload the .stl file to this repo.
-
 ### Donate/Contact
 If you like or use this project, please consider [donating](https://ko-fi.com/penelopede) so that I can keep working on this and other kinky engineering stuff!
 
