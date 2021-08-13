@@ -9,6 +9,9 @@
  - `S.*.*`
     - Layer height: 0.3mm
     - No rafts or supports
+ - `K.*.*`
+    - Layer height: 0.15mm
+    - No rafts or supports
 
 ## Changelog
 
