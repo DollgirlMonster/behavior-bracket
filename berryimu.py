@@ -331,10 +331,18 @@ def getValues():
 
     #Change the rotation value of the accelerometer to -/+ 180 and
     #move the Y axis '0' point to up.  This makes it easier to read.
-    if AccYangle > 90:
-        AccYangle -= 270.0
-    else:
-        AccYangle += 90.0
+    # if AccYangle > 90:
+    #     AccYangle -= 270.0
+    # else:
+    #     AccYangle += 90.0
+
+    # Flip values for rotated device
+    if AccXangle > 180:
+        AccXangle -= 360.0
+        
+    AccYangle -= 90
+    if AccYangle > 180:
+        AccYangle -= 360.0
 
 
     #Complementary filter used to combine the accelerometer and gyro values.
