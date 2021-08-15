@@ -59,13 +59,13 @@ Dont use the above values, these are just an example.
 '''
 ############### END Calibration offsets #################
 
-
 #Kalman filter variables
 Q_angle = 0.02
 Q_gyro = 0.0015
 R_angle = 0.005
 y_bias = 0.0
 x_bias = 0.0
+z_bias = 0.0
 XP_00 = 0.0
 XP_01 = 0.0
 XP_10 = 0.0
@@ -74,12 +74,13 @@ YP_00 = 0.0
 YP_01 = 0.0
 YP_10 = 0.0
 YP_11 = 0.0
+ZP_00 = 0.0
+ZP_01 = 0.0
+ZP_10 = 0.0
+ZP_11 = 0.0
 KFangleX = 0.0
 KFangleY = 0.0
 KFangleZ = 0.0
-
-
-
 
 def kalmanFilterY ( accAngle, gyroRate, DT):
     y=0.0
