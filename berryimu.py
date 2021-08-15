@@ -215,7 +215,13 @@ mag_medianTable2Z = [1] * MAG_MEDIANTABLESIZE
 
 # Set up time for first loop time calculation
 a = datetime.datetime.now() 
-def getValues():
+def getValues(motionAlgorithm = 'accurate'):
+    """
+    motionAlgorithm determines whether to use complimentary filter or kalman filter to determine angles
+        'fast'      = CF filter
+        'accurate'  = Kalman filter
+    """
+
     global acc_medianTable1X
     global acc_medianTable1Y
     global acc_medianTable1Z
@@ -369,19 +375,29 @@ def getValues():
     AccZangle =  (math.atan2(ACCx,ACCy)+M_PI)*RAD_TO_DEG
 
     # Set values to 0,0 when device is upright
+    AccXangle -= 90.0
     AccYangle -= 180.0
     AccZangle -= 270.0
 
+    if motionAlgorithm == 'fast':
+        #Complementary filter used to combine the accelerometer and gyro values.
+        angleX = AA*(CFangleX+rate_gyr_x*LP) +(1 - AA) * AccXangle
+        angleY = AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle
+        angleZ = AA*(CFangleZ+rate_gyr_z*LP) +(1 - AA) * AccZangle
 
-    #Complementary filter used to combine the accelerometer and gyro values.
-    CFangleX=AA*(CFangleX+rate_gyr_x*LP) +(1 - AA) * AccXangle
-    CFangleY=AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle
-    CFangleZ=AA*(CFangleZ+rate_gyr_z*LP) +(1 - AA) * AccZangle
+        # Map ranges from +/- 50 to +/- 180
+        oldRange = 100
+        newRange = 360
 
-    #Kalman filter used to combine the accelerometer and gyro values.
-    kalmanY = kalmanFilterY(AccYangle, rate_gyr_y,LP)
-    kalmanX = kalmanFilterX(AccXangle, rate_gyr_x,LP)
-    kalmanZ = kalmanFilterZ(AccZangle, rate_gyr_z,LP)
+        angleX = (((angleX - (-50)) * newRange) / oldRange) + (-180)
+        angleY = (((angleY - (-50)) * newRange) / oldRange) + (-180)
+        angleZ = (((angleZ - (-50)) * newRange) / oldRange) + (-180)
+
+    elif motionAlgorithm == 'accurate':
+        #Kalman filter used to combine the accelerometer and gyro values.
+        angleX = kalmanFilterY(AccYangle, rate_gyr_y,LP)
+        angleY = kalmanFilterX(AccXangle, rate_gyr_x,LP)
+        angleZ = kalmanFilterZ(AccZangle, rate_gyr_z,LP)
 
     #Calculate heading
     heading = 180 * math.atan2(MAGy,MAGx)/M_PI
@@ -457,7 +473,9 @@ def getValues():
     # Package and return everything as a tidy dict
     return {
         'loopTime': LP,
-        
+
+        'motionAlgorithm': motionAlgorithm,
+
         'AccX': ACCx,
         'AccY': ACCy,
         'AccZ': ACCz,
@@ -470,16 +488,12 @@ def getValues():
         'gyroYangle': gyroYangle,
         'gyroZangle': gyroZangle,
 
-        'CFangleX': CFangleX,
-        'CFangleY': CFangleY,
-        'CFangleZ': CFangleZ,
+        'angleX': angleX,
+        'angleY': angleY,
+        'angleZ': angleZ,
 
         'heading': heading,
         'tiltCompensatedHeading': tiltCompensatedHeading,
-
-        'kalmanX': kalmanX,
-        'kalmanY': kalmanY,
-        'kalmanZ': kalmanZ,
     }
 
     # #slow program down a bit, makes the output more readable

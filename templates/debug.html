@@ -28,9 +28,9 @@
             <b>AccZangle:</b> <span id="AccZangle">??</span> <br />
         </p>
         <p>
-            <b>CFangleX</b> <span id="CFangleX">??</span> <br />
-            <b>CFangleY:</b> <span id="CFangleY">??</span> <br />
-            <b>CFangleZ:</b> <span id="CFangleZ">??</span> <br />
+            <b>angleX</b> <span id="angleX">??</span> <br />
+            <b>angleY:</b> <span id="angleY">??</span> <br />
+            <b>angleZ:</b> <span id="angleZ">??</span> <br />
         </p>
         <p>
             <b>GyroX:</b> <span id="gyroXangle">??</span> <br />
@@ -41,11 +41,6 @@
             <b>Heading:</b> <span id="heading">??</span> <br />
             <b>Heading (Tilt Compensated):</b> <span id="tiltCompensatedHeading">??</span> <br />
         </p> -->
-        <p>
-            <b>KalmanX:</b> <span id="kalmanX">??</span> <br />
-            <b>KalmanY:</b> <span id="kalmanY">??</span> <br />
-            <b>KalmanZ:</b> <span id="kalmanZ">??</span> <br />
-        </p>
         <p>
             <b>Motion Delta:</b> <span id="Mdelta">??</span> <br />
             <b>Motion Loop Time:</b> <span id="loopTime">??</span> <br />
@@ -147,24 +142,20 @@
             $('#gyroYangle').html(msg.gyroYangle.toString())
             $('#gyroZangle').html(msg.gyroZangle.toString()) 
 
-            $('#CFangleX').html(msg.CFangleX.toString())
-            $('#CFangleY').html(msg.CFangleY.toString())
-            $('#CFangleZ').html(msg.CFangleZ.toString())
+            $('#angleX').html(msg.angleX.toString())
+            $('#angleY').html(msg.angleY.toString())
+            $('#angleZ').html(msg.angleZ.toString())
 
             // $('#heading').html(msg.heading.toString())
             // $('#tiltCompensatedHeading').html(msg.tiltCompensatedHeading.toString())
-
-            $('#kalmanX').html((msg.kalmanX).toString())
-            $('#kalmanY').html((msg.kalmanY).toString())
-            $('#kalmanZ').html((msg.kalmanZ).toString())
 
             $('#loopTime').html((msg.loopTime).toString())
 
             // Animate the boi
             const animate = function () {
                 // cube.rotation.x = (msg.kalmanX + 180) * (Math.PI / 180);
-                cube.rotation.x = -(msg.kalmanY + 180) * (Math.PI / 180);
-                cube.rotation.z = (msg.kalmanZ + 180) * (Math.PI / 180);
+                cube.rotation.x = -(msg.angleY + 180) * (Math.PI / 180);
+                cube.rotation.z = (msg.angleZ + 180) * (Math.PI / 180);
 
                 renderer.render( scene, camera );
             }

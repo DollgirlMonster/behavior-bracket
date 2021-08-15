@@ -63,6 +63,7 @@ app.config.update(
     startupChime =      True,                   # Whether to play a beep at launch to let the user know the device is ready to connect
 
     emitMotionData =    True,                   # Whether to send motion values to debug page
+    motionAlgorithm =   'fast'                  # Algorithm used to calculate device rotation -- can be 'fast' or 'accurate'
 )
 
 # ooooooooooooo oooo                                           .o8           
@@ -396,12 +397,11 @@ class motionThread(Thread):
         self.gyroXangle = 0
         self.gyroYangle = 0
         self.gyroZangle = 0
-        self.CFangleX = 0
-        self.CFangleY = 0
+        self.angleX = 0
+        self.angleY = 0
+        self.angleZ = 0
         # self.heading = 0
         # self.tiltCompensatedHeading = 0
-        self.kalmanX = 0
-        self.kalmanY = 0
         self.loopTime = 0
 
         self.motionHistory = []         # List of dicts with values AccX, AccY, AccZ, kalmanX, kalmanY
@@ -540,7 +540,7 @@ class motionThread(Thread):
         Fetch motion data from the IMU
         """
         while not thread_stop_event.isSet():
-            motion = berryimu.getValues()
+            motion = berryimu.getValues(app.config['motionAlgorithm'])
 
             # Update values
             self.AccX = motion['AccX']
@@ -552,14 +552,11 @@ class motionThread(Thread):
             self.gyroXangle = motion['gyroXangle']
             self.gyroYangle = motion['gyroYangle']
             self.gyroZangle = motion['gyroZangle']
-            self.CFangleX = motion['CFangleX']
-            self.CFangleY = motion['CFangleY']
-            self.CFangleZ = motion['CFangleZ']
+            self.angleX = motion['angleX']
+            self.angleY = motion['angleY']
+            self.angleZ = motion['angleZ']
             # self.heading = motion['heading']
             # self.tiltCompensatedHeading = motion['tiltCompensatedHeading']
-            self.kalmanX = motion['kalmanX']
-            self.kalmanY = motion['kalmanY']
-            self.kalmanZ = motion['kalmanZ']
             self.loopTime = motion['loopTime']
 
             # Update web UI with motion data
@@ -577,16 +574,12 @@ class motionThread(Thread):
                     'gyroYangle': motion['gyroYangle'],
                     'gyroZangle': motion['gyroZangle'],
 
-                    'CFangleX': motion['CFangleX'],
-                    'CFangleY': motion['CFangleY'],
-                    'CFangleZ': motion['CFangleZ'],
+                    'angleX': motion['angleX'],
+                    'angleY': motion['angleY'],
+                    'angleZ': motion['angleZ'],
 
                     # 'heading': motion['heading'],
                     # 'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
-
-                    'kalmanX': motion['kalmanX'],
-                    'kalmanY': motion['kalmanY'],
-                    'kalmanZ': motion['kalmanZ'],
 
                     'loopTime': motion['loopTime'],
                 }, namespace='/test')
@@ -595,9 +588,7 @@ class motionThread(Thread):
             self.motionHistory.append({
                 'AccX': motion['AccX'], 
                 'AccY': motion['AccY'], 
-                'AccZ': motion['AccZ'], 
-                'kalmanX': motion['kalmanX'],
-                'kalmanY': motion['kalmanY'],
+                'AccZ': motion['AccZ'],
             })
             if len(self.motionHistory) > 20:
                 del self.motionHistory[0]
@@ -627,16 +618,12 @@ class motionThread(Thread):
                         'gyroYangle': motion['gyroYangle'],
                         'gyroZangle': motion['gyroZangle'],
 
-                        'CFangleX': motion['CFangleX'],
-                        'CFangleY': motion['CFangleY'],
-                        'CFangleZ': motion['CFangleZ'],
+                        'angleX': motion['angleX'],
+                        'angleY': motion['angleY'],
+                        'angleZ': motion['angleZ'],
 
                         'heading': motion['heading'],
                         'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
-
-                        'kalmanX': motion['kalmanX'],
-                        'kalmanY': motion['kalmanY'],
-                        'kalmanZ': motion['kalmanZ'],
                     })
 
             # Check for compliance
