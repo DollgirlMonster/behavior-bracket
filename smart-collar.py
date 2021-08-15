@@ -338,7 +338,7 @@ class pwrThread(Thread):
 class beepThread(Thread):
     def __init__(self):
         self.chirpLength =  0.02    # Length of a short beep
-        self.beepLength =   0.1     # Length of a long beep
+        self.beepLength =   0.6     # Length of a long beep
         self.restLength =   0.08    # Length of rest between beeps
 
         self.delay =        0.1    # Length of time to wait between checking whether we should beep
