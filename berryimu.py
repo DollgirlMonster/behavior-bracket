@@ -199,6 +199,7 @@ def getValues():
     gyroZangle = 0.0
     CFangleX = 0.0
     CFangleY = 0.0
+    CFangleZ = 0.0
     kalmanX = 0.0
     kalmanY = 0.0
     
