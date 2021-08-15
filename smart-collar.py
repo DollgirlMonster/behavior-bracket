@@ -60,6 +60,7 @@ app.config.update(
     safetyMode =    True,   # If true, shocks will instead be delivered as vibrations
     moCap =         False,  # Whether we should log motion data
     dockLock =      False,  # Whether to enable Dock Lock (punish wearer if charger disconnected)
+    startupChime =  True,   # Whether to play a beep at launch to let the user know the device is ready to connect
 )
 
 # ooooooooooooo oooo                                           .o8           
@@ -336,28 +337,47 @@ class pwrThread(Thread):
 # Thread: Beep thread
 class beepThread(Thread):
     def __init__(self):
-        self.chirpLength = 0.02     # Length of a single beep
-        self.delay = 0.08            # Length of time in between beeps, also length of time to wait between checking whether we should beep
+        self.chirpLength =  0.02    # Length of a short beep
+        self.beepLength =   0.1     # Length of a long beep
+        self.restLength =   0.08    # Length of rest between beeps
 
-        self.buzzerPin = 13         # GPIO pin for buzzer
+        self.delay =        0.1    # Length of time to wait between checking whether we should beep
+
+        self.buzzerPin =    13      # GPIO pin for buzzer
         
         super(beepThread, self).__init__()
 
-    def doBeep(self):
+    def doChirp(self):
         gpio.write(self.buzzerPin, 1)
         sleep(self.chirpLength)
         gpio.write(self.buzzerPin, 0)
 
-    def run(self):
+    def doBeep(self):
+        gpio.write(self.buzzerPin, 1)
+        sleep(self.beepLength)
+        gpio.write(self.buzzerPin, 0)
+
+    def waitLoop(self):
         # Need visibility of global beep request int
         global requestBeep
 
         while not thread_stop_event.isSet():
-            if requestBeep > 0:
+            while requestBeep > 0:
                 self.doBeep()
                 requestBeep -= 1
+                
+                sleep(self.restLength)
 
             sleep(self.delay)
+
+    def run(self):
+        # Play startup chime as soon as we can
+        if app.config['startupChime']:      # If chime is enabled
+            self.doChirp()
+            sleep(self.restLength)
+            self.doBeep()
+
+        self.waitLoop()
 
 # Thread: Motion update thread
 class motionThread(Thread):
