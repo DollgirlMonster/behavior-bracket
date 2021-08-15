@@ -404,7 +404,7 @@ class motionThread(Thread):
         # self.tiltCompensatedHeading = 0
         self.loopTime = 0
 
-        self.motionHistory = []         # List of dicts with values AccX, AccY, AccZ, GyroXangle, GyroYangle, GyroZangle
+        self.motionHistory = []         # List of dicts with values AccX, AccY, AccZ, gyroXangle, gyroYangle, gyroZangle
         self.stickyPunishment = False   # Bool to punish user "until something happens"
 
         self.compliance = EdgeDetector(True)    # Bool to keep track of whether or not wearer is complying with the selected ruleset
@@ -427,11 +427,11 @@ class motionThread(Thread):
         # Get the mean of the motion history values
         m = 0 
         for i in self.motionHistory:
-            m += i['GyroXangle'] + i['GyroYangle'] + i['GyroZangle']
+            m += i['gyroXangle'] + i['gyroYangle'] + i['gyroZangle']
         m = m / len(self.motionHistory)
 
         # Find delta
-        Mdelta = (self.motionHistory[-1]['GyroXangle'] + self.motionHistory[-1]['GyroYangle'] + self.motionHistory[-1]['GyroZangle']) - m
+        Mdelta = (self.motionHistory[-1]['gyroXangle'] + self.motionHistory[-1]['gyroYangle'] + self.motionHistory[-1]['gyroZangle']) - m
 
         # Send to the debug page
         socketio.emit('Mdelta', {
@@ -589,9 +589,9 @@ class motionThread(Thread):
                 'AccX': motion['AccX'], 
                 'AccY': motion['AccY'], 
                 'AccZ': motion['AccZ'],
-                'GyroXangle': motion['GyroXangle'],
-                'GyroYangle': motion['GyroYangle'],
-                'GyroZangle': motion['GyroZangle'],
+                'gyroXangle': motion['gyroXangle'],
+                'gyroYangle': motion['gyroYangle'],
+                'gyroZangle': motion['gyroZangle'],
             })
             if len(self.motionHistory) > 20:
                 del self.motionHistory[0]
