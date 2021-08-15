@@ -257,7 +257,7 @@
         //   Compliance
         socket.on('compliance', function(msg) {
             // If wearer is being punished, flash the intensity controls
-            if (msg.requestPunishment != False) {
+            if (msg.requestPunishment != false) {
                 $("#ctl__intensity").addClass('shock');
             } else {
                 $("#ctl__intensity").removeClass('shock');
