@@ -126,16 +126,8 @@
         console.log("Connected to Socket")
 
         // Recieve information from server
-
-        // Test value (random number generator)
-        // socket.on('randNumber', function(msg) {
-        //     console.log("Recieved random number " + msg.number.toString());
-        //     $('#testValue').html(msg.number.toString());
-        // })
-
         // Battery level
         socket.on('battery', function(msg) {
-            console.log("Recieved battery status update");
             $('#battLevel').html(msg.percent.toString());
             $('#battCharging').html(msg.charging.toString());
         })
@@ -182,8 +174,6 @@
 
         // Compliance
         socket.on('compliance', function(msg) {
-            // console.log("Recieved compliance update: " + msg.compliance.toString());
-
             $('#compliance').html(msg.compliance.toString());
         })
 

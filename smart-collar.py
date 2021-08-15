@@ -668,7 +668,7 @@ def mocap_toggle(msg):
     if msg['moCap']:    
         app.config['moCap'].value = True    # Turn on motion capture
     else:
-        app.config['moCap'].value = False   # Turn o motion capture
+        app.config['moCap'].value = False   # Turn off motion capture
 
 @app.route('/', methods=["GET"])
 def control():
