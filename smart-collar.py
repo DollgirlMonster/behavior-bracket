@@ -563,7 +563,7 @@ class motionThread(Thread):
             self.loopTime = motion['loopTime']
 
             # Update web UI with motion data
-            if app.config['emitMotionDate']:
+            if app.config['emitMotionData']:
                 socketio.emit('motion', {
                     'AccX': motion['AccX'], 
                     'AccY': motion['AccY'], 
