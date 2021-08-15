@@ -404,7 +404,7 @@ class motionThread(Thread):
         # self.tiltCompensatedHeading = 0
         self.loopTime = 0
 
-        self.motionHistory = []         # List of dicts with values AccX, AccY, AccZ, kalmanX, kalmanY
+        self.motionHistory = []         # List of dicts with values AccX, AccY, AccZ
         self.stickyPunishment = False   # Bool to punish user "until something happens"
 
         self.compliance = EdgeDetector(True)    # Bool to keep track of whether or not wearer is complying with the selected ruleset
@@ -415,7 +415,7 @@ class motionThread(Thread):
         """
         pet training mode: user's neck must face down (Y rotation between -130 to -50)
         """
-        if self.kalmanY > -130 and self.kalmanY < -50:
+        if self.angleY > -130 and self.angleY < -50:
             return True
         else:
             return False
@@ -494,8 +494,8 @@ class motionThread(Thread):
         postureThreshold = 20    # Activation threshold
         Ycalibration = -10      # Account for the angle of the device on the Y axis from its weight hanging from the collar
 
-        if self.kalmanZ < -postureThreshold or self.kalmanZ > postureThreshold \
-        or self.kalmanY < -postureThreshold + Ycalibration or self.kalmanY > postureThreshold + Ycalibration:
+        if self.angleZ < -postureThreshold or self.angleZ > postureThreshold \
+        or self.angleY < -postureThreshold + Ycalibration or self.angleY > postureThreshold + Ycalibration:
             return False
         else:
             return True
