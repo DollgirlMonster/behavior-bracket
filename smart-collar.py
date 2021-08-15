@@ -532,10 +532,12 @@ class motionThread(Thread):
             self.gyroZangle = motion['gyroZangle']
             self.CFangleX = motion['CFangleX']
             self.CFangleY = motion['CFangleY']
+            self.CFangleZ = motion['CFangleZ']
             # self.heading = motion['heading']
             # self.tiltCompensatedHeading = motion['tiltCompensatedHeading']
             self.kalmanX = motion['kalmanX']
             self.kalmanY = motion['kalmanY']
+            self.kalmanZ = motion['kalmanZ']
             self.loopTime = motion['loopTime']
 
             # Update web UI with motion data
@@ -554,12 +556,14 @@ class motionThread(Thread):
 
                 'CFangleX': motion['CFangleX'],
                 'CFangleY': motion['CFangleY'],
+                'CFangleZ': motion['CFangleZ'],
 
                 # 'heading': motion['heading'],
                 # 'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
 
                 'kalmanX': motion['kalmanX'],
                 'kalmanY': motion['kalmanY'],
+                'kalmanZ': motion['kalmanZ'],
 
                 'loopTime': motion['loopTime'],
             }, namespace='/test')
@@ -596,12 +600,14 @@ class motionThread(Thread):
 
                         'CFangleX': motion['CFangleX'],
                         'CFangleY': motion['CFangleY'],
+                        'CFangleZ': motion['CFangleZ'],
 
                         'heading': motion['heading'],
                         'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
 
                         'kalmanX': motion['kalmanX'],
                         'kalmanY': motion['kalmanY'],
+                        'kalmanZ': motion['kalmanZ'],
                     })
 
             # Check for compliance

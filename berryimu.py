@@ -152,6 +152,42 @@ def kalmanFilterX ( accAngle, gyroRate, DT):
 
     return KFangleX
 
+def kalmanFilterZ ( accAngle, gyroRate, DT):
+    Z=0.0
+    S=0.0
+
+    global KFangleZ
+    global Q_angle
+    global Q_gyro
+    global z_bias
+    global ZP_00
+    global ZP_01
+    global ZP_10
+    global ZP_11
+
+
+    KFangleZ = KFangleZ + DT * (gyroRate - z_bias)
+
+    ZP_00 = ZP_00 + ( - DT * (ZP_10 + ZP_01) + Q_angle * DT )
+    ZP_01 = ZP_01 + ( - DT * ZP_11 )
+    ZP_10 = ZP_10 + ( - DT * ZP_11 )
+    ZP_11 = ZP_11 + ( + Q_gyro * DT )
+
+    z = accAngle - KFangleZ
+    S = ZP_00 + R_angle
+    K_0 = ZP_00 / S
+    K_1 = ZP_10 / S
+
+    KFangleZ = KFangleZ + ( K_0 * z )
+    z_bias = z_bias + ( K_1 * z )
+
+    ZP_00 = ZP_00 - ( K_0 * ZP_00 )
+    ZP_01 = ZP_01 - ( K_0 * ZP_01 )
+    ZP_10 = ZP_10 - ( K_1 * ZP_00 )
+    ZP_11 = ZP_11 - ( K_1 * ZP_01 )
+
+    return KFangleZ
+
 def init():
     for i in range(0, 5):       # Try a couple times to detect IMU
         if(IMU.detectIMU()):    # Detect if BerryIMU is connected.
@@ -344,7 +380,7 @@ def getValues():
     #Kalman filter used to combine the accelerometer and gyro values.
     kalmanY = kalmanFilterY(AccYangle, rate_gyr_y,LP)
     kalmanX = kalmanFilterX(AccXangle, rate_gyr_x,LP)
-    # TODO: kalmanZ = kalmanFilterZ(AccZangle, rate_gyr_z,LP)
+    kalmanZ = kalmanFilterZ(AccZangle, rate_gyr_z,LP)
 
     #Calculate heading
     heading = 180 * math.atan2(MAGy,MAGx)/M_PI
@@ -440,7 +476,7 @@ def getValues():
 
         'kalmanX': kalmanX,
         'kalmanY': kalmanY,
-        # TODO: 'kalmanZ': kalmanZ,
+        'kalmanZ': kalmanZ,
 
         'loopTime': LP,
     }

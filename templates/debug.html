@@ -30,6 +30,7 @@
         <p>
             <b>CFangleX</b> <span id="CFangleX">??</span> <br />
             <b>CFangleY:</b> <span id="CFangleY">??</span> <br />
+            <b>CFangleZ:</b> <span id="CFangleZ">??</span> <br />
         </p>
         <p>
             <b>GyroX:</b> <span id="gyroXangle">??</span> <br />
@@ -43,6 +44,7 @@
         <p>
             <b>KalmanX:</b> <span id="kalmanX">??</span> <br />
             <b>KalmanY:</b> <span id="kalmanY">??</span> <br />
+            <b>KalmanZ:</b> <span id="kalmanZ">??</span> <br />
         </p>
         <p>
             <b>Motion Delta:</b> <span id="Mdelta">??</span> <br />
@@ -155,12 +157,14 @@
 
             $('#CFangleX').html(msg.CFangleX.toString())
             $('#CFangleY').html(msg.CFangleY.toString())
+            $('#CFangleZ').html(msg.CFangleZ.toString())
 
             // $('#heading').html(msg.heading.toString())
             // $('#tiltCompensatedHeading').html(msg.tiltCompensatedHeading.toString())
 
             $('#kalmanX').html((msg.kalmanX).toString())
             $('#kalmanY').html((msg.kalmanY).toString())
+            $('#kalmanZ').html((msg.kalmanZ).toString())
 
             $('#loopTime').html((msg.loopTime).toString())
 
