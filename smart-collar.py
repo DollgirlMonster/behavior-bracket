@@ -404,7 +404,7 @@ class motionThread(Thread):
         # self.tiltCompensatedHeading = 0
         self.loopTime = 0
 
-        self.motionHistory = []         # List of dicts with values AccX, AccY, AccZ
+        self.motionHistory = []         # List of dicts with values AccX, AccY, AccZ, gyrX, gyrY, gyrZ
         self.stickyPunishment = False   # Bool to punish user "until something happens"
 
         self.compliance = EdgeDetector(True)    # Bool to keep track of whether or not wearer is complying with the selected ruleset
@@ -427,11 +427,11 @@ class motionThread(Thread):
         # Get the mean of the motion history values
         m = 0 
         for i in self.motionHistory:
-            m += i['AccX'] + i['AccY'] + i['AccZ']
+            m += i['GyrX'] + i['GyrY'] + i['GyrZ']
         m = m / len(self.motionHistory)
 
         # Find delta
-        Mdelta = (self.motionHistory[-1]['AccX'] + self.motionHistory[-1]['AccY'] + self.motionHistory[-1]['AccZ']) - m
+        Mdelta = (self.motionHistory[-1]['GyrX'] + self.motionHistory[-1]['GyrY'] + self.motionHistory[-1]['GyrZ']) - m
 
         # Send to the debug page
         socketio.emit('Mdelta', {
@@ -589,6 +589,9 @@ class motionThread(Thread):
                 'AccX': motion['AccX'], 
                 'AccY': motion['AccY'], 
                 'AccZ': motion['AccZ'],
+                'GyrX': motion['GyrX'],
+                'GyrY': motion['GyrY'],
+                'GyrZ': motion['GyrZ'],
             })
             if len(self.motionHistory) > 20:
                 del self.motionHistory[0]
