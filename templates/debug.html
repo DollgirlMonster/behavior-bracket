@@ -102,8 +102,8 @@
     scene.add(frontLight);
 
     // Plonk camera
-    camera.position.y = 3;
-    camera.rotation.x = -90 * (Math.PI / 180);
+    camera.position.z = -3;
+    camera.rotation.x = -180 * (Math.PI / 180);
 
     // Test animation
     // const animate = function () {
@@ -171,7 +171,7 @@
             // Animate the boi
             const animate = function () {
                 // cube.rotation.x = (msg.kalmanX + 180) * (Math.PI / 180);
-                cube.rotation.y = (msg.kalmanY + 180) * (Math.PI / 180);
+                cube.rotation.x = -(msg.kalmanY + 180) * (Math.PI / 180);
                 cube.rotation.z = (msg.kalmanZ + 180) * (Math.PI / 180);
 
                 renderer.render( scene, camera );
