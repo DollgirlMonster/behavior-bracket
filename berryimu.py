@@ -331,12 +331,9 @@ def getValues():
     AccYangle =  (math.atan2(ACCz,ACCx)+M_PI)*RAD_TO_DEG
     AccZangle =  (math.atan2(ACCx,ACCy)+M_PI)*RAD_TO_DEG
 
-    #Change the rotation value of the accelerometer to -/+ 180 and
-    #move the Y axis '0' point to up.  This makes it easier to read.
-    # if AccYangle > 90:
-    #     AccYangle -= 270.0
-    # else:
-    #     AccYangle += 90.0
+    # Set values to 0,0 when device is upright
+    AccYangle -= 180.0
+    AccZangle -= 270.0
 
 
     #Complementary filter used to combine the accelerometer and gyro values.
