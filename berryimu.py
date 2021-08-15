@@ -375,7 +375,6 @@ def getValues(motionAlgorithm = 'accurate'):
     AccZangle =  (math.atan2(ACCx,ACCy)+M_PI)*RAD_TO_DEG
 
     # Set values to 0,0 when device is upright
-    AccXangle -= 90.0
     AccYangle -= 180.0
     AccZangle -= 270.0
 
