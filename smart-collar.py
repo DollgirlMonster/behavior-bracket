@@ -317,9 +317,9 @@ class pwrThread(Thread):
                     if self.charging.edgeDetect():
                         requestBeep = 1
                 
-            # If charge is over 90, disable Dock Lock
-            # if self.percent >= 90:
-            #     app.config.update(dockLock = False)
+            # If charge is over 95, disable Dock Lock
+            if self.percent >= 95:
+                app.config.update(dockLock = False)
 
             # Broadcast to WebUI
             socketio.emit('battery', {
