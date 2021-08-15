@@ -364,9 +364,7 @@ def getValues():
 
 
     #Convert Accelerometer values to degrees
-    AccXangle =  math.tan(ACCx / (math.sqrt((ACCy ** 2) + (ACCz ** 2))))
-    AccXangle *= 180
-    AccXangle /= M_PI
+    AccXangle =  (math.atan2(ACCy,ACCz)+M_PI)*RAD_TO_DEG
     AccYangle =  (math.atan2(ACCz,ACCx)+M_PI)*RAD_TO_DEG
     AccZangle =  (math.atan2(ACCx,ACCy)+M_PI)*RAD_TO_DEG
 
