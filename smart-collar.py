@@ -605,7 +605,7 @@ class motionThread(Thread):
             # Motion snapshot
             if app.config['moCap'].edgeDetect():                                # If we just started the snapshot
                 # TODO: remove file if exists? show a warning? something
-                with open('motion.csv', 'w', newline='') as file:               # Set up the .csv file headers
+                with open('motion.csv', 'a', newline='') as file:               # Set up the .csv file headers
                     writer = csv.DictWriter(file, fieldnames = list(motion.keys()))
                     writer.writeheader()
 
