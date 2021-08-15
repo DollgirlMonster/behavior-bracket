@@ -385,13 +385,13 @@ def getValues(motionAlgorithm = 'accurate'):
         angleY = AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle
         angleZ = AA*(CFangleZ+rate_gyr_z*LP) +(1 - AA) * AccZangle
 
-        # Map ranges from +/- 50 to +/- 180
+        # Map ranges from +/- 50 to +/- 90
         oldRange = 100
-        newRange = 360
+        newRange = 180
 
-        angleX = (((angleX - (-50)) * newRange) / oldRange) + (-180)
-        angleY = (((angleY - (-50)) * newRange) / oldRange) + (-180)
-        angleZ = (((angleZ - (-50)) * newRange) / oldRange) + (-180)
+        angleX = (((angleX - (-50)) * newRange) / oldRange) + (-90)
+        angleY = (((angleY - (-50)) * newRange) / oldRange) + (-90)
+        angleZ = (((angleZ - (-50)) * newRange) / oldRange) + (-90)
 
     elif motionAlgorithm == 'accurate':
         #Kalman filter used to combine the accelerometer and gyro values.
