@@ -170,8 +170,9 @@
 
             // Animate the boi
             const animate = function () {
-                cube.rotation.x = (msg.kalmanX + 180) * (Math.PI / 180);
+                // cube.rotation.x = (msg.kalmanX + 180) * (Math.PI / 180);
                 cube.rotation.y = (msg.kalmanY + 180) * (Math.PI / 180);
+                cube.rotation.z = (msg.kalmanZ + 180) * (Math.PI / 180);
 
                 renderer.render( scene, camera );
             }
