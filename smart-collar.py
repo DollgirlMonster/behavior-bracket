@@ -469,11 +469,11 @@ class motionThread(Thread):
         """
         Posture mode: wearer must remain completely upright
         """
-        postureThreshold = 8    # Activation threshold
-        Ycalibration = 30       # Account for the angle of the collar itself on the Y axis
+        postureThreshold = 20    # Activation threshold
+        Ycalibration = -10      # Account for the angle of the device on the Y axis from its weight hanging from the collar
 
-        if self.kalmanX < -postureThreshold or self.kalmanX > postureThreshold \
-        or self.kalmanY < -postureThreshold - Ycalibration or self.kalmanY > postureThreshold - Ycalibration:
+        if self.kalmanZ < -postureThreshold or self.kalmanZ > postureThreshold \
+        or self.kalmanY < -postureThreshold + Ycalibration or self.kalmanY > postureThreshold + Ycalibration:
             return False
         else:
             return True
