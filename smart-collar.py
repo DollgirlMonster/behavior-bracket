@@ -363,7 +363,7 @@ class beepThread(Thread):
 
         while not thread_stop_event.isSet():
             while requestBeep > 0:
-                self.doBeep()
+                self.doChirp()
                 requestBeep -= 1
                 
                 sleep(self.restLength)
