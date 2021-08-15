@@ -457,7 +457,7 @@ class motionThread(Thread):
         """
         Mdelta = self.getMotionDelta()
 
-        motionThreshold = 1    # Activation threshold
+        motionThreshold = 1.5    # Activation threshold
 
         # Check values against threshold
         if Mdelta > motionThreshold or Mdelta < - motionThreshold:
