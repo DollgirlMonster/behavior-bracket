@@ -56,11 +56,13 @@ class EdgeDetector:
 # Init config
 # TODO: Most globals will slowly be ported over to here as I get around to it
 app.config.update(
-    mode =          'off',  # Operation mode for the device -- decides what logic is used for compliance determination
-    safetyMode =    True,   # If true, shocks will instead be delivered as vibrations
-    moCap =         False,  # Whether we should log motion data
-    dockLock =      False,  # Whether to enable Dock Lock (punish wearer if charger disconnected)
-    startupChime =  True,   # Whether to play a beep at launch to let the user know the device is ready to connect
+    mode =              'off',  # Operation mode for the device -- decides what logic is used for compliance determination
+    safetyMode =        True,   # If true, shocks will instead be delivered as vibrations
+    moCap =             False,  # Whether we should log motion data
+    dockLock =          False,  # Whether to enable Dock Lock (punish wearer if charger disconnected)
+    startupChime =      True,   # Whether to play a beep at launch to let the user know the device is ready to connect
+
+    emitMotionData =    True,   # Whether to send motion values to debug page
 )
 
 # ooooooooooooo oooo                                           .o8           
@@ -561,7 +563,7 @@ class motionThread(Thread):
             self.loopTime = motion['loopTime']
 
             # Update web UI with motion data
-            if app.debug:
+            if app.config['emitMotionDate']:
                 socketio.emit('motion', {
                     'AccX': motion['AccX'], 
                     'AccY': motion['AccY'], 
@@ -747,4 +749,4 @@ if not thread.isAlive():
     thread.start()
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(debug=False, host='0.0.0.0')
