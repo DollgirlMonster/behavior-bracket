@@ -456,6 +456,8 @@ def getValues():
 
     # Package and return everything as a tidy dict
     return {
+        'loopTime': LP,
+        
         'AccX': ACCx,
         'AccY': ACCy,
         'AccZ': ACCz,
@@ -478,8 +480,6 @@ def getValues():
         'kalmanX': kalmanX,
         'kalmanY': kalmanY,
         'kalmanZ': kalmanZ,
-
-        'loopTime': LP,
     }
 
     # #slow program down a bit, makes the output more readable

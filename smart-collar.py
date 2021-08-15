@@ -16,7 +16,7 @@ import battery
 app = Flask(__name__, instance_relative_config=True)
 app.config.from_mapping(
     SECRET_KEY='dev',
-    DEBUG=False,
+    DEBUG=True,
 )
 
 # Turn the flask app into a socketio app
@@ -561,32 +561,33 @@ class motionThread(Thread):
             self.loopTime = motion['loopTime']
 
             # Update web UI with motion data
-            socketio.emit('motion', {
-                'AccX': motion['AccX'], 
-                'AccY': motion['AccY'], 
-                'AccZ': motion['AccZ'], 
+            if app.config['DEBUG']:
+                socketio.emit('motion', {
+                    'AccX': motion['AccX'], 
+                    'AccY': motion['AccY'], 
+                    'AccZ': motion['AccZ'], 
 
-                'AccXangle': motion['AccXangle'], 
-                'AccYangle': motion['AccYangle'],
-                'AccZangle': motion['AccZangle'],
+                    'AccXangle': motion['AccXangle'], 
+                    'AccYangle': motion['AccYangle'],
+                    'AccZangle': motion['AccZangle'],
 
-                'gyroXangle': motion['gyroXangle'],
-                'gyroYangle': motion['gyroYangle'],
-                'gyroZangle': motion['gyroZangle'],
+                    'gyroXangle': motion['gyroXangle'],
+                    'gyroYangle': motion['gyroYangle'],
+                    'gyroZangle': motion['gyroZangle'],
 
-                'CFangleX': motion['CFangleX'],
-                'CFangleY': motion['CFangleY'],
-                'CFangleZ': motion['CFangleZ'],
+                    'CFangleX': motion['CFangleX'],
+                    'CFangleY': motion['CFangleY'],
+                    'CFangleZ': motion['CFangleZ'],
 
-                # 'heading': motion['heading'],
-                # 'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
+                    # 'heading': motion['heading'],
+                    # 'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
 
-                'kalmanX': motion['kalmanX'],
-                'kalmanY': motion['kalmanY'],
-                'kalmanZ': motion['kalmanZ'],
+                    'kalmanX': motion['kalmanX'],
+                    'kalmanY': motion['kalmanY'],
+                    'kalmanZ': motion['kalmanZ'],
 
-                'loopTime': motion['loopTime'],
-            }, namespace='/test')
+                    'loopTime': motion['loopTime'],
+                }, namespace='/test')
 
             # Update history with acceleration & rotation
             self.motionHistory.append({
@@ -602,9 +603,9 @@ class motionThread(Thread):
             # Motion snapshot
             if app.config['moCap']:     # If motion logging enabled
                 with open('motion.csv', 'a', newline='') as file:
-                    writer = csv.DictWriter(file, fieldnames = ['time'] + list(motion.keys()))
+                    writer = csv.DictWriter(file, list(motion.keys()))
                     writer.writerow({
-                        'time': strftime('%a, %d %b %Y %H:%M:%S GMT', localtime()),
+                        'loopTime': motion['loopTime'],
 
                         'AccX': motion['AccX'], 
                         'AccY': motion['AccY'], 
