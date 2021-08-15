@@ -56,13 +56,13 @@ class EdgeDetector:
 # Init config
 # TODO: Most globals will slowly be ported over to here as I get around to it
 app.config.update(
-    mode =              'off',  # Operation mode for the device -- decides what logic is used for compliance determination
-    safetyMode =        True,   # If true, shocks will instead be delivered as vibrations
-    moCap =             False,  # Whether we should log motion data
-    dockLock =          False,  # Whether to enable Dock Lock (punish wearer if charger disconnected)
-    startupChime =      True,   # Whether to play a beep at launch to let the user know the device is ready to connect
+    mode =              'off',                  # Operation mode for the device -- decides what logic is used for compliance determination
+    safetyMode =        True,                   # If true, shocks will instead be delivered as vibrations
+    moCap =             EdgeDetector(False),    # Whether we should log motion data
+    dockLock =          False,                  # Whether to enable Dock Lock (punish wearer if charger disconnected)
+    startupChime =      True,                   # Whether to play a beep at launch to let the user know the device is ready to connect
 
-    emitMotionData =    True,   # Whether to send motion values to debug page
+    emitMotionData =    True,                   # Whether to send motion values to debug page
 )
 
 # ooooooooooooo oooo                                           .o8           
@@ -603,8 +603,14 @@ class motionThread(Thread):
                 del self.motionHistory[0]
 
             # Motion snapshot
-            if app.config['moCap']:     # If motion logging enabled
-                with open('motion.csv', 'a', newline='') as file:
+            if app.config['moCap'].edgeDetect():                                # If we just started the snapshot
+                # TODO: remove file if exists? show a warning? something
+                with open('motion.csv', 'w', newline='') as file:               # Set up the .csv file headers
+                    writer = csv.DictWriter(file, fieldnames = list(motion.keys()))
+                    writer.writeheader()
+
+            if app.config['moCap'].value:                                       # If motion logging enabled
+                with open('motion.csv', 'a', newline='') as file:               # Log motion
                     writer = csv.DictWriter(file, list(motion.keys()))
                     writer.writerow({
                         'loopTime': motion['loopTime'],
@@ -660,12 +666,9 @@ def debug():
 @socketio.on('moCap', namespace='/test')
 def mocap_toggle(msg):
     if msg['moCap']:    
-        with open('motion.csv', 'a', newline='') as file:               # Set up the .csv file headers
-            writer = csv.DictWriter(file, fieldnames = ['time', 'AccX', 'AccY', 'AccZ', 'AccXangle', 'AccYangle', 'gyroXangle', 'gyroYangle', 'gyroZangle', 'CFangleX', 'CFangleY', 'heading', 'tiltCompensatedHeading', 'kalmanX', 'kalmanY'])
-            writer.writeheader()
-        app.config.update(moCap = True)                                 # Turn on motion capture
+        app.config['moCap'].value = True    # Turn on motion capture
     else:
-        app.config.update(moCap = False)
+        app.config['moCap'].value = False   # Turn o motion capture
 
 @app.route('/', methods=["GET"])
 def control():
