@@ -370,6 +370,7 @@ class motionThread(Thread):
         self.AccZ = 0
         self.AccXAngle = 0
         self.AccYangle = 0
+        self.AccZangle = 0
         self.gyroXangle = 0
         self.gyroYangle = 0
         self.gyroZangle = 0
@@ -525,6 +526,7 @@ class motionThread(Thread):
             self.AccZ = motion['AccX']
             self.AccXAngle = motion['AccXangle']
             self.AccYangle = motion['AccYangle']
+            self.AccZangle = motion['AccZangle']
             self.gyroXangle = motion['gyroXangle']
             self.gyroYangle = motion['gyroYangle']
             self.gyroZangle = motion['gyroZangle']
@@ -544,6 +546,7 @@ class motionThread(Thread):
 
                 'AccXangle': motion['AccXangle'], 
                 'AccYangle': motion['AccYangle'],
+                'AccZangle': motion['AccZangle'],
 
                 'gyroXangle': motion['gyroXangle'],
                 'gyroYangle': motion['gyroYangle'],
@@ -585,6 +588,7 @@ class motionThread(Thread):
 
                         'AccXangle': motion['AccXangle'], 
                         'AccYangle': motion['AccYangle'],
+                        'AccZangle': motion['AccZangle'],
 
                         'gyroXangle': motion['gyroXangle'],
                         'gyroYangle': motion['gyroYangle'],

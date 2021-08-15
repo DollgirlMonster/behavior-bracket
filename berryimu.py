@@ -40,12 +40,6 @@ MAG_MEDIANTABLESIZE = 9         # Median filter table size for magnetometer. Hig
 # Calibrating the compass isnt mandatory, however a calibrated
 # compass will result in a more accurate heading value.
 
-magXmin = -10005
-magYmin = -18587
-magZmin = -21821
-magXmax = 32767
-magYmax = 32767
-magZmax = 20318
 
 
 '''
@@ -77,6 +71,7 @@ YP_10 = 0.0
 YP_11 = 0.0
 KFangleX = 0.0
 KFangleY = 0.0
+KFangleZ = 0.0
 
 
 
@@ -326,8 +321,9 @@ def getValues():
 
 
     #Convert Accelerometer values to degrees
-    AccXangle =  (math.atan2(ACCy,ACCz)*RAD_TO_DEG)
+    AccXangle =  (math.atan2(ACCy,ACCz)+M_PI)*RAD_TO_DEG
     AccYangle =  (math.atan2(ACCz,ACCx)+M_PI)*RAD_TO_DEG
+    AccZangle =  (math.atan2(ACCx,ACCy)+M_PI)*RAD_TO_DEG
 
     #Change the rotation value of the accelerometer to -/+ 180 and
     #move the Y axis '0' point to up.  This makes it easier to read.
@@ -336,23 +332,16 @@ def getValues():
     # else:
     #     AccYangle += 90.0
 
-    # Flip values for rotated device
-    if AccXangle > 180:
-        AccXangle -= 360.0
-        
-    AccYangle -= 90
-    if AccYangle > 180:
-        AccYangle -= 360.0
-
 
     #Complementary filter used to combine the accelerometer and gyro values.
     CFangleX=AA*(CFangleX+rate_gyr_x*LP) +(1 - AA) * AccXangle
     CFangleY=AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle
+    CFangleZ=AA*(CFangleZ+rate_gyr_z*LP) +(1 - AA) * AccZangle
 
     #Kalman filter used to combine the accelerometer and gyro values.
     kalmanY = kalmanFilterY(AccYangle, rate_gyr_y,LP)
     kalmanX = kalmanFilterX(AccXangle, rate_gyr_x,LP)
-
+    # TODO: kalmanZ = kalmanFilterZ(AccZangle, rate_gyr_z,LP)
 
     #Calculate heading
     heading = 180 * math.atan2(MAGy,MAGx)/M_PI
@@ -433,6 +422,7 @@ def getValues():
 
         'AccXangle': AccXangle,
         'AccYangle': AccYangle,
+        'AccZangle': AccZangle,
 
         'gyroXangle': gyroXangle,
         'gyroYangle': gyroYangle,
@@ -440,12 +430,14 @@ def getValues():
 
         'CFangleX': CFangleX,
         'CFangleY': CFangleY,
+        'CFangleZ': CFangleZ,
 
         'heading': heading,
         'tiltCompensatedHeading': tiltCompensatedHeading,
 
         'kalmanX': kalmanX,
         'kalmanY': kalmanY,
+        # TODO: 'kalmanZ': kalmanZ,
 
         'loopTime': LP,
     }
