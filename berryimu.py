@@ -240,9 +240,9 @@ def getValues(motionAlgorithm = 'accurate'):
     gyroXangle = 0.0
     gyroYangle = 0.0
     gyroZangle = 0.0
-    CFangleX = 0.0
-    CFangleY = 0.0
-    CFangleZ = 0.0
+    angleX = 0.0
+    angleY = 0.0
+    angleZ = 0.0
     kalmanX = 0.0
     kalmanY = 0.0
     
@@ -380,9 +380,9 @@ def getValues(motionAlgorithm = 'accurate'):
 
     if motionAlgorithm == 'fast':
         #Complementary filter used to combine the accelerometer and gyro values.
-        angleX = AA*(CFangleX+rate_gyr_x*LP) +(1 - AA) * AccXangle
-        angleY = AA*(CFangleY+rate_gyr_y*LP) +(1 - AA) * AccYangle
-        angleZ = AA*(CFangleZ+rate_gyr_z*LP) +(1 - AA) * AccZangle
+        angleX = AA*(angleX+rate_gyr_x*LP) +(1 - AA) * AccXangle
+        angleY = AA*(angleY+rate_gyr_y*LP) +(1 - AA) * AccYangle
+        angleZ = AA*(angleZ+rate_gyr_z*LP) +(1 - AA) * AccZangle
 
         # Map ranges from +/- 50 to +/- 90
         oldRange = 100
@@ -448,25 +448,6 @@ def getValues(motionAlgorithm = 'accurate'):
 
 
     ##################### END Tilt Compensation ########################
-
-
-    # outputString = ""
-    # if 1:                       #Change to '0' to stop showing the angles from the accelerometer
-    #     outputString += "#  ACCX Angle %5.2f ACCY Angle %5.2f  #  " % (AccXangle, AccYangle)
-
-    # if 1:                       #Change to '0' to stop  showing the angles from the gyro
-    #     outputString +="\t# GRYX Angle %5.2f  GYRY Angle %5.2f  GYRZ Angle %5.2f # " % (gyroXangle,gyroYangle,gyroZangle)
-
-    # if 1:                       #Change to '0' to stop  showing the angles from the complementary filter
-    #     outputString +="\t#  CFangleX Angle %5.2f   CFangleY Angle %5.2f  #" % (CFangleX,CFangleY)
-
-    # if 1:                       #Change to '0' to stop  showing the heading
-    #     outputString +="\t# HEADING %5.2f  tiltCompensatedHeading %5.2f #" % (heading,tiltCompensatedHeading)
-
-    # if 1:                       #Change to '0' to stop  showing the angles from the Kalman filter
-    #     outputString +="# kalmanX %5.2f   kalmanY %5.2f #" % (kalmanX,kalmanY)
-
-    # print(outputString)
 
 
     # Package and return everything as a tidy dict
