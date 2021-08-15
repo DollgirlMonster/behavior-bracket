@@ -605,6 +605,7 @@ class motionThread(Thread):
                     writer = csv.DictWriter(file, list(motion.keys()))
                     writer.writerow({
                         'loopTime': motion['loopTime'],
+                        'motionAlgorithm': motion['motionAlgorithm'],
 
                         'AccX': motion['AccX'], 
                         'AccY': motion['AccY'], 
