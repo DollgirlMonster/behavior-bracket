@@ -27,7 +27,7 @@ thread = Thread()
 thread_stop_event = Event()
 
 # Init global variables
-requestPunishment = False   # Whether or not the collar should be transmitting the punish signal
+requestPunishment = False   # If not False, signal to punish and reason we are punishing
 requestBeep = 0             # Whether the collar should beep: 0 is no beeps, set number for number of beeps
 punishmentIntensity = 50    # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
 
@@ -218,7 +218,7 @@ class radioThread(Thread):
 
         while not thread_stop_event.isSet():
             # Punish if requested
-            if requestPunishment:
+            if requestPunishment != False:
                 sequence = self.makeSequence()
                 waveID = self.makeWaveform(sequence)
                 self.transmit(waveID)
@@ -313,7 +313,7 @@ class pwrThread(Thread):
                     if self.charging.edgeDetect():
                         requestBeep = 2
                 else:                       # User is unplugged when they shouldn't be
-                    requestPunishment = True
+                    requestPunishment = 'dockLock'
                     if self.charging.edgeDetect():
                         requestBeep = 1
                 
@@ -530,7 +530,7 @@ class motionThread(Thread):
                 requestBeep = 2
                 
         else: 
-            requestPunishment = True
+            requestPunishment = 'motion'
 
             if shouldBeep:
                 requestBeep = 1
@@ -719,7 +719,7 @@ def manualControl(msg):
 
     if msg['command'] == 'punish':
         requestBeep = 3
-        requestPunishment = True
+        requestPunishment = 'manual'
         
     elif msg['command'] =='warn':
         requestBeep = 3

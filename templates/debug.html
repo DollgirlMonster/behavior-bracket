@@ -17,6 +17,7 @@
             <b>Charging:</b> <span id="battCharging">??</span><br />
             <b>Mode:</b> <span id="mode">off</span><br />
             <b>Compliance:</b> <span id="compliance">??</span>
+            <b>requestPunishment:</b> <span id="requestPunishment">??</span>
         </p>
         <p>
             <b>AccX:</b> <span id="AccX">??</span> <br />
@@ -166,6 +167,7 @@
         // Compliance
         socket.on('compliance', function(msg) {
             $('#compliance').html(msg.compliance.toString());
+            $('#requestPunishment').html(msg.requestPunishment.toString());
         })
 
         // Freeze Mode Debug info
