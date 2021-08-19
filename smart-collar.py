@@ -82,7 +82,14 @@ class PunishmentTimer:
         self.timer.start()
 
     def doPunishment(self):
+        # Need visibility of audio and punishment
         global requestPunishment
+        global requestBeep
+        
+        requestBeep = 'noncompliance'
+        requestPunishment = punishmentSource
+
+        # TODO: add bool to make punishment perpetual unless cancel() is called
 
     def cancel(self):
         self.timer.cancel()
@@ -113,6 +120,7 @@ app.config.update(
 # Major shout-out to its contributors and maintainers for making integration with this project a breeze
 class radioThread(Thread):
     def __init__(self):
+        # TODO: add safety auto-off timer
         self.txKey = '00101100101001010'
         self.radioPin = 25  # Board pin 22
 
