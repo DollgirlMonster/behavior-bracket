@@ -311,11 +311,11 @@ class pwrThread(Thread):
             if app.config['dockLock']:   # If Dock Lock enabled
                 if self.chargingCheck():    # User just plugged in and dock lock passed
                     if self.charging.edgeDetect():
-                        requestBeep = 'reward'
+                        requestBeep = 'compliant'
                 else:                       # User is unplugged when they shouldn't be
                     requestPunishment = 'dockLock'
                     if self.charging.edgeDetect():
-                        requestBeep = 'punish'
+                        requestBeep = 'noncompliant'
                 
             # If charge is over 95, disable Dock Lock
             if self.percent >= 95:
@@ -348,10 +348,10 @@ class beepThread(Thread):
         self.delay =        0.1    # Length of time to wait between checking whether we should beep
 
         self.pattern = {
-            'reward':   ['chirp'],
-            'punish':   ['chirp', 'chirp'],
-            'warning':  ['chirp', 'chirp', 'chirp'],
-            'soliton':  ['chirp', 'beep'],
+            'compliant':    ['chirp'],
+            'noncompliant': ['chirp', 'chirp'],
+            'warning':      ['chirp', 'chirp', 'chirp'],
+            'soliton':      ['chirp', 'beep'],
         }
         
         super(beepThread, self).__init__()
@@ -404,6 +404,14 @@ class motionThread(Thread):
 
         self.motionHistory = []         # List of dicts with values AccX, AccY, AccZ, gyroXangle, gyroYangle, gyroZangle
         self.stickyPunishment = False   # Bool to punish user "until something happens"
+
+        # TODO: These would be better as some kind of Exercise() class
+        self.wearerInRestPosition = EdgeDetector(True)      # Exercise mode: Keep track of whether the wearer is at rest
+        self.repTimer = {                                    # Exercise mode: Timer for how long the wearer takes to do a rep
+            'time': 0,
+            'lastCheck': None
+        }
+        self.reps = 0                                       # Exercise mode: Reps counter for current exercise
 
         self.compliance = EdgeDetector(True)    # Bool to keep track of whether or not wearer is complying with the selected ruleset
 
@@ -498,6 +506,50 @@ class motionThread(Thread):
         else:
             return True
 
+    def fitnessTest(self):
+        """
+        Testing grounds for exercise detection: eventually I want to 
+        spin this out into a whole range of features but for now 
+        it's hidden on the main UI
+        """
+        global requestPunishment    # Get visibility of should transmit bool
+        global requestBeep          # Get visibility of beep var
+
+        # Check wearer's position
+        if angleY > 20:                                                 # Check Y rotation for situp detection
+            self.wearerInRestPosition.value = False
+        else: self.wearerInRestPosition.value = True
+
+        positionJustChanged = self.wearerInRestPosition.edgeDetect()    # Check if we just went in or out of a rep
+
+        # TODO: Use gyroYangle to tell the wearer if they should do the exercise slower or faster
+
+        if self.wearerInRestPosition:
+            if positionJustChanged:
+                self.repTimer['time'] = 0                                # Reset rep timer
+                # TODO: Consider a beep here? might get annoying though
+                # TODO: reset/restart punishment timer
+
+        else:   # Wearer doing a rep
+            if positionJustChanged:
+                requestBeep = 'compliant'
+                self.reps += 1
+                self.repTimer['time'] = 0                                # Reset rep timer
+                # TODO: reset/restart punishment timer
+
+        # Increment rep timer
+        # TODO: Turn this into punishment timer
+        now = datetime.datetime.now()
+        if self.repTimer['lastCheck'] != None:
+            self.repTimer['time'] += now - self.repTimer['lastCheck'] # repTimer += delta(now, then)
+        self.repTimer['lastCheck'] = now
+
+        # Emit repTimer, reps to webUI
+        socketio.emit('exercise', {
+            'repTimer': self.repTimer['time'].milliseconds(),
+            'reps':     self.reps,
+        })
+
     def testCompliance(self, motion):
         """
         Decide what test must be done based on the mode, and execute it
@@ -505,12 +557,15 @@ class motionThread(Thread):
         global requestPunishment    # Get visibility of should transmit bool
         global requestBeep          # Get visibility of beep queue
 
-        if app.config['mode'] == 'off':           self.compliance.value = True
-        elif app.config['mode'] == 'freeze':      self.compliance.value = self.freezeTest()
-        elif app.config['mode'] == 'pet':         self.compliance.value = self.petTest()
-        elif app.config['mode'] == 'sleepDep':    self.compliance.value = self.sleepDepTest()
-        elif app.config['mode'] == 'random':      self.compliance.value = self.randomTest()
-        elif app.config['mode'] == 'posture':     self.compliance.value = self.postureTest()
+        if app.config['mode'] == 'off':         self.compliance.value = True
+        elif app.config['mode'] == 'freeze':    self.compliance.value = self.freezeTest()
+        elif app.config['mode'] == 'pet':       self.compliance.value = self.petTest()
+        elif app.config['mode'] == 'sleepDep':  self.compliance.value = self.sleepDepTest()
+        elif app.config['mode'] == 'random':    self.compliance.value = self.randomTest()
+        elif app.config['mode'] == 'posture':   self.compliance.value = self.postureTest()
+        elif app.config['mode'] == 'fitness':   # In testing
+            self.compliance.value = True
+            self.fitnessTest()
 
         socketio.emit('compliance', {
             'compliance': self.compliance.value,
@@ -525,13 +580,13 @@ class motionThread(Thread):
         # If compliance is true, do not request punishment
         if self.compliance.value:
             if shouldBeep:
-                requestBeep = 'reward'
+                requestBeep = 'compliant'
                 
         else: 
             requestPunishment = 'motion'
 
             if shouldBeep:
-                requestBeep = 'punish'
+                requestBeep = 'noncompliant'
 
     def getMotion(self):
         """
@@ -716,7 +771,7 @@ def manualControl(msg):
     global requestBeep
 
     if msg['command'] == 'punish':
-        requestBeep = 'punish'
+        requestBeep = 'noncompliant'
         requestPunishment = 'manual'
         
     elif msg['command'] =='warn':
