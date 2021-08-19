@@ -449,11 +449,13 @@ class motionThread(Thread):
 
         # TODO: These would be better as some kind of Exercise() class
         self.wearerInRestPosition = EdgeDetector(True)      # Exercise mode: Keep track of whether the wearer is at rest
-        self.repTimer = {                                    # Exercise mode: Timer for how long the wearer takes to do a rep
+        self.repTimer = {                                   # Exercise mode: Timer for how long the wearer takes to do a rep
             'time': 0,
             'lastCheck': None
         }
         self.reps = 0                                       # Exercise mode: Reps counter for current exercise
+        
+        self.punishmentTimer = None             # Keep track of countdown to punishment, warning before punishment, etc.
 
         self.compliance = EdgeDetector(True)    # Bool to keep track of whether or not wearer is complying with the selected ruleset
 
@@ -564,23 +566,24 @@ class motionThread(Thread):
 
         positionJustChanged = self.wearerInRestPosition.edgeDetect()    # Check if we just went in or out of a rep
 
-        # TODO: Use gyroYangle to tell the wearer if they should do the exercise slower or faster
-
         if self.wearerInRestPosition:
             if positionJustChanged:
-                self.repTimer['time'] = 0                                # Reset rep timer
-                # TODO: Consider a beep here? might get annoying though
-                # TODO: reset/restart punishment timer
+                self.repTimer['time'] = 0   # Reset rep timer
+
+                if self.punishmentTimer != None: self.punishmentTimer.cancel()          # Cancel current punishment timer if exists
+                self.punishmentTimer = PunishmentTimer(5, punishmentSource='fitness')   # Start punishment timer
 
         else:   # Wearer doing a rep
             if positionJustChanged:
                 requestBeep = 'compliant'
                 self.reps += 1
-                self.repTimer['time'] = 0                                # Reset rep timer
-                # TODO: reset/restart punishment timer
+                self.repTimer['time'] = 0   # Reset rep timer
+                
+                if self.punishmentTimer != None: self.punishmentTimer.cancel()          # Cancel current punishment timer if exists
+                self.punishmentTimer = PunishmentTimer(5, punishmentSource='fitness')   # Start punishment timer
 
         # Increment rep timer
-        # TODO: Turn this into punishment timer
+        # TODO: Use this (in combination with gyroYangle for pushups?) to tell the wearer if they should do the exercise slower or faster
         now = datetime.datetime.now()
         if self.repTimer['lastCheck'] != None:
             self.repTimer['time'] += now - self.repTimer['lastCheck'] # repTimer += delta(now, then)
@@ -605,9 +608,15 @@ class motionThread(Thread):
         elif app.config['mode'] == 'sleepDep':  self.compliance.value = self.sleepDepTest()
         elif app.config['mode'] == 'random':    self.compliance.value = self.randomTest()
         elif app.config['mode'] == 'posture':   self.compliance.value = self.postureTest()
-        elif app.config['mode'] == 'fitness':   # In testing
+
+        ### BEGIN Testing area for fitness mode
+        elif app.config['mode'] == 'fitness':
             self.compliance.value = True
             self.fitnessTest()
+        if app.config['mode'] != 'fitness': # TODO: Remove this when punishment timer is integrated with the rest of the motion thread
+            self.punishmentTimer.cancel()
+            self.punishmentTimer = None
+        ### END   Testing area for fitness mode
 
         socketio.emit('compliance', {
             'compliance': self.compliance.value,
