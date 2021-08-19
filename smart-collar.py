@@ -588,6 +588,11 @@ class motionThread(Thread):
         now = datetime.datetime.now()
         if self.repTimer['lastCheck'] != None:
             self.repTimer['time'] += now - self.repTimer['lastCheck'] # repTimer += delta(now, then)
+        else: 
+            # Create empty datetime object for us to do time math on
+            today = datetime.datetime.today()
+            self.repTimer['time'] = datetime.datetime(today.year(), today.month, 0, 0, 0)
+
         self.repTimer['lastCheck'] = now
 
         # Emit repTimer, reps to webUI
