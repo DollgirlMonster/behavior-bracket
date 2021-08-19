@@ -53,6 +53,40 @@ class EdgeDetector:
             self.last_value = self.value
             return False
 
+class PunishmentTimer:
+    """ 
+    Defines a punishment with an associated warning and countdown 
+    (seconds - 3)-second Pre-Timer -> 3s Warning Timer -> Shock
+    """
+    def __init__(self, seconds=5, punishmentSource='timer'):
+
+        self.punishmentSource = punishmentSource    # Source of punishment passthrough for debug
+
+        # We punish after n seconds, but at n-3 we sound a warning
+        # This sets up for that
+        if seconds > 3:
+            self.seconds = seconds - 3
+        else: self.seconds = 3                              # No timers shorter than 3 seconds
+
+        # Set up threaded timer
+        self.timer = Timer(self.seconds, self.doWarning())  # After (seconds - 3) seconds, play a warning sound -- 3 seconds later, punishment will occur
+        self.timer.start()
+
+    def doWarning(self):
+        """ play warning sound, then wait 3 seconds and shock """
+        # Need visibility of audio
+        global requestBeep
+
+        requestBeep = 'warning'
+        self.timer = Timer(3, self.doPunishment())  # After 3 seconds, do punishment
+        self.timer.start()
+
+    def doPunishment(self):
+        global requestPunishment
+
+    def cancel(self):
+        self.timer.cancel()
+
 # Init config
 # TODO: Most globals will slowly be ported over to here as I get around to it
 app.config.update(
