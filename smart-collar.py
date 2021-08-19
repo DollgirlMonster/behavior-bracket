@@ -560,7 +560,7 @@ class motionThread(Thread):
         global requestBeep          # Get visibility of beep var
 
         # Check wearer's position
-        if angleY > 20:                                                 # Check Y rotation for situp detection
+        if self.angleY > 20:                                                 # Check Y rotation for situp detection
             self.wearerInRestPosition.value = False
         else: self.wearerInRestPosition.value = True
 
