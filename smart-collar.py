@@ -3,7 +3,8 @@ import subprocess
 import random
 import csv
 from threading import Thread, Event, Timer
-from time import sleep, localtime, strftime, now
+import time
+import datetime
 
 from flask import Flask, request, abort, redirect, render_template  # Flask
 from flask_socketio import SocketIO, emit                           # flask-socketio
@@ -138,7 +139,7 @@ class radioThread(Thread):
             self.transmitting = True
 
             gpio.wave_send_repeat(waveID)  # transmit waveform
-            sleep(txTime)
+            time.sleep(txTime)
             gpio.wave_tx_stop()            # stop transmitting waveform
             gpio.write(self.radioPin, 0)
             gpio.wave_clear     # clear existing waveforms
@@ -270,7 +271,7 @@ class radioThread(Thread):
                 # Stop the shock unit from going into sleep mode by periodically flashing the LED
                 # We want to ping every two minutes on the first second
                 # Unless we're already transmitting a punishment
-                t = localtime()
+                t = time.localtime()
                 if t[4] % 2 == 0 and t[5] < 1:                  # Minutes are even and seconds are less than 1
                     KAsequence = self.makeSequence(txMode=1)    # Flash LED
                     KAwaveID = self.makeWaveform(KAsequence)
@@ -370,7 +371,7 @@ class pwrThread(Thread):
                 'dockLock': app.config['dockLock'],
             }, namespace='/test')
 
-            sleep(0.25)
+            time.sleep(0.25)
 
     def run(self):
         # Set up gpio pin for communication with power switch
@@ -400,7 +401,7 @@ class beepThread(Thread):
 
     def buzzerOn(self, onLength):
         gpio.write(self.buzzerPin, 1)
-        sleep(onLength)
+        time.sleep(onLength)
         gpio.write(self.buzzerPin, 0)
 
     def waitLoop(self):
@@ -413,11 +414,11 @@ class beepThread(Thread):
                     if i == 'chirp': self.buzzerOn(self.chirpLength)
                     elif i == 'beep': self.buzzerOn(self.beepLength)
 
-                    sleep(self.restLength)
+                    time.sleep(self.restLength)
 
                 requestBeep = False
 
-            sleep(self.delay)
+            time.sleep(self.delay)
 
     def run(self):
         self.waitLoop()
@@ -520,7 +521,7 @@ class motionThread(Thread):
         Sleep deprivation mode: every 10 minutes, user is shocked until they move around -- probably shouldn't actually use this one but it's a cool idea right?
         """
         # Get the time -- if the minute field ends with a 0, we're in business
-        t = localtime()
+        t = time.localtime()
         if t[4] % 10 == 0:  # Minutes end with 0
             if t[5] < 1:    # Seconds less than 1
                 self.stickyPunishment = True
@@ -584,10 +585,10 @@ class motionThread(Thread):
 
         # Increment rep timer
         # TODO: Use this (in combination with gyroYangle for pushups?) to tell the wearer if they should do the exercise slower or faster
-        currentTime = now()
+        now = datetime.datetime.now()
         if self.repTimer['lastCheck'] != None:
-            self.repTimer['time'] += currentTime - self.repTimer['lastCheck'] # repTimer += delta(now, then)
-        self.repTimer['lastCheck'] = currentTime
+            self.repTimer['time'] += now - self.repTimer['lastCheck'] # repTimer += delta(now, then)
+        self.repTimer['lastCheck'] = now
 
         # Emit repTimer, reps to webUI
         socketio.emit('exercise', {
