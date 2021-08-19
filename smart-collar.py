@@ -591,8 +591,9 @@ class motionThread(Thread):
 
         # Emit repTimer, reps to webUI
         socketio.emit('exercise', {
-            'repTime':  self.repTimer['time'].second,
-            'reps':     self.reps,
+            'repTime':              self.repTimer['time'].second,
+            'reps':                 self.reps,
+            'wearerInRestPosition': self.wearerInRestPosition,
         })
 
     def resetRepTimer(self):

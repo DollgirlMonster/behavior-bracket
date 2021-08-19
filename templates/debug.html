@@ -63,6 +63,7 @@
 
     <div>
         <p>
+            <b>Wearer in Rest Position:</b> <span id="fitness__wearer-in-rest-position">??</span> <br />
             <b>Reps:</b> <span id="fitness__reps">??</span> <br />
             <b>Rep Time:</b> <span id="fitness__rep-time">??</span> seconds <br />
         </p>
@@ -190,6 +191,7 @@
         socket.on('fitness', function(msg) {
             $('#fitness__reps').html(msg.reps.toString());
             $('#fitness__rep-time').html(msg.repTime.toString());
+            $('#fitness__wearer-in-rest-position').html(msg.wearerInRestPosition.toString());
         })
 
         $('#ctl__moCap--on').click(function(event) {
