@@ -3,7 +3,7 @@ import subprocess
 import random
 import csv
 from threading import Thread, Event, Timer
-from time import sleep, localtime, strftime, time
+from time import sleep, localtime, strftime, now
 
 from flask import Flask, request, abort, redirect, render_template  # Flask
 from flask_socketio import SocketIO, emit                           # flask-socketio
@@ -584,10 +584,10 @@ class motionThread(Thread):
 
         # Increment rep timer
         # TODO: Use this (in combination with gyroYangle for pushups?) to tell the wearer if they should do the exercise slower or faster
-        now = time.now()
+        currentTime = now()
         if self.repTimer['lastCheck'] != None:
-            self.repTimer['time'] += now - self.repTimer['lastCheck'] # repTimer += delta(now, then)
-        self.repTimer['lastCheck'] = now
+            self.repTimer['time'] += currentTime - self.repTimer['lastCheck'] # repTimer += delta(now, then)
+        self.repTimer['lastCheck'] = currentTime
 
         # Emit repTimer, reps to webUI
         socketio.emit('exercise', {
