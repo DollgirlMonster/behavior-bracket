@@ -594,7 +594,7 @@ class motionThread(Thread):
             'repTime':              self.repTimer['time'].second,
             'reps':                 self.reps,
             'wearerInRestPosition': self.wearerInRestPosition,
-        })
+        }, namespace='/test')
 
     def resetRepTimer(self):
         """ Reset repTimer to 0 """
