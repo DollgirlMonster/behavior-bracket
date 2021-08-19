@@ -590,7 +590,7 @@ class motionThread(Thread):
         self.repTimer['lastCheck'] = now
 
         # Emit repTimer, reps to webUI
-        socketio.emit('exercise', {
+        socketio.emit('fitness', {
             'repTime':              self.repTimer['time'].second,
             'reps':                 self.reps,
             'wearerInRestPosition': self.wearerInRestPosition.value,
