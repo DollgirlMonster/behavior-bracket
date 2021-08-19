@@ -591,7 +591,7 @@ class motionThread(Thread):
         else: 
             # Create empty datetime object for us to do time math on
             today = datetime.datetime.today()
-            self.repTimer['time'] = datetime.datetime(today.year(), today.month(), 0, 0, 0)
+            self.repTimer['time'] = datetime.datetime(today.year, today.month, 0, 0, 0)
 
         self.repTimer['lastCheck'] = now
 
