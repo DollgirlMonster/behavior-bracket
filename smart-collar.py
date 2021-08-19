@@ -260,12 +260,12 @@ class radioThread(Thread):
 
         while not thread_stop_event.isSet():
             # Punish if requested
-            if requestPunishment != None:
+            if requestPunishment != False:
                 sequence = self.makeSequence()
                 waveID = self.makeWaveform(sequence)
                 self.transmit(waveID)
 
-                requestPunishment = None
+                requestPunishment = False
             else:
                 # Stop the shock unit from going into sleep mode by periodically flashing the LED
                 # We want to ping every two minutes on the first second
