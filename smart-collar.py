@@ -70,7 +70,7 @@ class PunishmentTimer:
         else: self.seconds = 3                              # No timers shorter than 3 seconds
 
         # Set up threaded timer
-        self.timer = Timer(self.seconds, self.doWarning())  # After (seconds - 3) seconds, play a warning sound -- 3 seconds later, punishment will occur
+        self.timer = Timer(self.seconds, self.doWarning)  # After (seconds - 3) seconds, play a warning sound -- 3 seconds later, punishment will occur
         self.timer.start()
 
     def doWarning(self):
@@ -79,7 +79,7 @@ class PunishmentTimer:
         global requestBeep
 
         requestBeep = 'warning'
-        self.timer = Timer(3, self.doPunishment())  # After 3 seconds, do punishment
+        self.timer = Timer(3, self.doPunishment)  # After 3 seconds, do punishment
         self.timer.start()
 
     def doPunishment(self):
