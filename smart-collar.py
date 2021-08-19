@@ -593,7 +593,7 @@ class motionThread(Thread):
         socketio.emit('exercise', {
             'repTime':              self.repTimer['time'].second,
             'reps':                 self.reps,
-            'wearerInRestPosition': self.wearerInRestPosition,
+            'wearerInRestPosition': self.wearerInRestPosition.value,
         }, namespace='/test')
 
     def resetRepTimer(self):
