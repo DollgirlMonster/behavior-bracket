@@ -561,7 +561,7 @@ class motionThread(Thread):
         global requestBeep          # Get visibility of beep var
 
         # Check wearer's position
-        if self.angleY > 20:                                                 # Check Y rotation for situp detection
+        if self.angleY > 20:                                            # Check Y rotation for situp detection
             self.wearerInRestPosition.value = False
         else: self.wearerInRestPosition.value = True
 
@@ -569,19 +569,15 @@ class motionThread(Thread):
 
         if self.wearerInRestPosition:
             if positionJustChanged:
-                self.repTimer['time'] = 0   # Reset rep timer
-
-                if self.punishmentTimer != None: self.punishmentTimer.cancel()          # Cancel current punishment timer if exists
-                self.punishmentTimer = PunishmentTimer(5, punishmentSource='fitness')   # Start punishment timer
+                self.resetRepTimer()
+                self.resetPunishmentTimer()
 
         else:   # Wearer doing a rep
             if positionJustChanged:
                 requestBeep = 'compliant'
                 self.reps += 1
-                self.repTimer['time'] = 0   # Reset rep timer
-                
-                if self.punishmentTimer != None: self.punishmentTimer.cancel()          # Cancel current punishment timer if exists
-                self.punishmentTimer = PunishmentTimer(5, punishmentSource='fitness')   # Start punishment timer
+                self.resetRepTimer()
+                self.resetPunishmentTimer()
 
         # Increment rep timer
         # TODO: Use this (in combination with gyroYangle for pushups?) to tell the wearer if they should do the exercise slower or faster
@@ -589,9 +585,7 @@ class motionThread(Thread):
         if self.repTimer['lastCheck'] != None:
             self.repTimer['time'] += now - self.repTimer['lastCheck'] # repTimer += delta(now, then)
         else: 
-            # Create empty datetime object for us to do time math on
-            today = datetime.datetime.today()
-            self.repTimer['time'] = datetime.datetime(today.year, today.month, today.day, 0, 0)
+            self.resetRepTimer()
 
         self.repTimer['lastCheck'] = now
 
@@ -600,6 +594,16 @@ class motionThread(Thread):
             'repTime':  self.repTimer['time'].second,
             'reps':     self.reps,
         })
+
+    def resetRepTimer(self):
+        """ Reset repTimer to 0 """
+        today = datetime.datetime.today()   # Create empty datetime object for us to do time math on
+        self.repTimer['time'] = datetime.datetime(today.year, today.month, today.day, 0, 0)
+
+    def resetPunishmentTimer(self, delay=5):
+        """ reset punishmentTimer to value set in delay """
+        if self.punishmentTimer != None: self.punishmentTimer.cancel()          # Cancel current punishment timer if exists
+        self.punishmentTimer = PunishmentTimer(delay, punishmentSource='fitness')   # Start punishment timer
 
     def testCompliance(self, motion):
         """
