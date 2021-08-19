@@ -28,7 +28,7 @@ thread_stop_event = Event()
 
 # Init global variables
 requestPunishment = None    # If not None, signal to punish and reason we are punishing
-requestBeep = None          # If not None, what beep pattern to play
+requestBeep = False         # If not False, what beep pattern to play
 punishmentIntensity = 50    # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
 
 gpio = pigpio.pi()          # Set up gpio
@@ -408,14 +408,14 @@ class beepThread(Thread):
         global requestBeep
 
         while not thread_stop_event.isSet():
-            if requestBeep != None:
+            if requestBeep != False:
                 for i in self.pattern[requestBeep]:
                     if i == 'chirp': self.buzzerOn(self.chirpLength)
                     elif i == 'beep': self.buzzerOn(self.beepLength)
 
                     sleep(self.restLength)
 
-                requestBeep = None
+                requestBeep = False
 
             sleep(self.delay)
 
