@@ -567,7 +567,7 @@ class motionThread(Thread):
 
         positionJustChanged = self.wearerInRestPosition.edgeDetect()    # Check if we just went in or out of a rep
 
-        if self.wearerInRestPosition:
+        if self.wearerInRestPosition.value:
             if positionJustChanged:
                 self.resetRepTimer()
                 self.resetPunishmentTimer()
