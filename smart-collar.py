@@ -393,7 +393,7 @@ class beepThread(Thread):
         self.pattern = {
             'compliant':    ['chirp'],
             'noncompliant': ['chirp', 'chirp'],
-            'warning':      ['chirp', 'chirp', 'chirp'],
+            'warning':      ['beep'],
             'soliton':      ['chirp', 'beep'],
         }
         
