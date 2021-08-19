@@ -46,12 +46,11 @@
             <b>Motion Delta:</b> <span id="Mdelta">??</span> <br />
             <b>Motion Loop Time:</b> <span id="loopTime">??</span> <br />
         </p>
+    </div>
+    <div>
         <p>
             <b>Motion Snapshot:</b> <span id="moCap--status">Not Capturing</span>
         </p>
-    </div>
-
-    <div>
         <ul class="ctl__buttons">
             <li>
                 <a id="ctl__moCap--on" class="button">Start Motion Snapshot</a>
@@ -61,7 +60,12 @@
             </li>
         </ul>
     </div>
+
     <div>
+        <p>
+            <b>Reps:</b> <span id="fitness__reps">??</span> <br />
+            <b>Rep Time:</b> <span id="fitness__rep-time">??</span> <br />
+        </p>
         <ul class="ctl__buttons">
             <li>
                 <a id="ctl__mode--fitness-test" class="button">Fitness Test Mode</a>
@@ -180,6 +184,12 @@
         // Freeze Mode Debug info
         socket.on('Mdelta', function(msg) {
             $('#Mdelta').html(msg.Mdelta.toString());
+        })
+
+        // Fitness info
+        socket.on('fitness', function(msg) {
+            $('#fitness__reps').html(msg.reps.toString());
+            $('#fitness__rep-time').html(msg.repTime.toString());
         })
 
         $('#ctl__moCap--on').click(function(event) {
