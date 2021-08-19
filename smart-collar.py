@@ -27,8 +27,8 @@ thread = Thread()
 thread_stop_event = Event()
 
 # Init global variables
-requestPunishment = False   # If not False, signal to punish and reason we are punishing
-requestBeep = 0             # Whether the collar should beep: 0 is no beeps, set number for number of beeps
+requestPunishment = None    # If not None, signal to punish and reason we are punishing
+requestBeep = None          # If not None, what beep pattern to play
 punishmentIntensity = 50    # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
 
 gpio = pigpio.pi()          # Set up gpio
@@ -218,12 +218,12 @@ class radioThread(Thread):
 
         while not thread_stop_event.isSet():
             # Punish if requested
-            if requestPunishment != False:
+            if requestPunishment != None:
                 sequence = self.makeSequence()
                 waveID = self.makeWaveform(sequence)
                 self.transmit(waveID)
 
-                requestPunishment = False
+                requestPunishment = None
             else:
                 # Stop the shock unit from going into sleep mode by periodically flashing the LED
                 # We want to ping every two minutes on the first second
@@ -311,11 +311,11 @@ class pwrThread(Thread):
             if app.config['dockLock']:   # If Dock Lock enabled
                 if self.chargingCheck():    # User just plugged in and dock lock passed
                     if self.charging.edgeDetect():
-                        requestBeep = 2
+                        requestBeep = 'reward'
                 else:                       # User is unplugged when they shouldn't be
                     requestPunishment = 'dockLock'
                     if self.charging.edgeDetect():
-                        requestBeep = 1
+                        requestBeep = 'punish'
                 
             # If charge is over 95, disable Dock Lock
             if self.percent >= 95:
@@ -340,46 +340,44 @@ class pwrThread(Thread):
 # Thread: Beep thread
 class beepThread(Thread):
     def __init__(self):
+        self.buzzerPin =    13      # GPIO pin for buzzer
+
         self.chirpLength =  0.02    # Length of a short beep
         self.beepLength =   0.6     # Length of a long beep
         self.restLength =   0.08    # Length of rest between beeps
-
         self.delay =        0.1    # Length of time to wait between checking whether we should beep
 
-        self.buzzerPin =    13      # GPIO pin for buzzer
+        self.pattern = {
+            'reward':   ['chirp'],
+            'punish':   ['chirp', 'chirp'],
+            'warning':  ['chirp', 'chirp', 'chirp'],
+            'soliton':  ['chirp', 'beep'],
+        }
         
         super(beepThread, self).__init__()
 
-    def doChirp(self):
+    def buzzerOn(self, onLength):
         gpio.write(self.buzzerPin, 1)
-        sleep(self.chirpLength)
-        gpio.write(self.buzzerPin, 0)
-
-    def doBeep(self):
-        gpio.write(self.buzzerPin, 1)
-        sleep(self.beepLength)
+        sleep(onLength)
         gpio.write(self.buzzerPin, 0)
 
     def waitLoop(self):
-        # Need visibility of global beep request int
+        # Need visibility of beep request var
         global requestBeep
 
         while not thread_stop_event.isSet():
-            while requestBeep > 0:
-                self.doChirp()
-                requestBeep -= 1
-                
-                sleep(self.restLength)
+            if requestBeep != None:
+                for i in self.pattern[requestBeep]:
+                    if i == 'chirp': self.buzzerOn(self.chirpLength)
+                    elif i == 'beep': self.buzzerOn(self.beepLength)
+
+                    sleep(self.restLength)
+
+                requestBeep = None
 
             sleep(self.delay)
 
     def run(self):
-        # Play startup chime as soon as we can
-        if app.config['startupChime']:      # If chime is enabled
-            self.doChirp()
-            sleep(self.restLength)
-            self.doBeep()
-
         self.waitLoop()
 
 # Thread: Motion update thread
@@ -527,13 +525,13 @@ class motionThread(Thread):
         # If compliance is true, do not request punishment
         if self.compliance.value:
             if shouldBeep:
-                requestBeep = 2
+                requestBeep = 'reward'
                 
         else: 
             requestPunishment = 'motion'
 
             if shouldBeep:
-                requestBeep = 1
+                requestBeep = 'punish'
 
     def getMotion(self):
         """
@@ -718,11 +716,11 @@ def manualControl(msg):
     global requestBeep
 
     if msg['command'] == 'punish':
-        requestBeep = 3
+        requestBeep = 'punish'
         requestPunishment = 'manual'
         
     elif msg['command'] =='warn':
-        requestBeep = 3
+        requestBeep = 'warning'
 
 # Start threads only if they haven't been started before
 if not thread.isAlive():
@@ -737,6 +735,10 @@ if not thread.isAlive():
     print('Starting Beep Thread')
     thread = beepThread()
     thread.start()
+
+    # Play startup chime as soon as we can
+    if app.config['startupChime']:      # If chime is enabled
+        requestBeep = 'soliton'
 
     print('Starting Motion Thread')
     thread = motionThread()
