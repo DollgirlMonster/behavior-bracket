@@ -87,7 +87,7 @@ class PunishmentTimer:
         global requestPunishment
         global requestBeep
         
-        requestBeep = 'noncompliance'
+        requestBeep = 'noncompliant'
         requestPunishment = punishmentSource
 
         # TODO: add bool to make punishment perpetual unless cancel() is called
