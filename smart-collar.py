@@ -614,7 +614,7 @@ class motionThread(Thread):
             self.compliance.value = True
             self.fitnessTest()
         if app.config['mode'] != 'fitness': # TODO: Remove this when punishment timer is integrated with the rest of the motion thread
-            self.punishmentTimer.cancel()
+            if self.punishmentTimer != None: self.punishmentTimer.cancel()
             self.punishmentTimer = None
         ### END   Testing area for fitness mode
 
