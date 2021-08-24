@@ -12,6 +12,7 @@ from flask_socketio import SocketIO, emit                           # flask-sock
 import pigpio                                                       # pigpio
 import berryimu
 import battery
+import wifi
 
 # create and configure the Flask app
 app = Flask(__name__, instance_relative_config=True)
