@@ -1,0 +1,50 @@
+<!doctype HTML>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>.
+
+<!-- 
+    Namespaces
+    stat__  Output
+    ctl__   Input
+    ui__    Clientside
+-->
+
+<body>
+    <main>
+        <form action="" method="" class="ui__wifi-setup">
+            <div class="ui__wifi-setup--ssid">
+                <label for="ctl__wifi-setup--ssid">Network Name</label>
+                <input type="text" name="ssid" id="ctl__wifi-setup--ssid" required>
+            </div>
+
+
+            <div class="ui__wifi-setup--passkey">
+                <label for="ctl__wifi-setup--passkey">Password</label>
+                <input type="text" name="passkey" id="ctl__wifi-setup--passkey" required>
+            </div>
+
+            <ul class="ctl__buttons">
+                <li>
+                    <a id="ctl__wifi-setup--submit" class="button">Connect</a>
+                </li>
+            </ul>
+        </form>
+    </main>
+</body>
+
+<!-- Import jQuery, SocketIO -->
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script type="text/javascript" src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+
+<script type="module">
+    $(document).ready(function() {
+        // SOCKETIO
+        // Connect to socket server
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
+        console.log("Connected to Socket");
+    });
+</script>
+</html>
