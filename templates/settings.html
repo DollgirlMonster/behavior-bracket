@@ -1,0 +1,40 @@
+<!doctype HTML>
+<html>
+<head>
+    <title>{{ title }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>.
+
+<!-- 
+    Namespaces
+    stat__  Output
+    ctl__   Input
+    ui__    Clientside
+-->
+
+<body>
+    <main>
+        <ul class="ctl__buttons">
+            <li>
+                <a id="ctl__" class="button">Button</a>
+            </li>
+        </ul>
+        <div class="stat__version">
+            <p>BBSS Version <span>{{ version }}</span></p>
+        </div>
+    </main>
+</body>
+
+<!-- Import jQuery, SocketIO -->
+<script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
+<script type="text/javascript" src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+
+<script type="module">
+    $(document).ready(function() {
+        // SOCKETIO
+        // Connect to socket server
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
+        console.log("Connected to Socket");
+    });
+</script>
+</html>

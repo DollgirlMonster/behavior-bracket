@@ -772,7 +772,24 @@ class motionThread(Thread):
 def debug():
     return render_template(
         'debug.html',
-        title = 'Smart Collar Debug',
+        title = 'BBSS Debug',
+    )
+
+# Settings page
+@app.route('/settings', methods=["GET"])
+def settings():
+    return render_template(
+        'settings.html',
+        title = 'Behavior Bracket Settings',
+        version = __version__,
+    )
+
+# Remote Control page
+@app.route('/', methods=["GET"])
+def control():
+    return render_template(
+        'control.html',
+        title = 'Behavior Bracket',
     )
 
 # Motion Data Snapshot
@@ -782,14 +799,6 @@ def mocap_toggle(msg):
         app.config['moCap'].value = True    # Turn on motion capture
     else:
         app.config['moCap'].value = False   # Turn off motion capture
-
-# Remote Control page
-@app.route('/', methods=["GET"])
-def control():
-    return render_template(
-        'control.html',
-        title = 'Smart Collar Control',
-    )
 
 # On client connect
 @socketio.on('connect', namespace='/test')
