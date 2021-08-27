@@ -55,7 +55,7 @@ a.ctl__mode--active {
   color: #e60400;
 }
 
-#ctl__pwrOff {
+#ctl__upperLeft {
   position: fixed;
   top: 1em;
   left: 1em;
