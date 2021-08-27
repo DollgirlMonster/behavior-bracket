@@ -13,6 +13,9 @@ import pigpio                                                       # pigpio
 import berryimu
 import battery
 import wifi
+import update
+
+__version__ = '0.1-alpha.0'
 
 # create and configure the Flask app
 app = Flask(__name__, instance_relative_config=True)
@@ -828,6 +831,47 @@ def update(msg):
 @socketio.on('pwrOff', namespace='/test')
 def pwrOff(msg):
     os.system('sudo poweroff')
+
+# Software update request
+@socketio.on('softwareUpdate', namespace='/test')
+def update(msg):
+    # Get update metadata
+    if msg.command = 'getNewestVersionDetails':
+        metadata = update.getNewestVersionDetails()
+        socket.emit('softwareUpdate',
+            {
+                'name': metadata['name'],
+                'version': metadata['version'],
+                'description': metadata['description'],
+                'url':  metadata['url'],
+                
+                'updateIsNewer': compareVersions(__version__, metadata['version'])
+            }, namespace='/test')
+
+    elif msg.command = 'updateSoftware':
+        # Update progresses through stages 'dl', 'install', 'reboot'
+        # Download update
+        socket.emit('softwareUpdate',
+        {
+            'status': 'dl',
+        }, namespace='/test')
+        update.downloadUpdate(update['url'])
+
+        # Install update
+        socket.emit('softwareUpdate',
+        {
+            'status': 'install',
+        }, namespace='/test')
+        update.updateSoftware()
+
+        # TODO: handle errors
+
+        # Let user know we're done and restart
+        socket.emit('softwareUpdate',
+        {
+            'status': 'reboot',
+        }, namespace='/test')
+        os.system('sudo reboot')
 
 # Manual control
 @socketio.on('manualControl', namespace='/test')
