@@ -22,8 +22,8 @@
 <body>
     <header>
         <!-- Power Off button -->
-        <div id="ctl__pwrOff">
-            <a id="ctl__pwrOff--button" class="link">Power Off</a>
+        <div id="ctl__reboot">
+            <a id="ctl__reboot--button" class="link">Restart</a>
         </div>
 
         <!-- Battery widget -->
@@ -129,22 +129,22 @@
     </div>
 
     <!-- Modal: Hardware power off confirmation -->
-    <div id="ui__pwrOff--confirmation-dialog" class="ui__hidden ui__modal--centered">
-        <p>Turn off the collar?</p>
+    <div id="ui__reboot--confirmation-dialog" class="ui__hidden ui__modal--centered">
+        <p>Are you sure you want to restart?</p>
         <ul class="ctl__buttons">
             <li>
-                <a id="ctl__pwrOff--yes" class="button">Yes</a>
+                <a id="ctl__reboot--yes" class="button">Yes</a>
             </li>
             <li>
-                <a id="ctl__pwrOff--no" class="button__filled">No</a>
+                <a id="ctl__reboot--no" class="button__filled">No</a>
             </li>
         </ul>
     </div>
 
-    <!-- Modal: Shutdown spinner -->
-    <div id="ui__pwrOff--shutdown" class="ui__modal--centered ui__hidden">
+    <!-- Modal: Reboot spinner -->
+    <div id="ui__reboot" class="ui__modal--centered ui__hidden">
         <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
-        <p>Shutting down...</p>
+        <p>Restarting...</p>
     </div>
 
     <!-- Modal: Dock Lock toggle -->
@@ -266,7 +266,7 @@
 
         //   Hardware shutdown switch actuated
         socket.on('shutdownConfirmation', function(msg) {
-            $("#ui__pwrOff--confirmation-dialog").addClass('ui__hidden--show'); // Show power off confirmation dialog
+            $("#ui__reboot--confirmation-dialog").addClass('ui__hidden--show'); // Show power off confirmation dialog
         })
 
         // Request inital state
@@ -373,19 +373,19 @@
             $('#ui__batt-warning').removeClass('ui__hidden--show');
         })
 
-        $('#ctl__pwrOff--button').click(function() {
-            $('#ui__pwrOff--confirmation-dialog').addClass('ui__hidden--show');
+        $('#ctl__reboot--button').click(function() {
+            $('#ui__reboot--confirmation-dialog').addClass('ui__hidden--show');
         })
 
-        $('#ctl__pwrOff--no').click(function() {
-            $('#ui__pwrOff--confirmation-dialog').removeClass('ui__hidden--show');
+        $('#ctl__reboot--no').click(function() {
+            $('#ui__reboot--confirmation-dialog').removeClass('ui__hidden--show');
         })
 
-        $('#ctl__pwrOff--yes').click(function() {
-            console.log("Shutting down");
-            $('#ui__pwrOff--confirmation-dialog').removeClass('ui__hidden--show');
-            $('#ui__pwrOff--shutdown').addClass('ui__hidden--show');
-            socket.emit('pwrOff', {'foo': 'bar'});
+        $('#ctl__reboot--yes').click(function() {
+            console.log("Rebooting...");
+            $('#ui__reboot--confirmation-dialog').removeClass('ui__hidden--show');
+            $('#ui__reboot').addClass('ui__hidden--show');
+            socket.emit('reboot', {'foo': 'bar'});
         })
 
         $('#stat__battery--container').click(function() {

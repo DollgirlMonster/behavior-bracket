@@ -828,9 +828,9 @@ def update(msg):
         }, namespace='/test')
 
 # Shut down request
-@socketio.on('pwrOff', namespace='/test')
-def pwrOff(msg):
-    os.system('sudo poweroff')
+@socketio.on('reboot', namespace='/test')
+def reboot(msg):
+    os.system('sudo reboot')
 
 # Software update request
 @socketio.on('softwareUpdate', namespace='/test')
