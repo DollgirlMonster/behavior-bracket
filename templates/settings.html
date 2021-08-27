@@ -26,6 +26,9 @@
     <main>
         <ul class="ctl__buttons">
             <li>
+                <a id="ctl__check-updates--button" class="button">Check for Updates</a>
+            </li>
+            <li>
                 <a id="ctl__reboot--button" class="button">Restart</a>
             </li>
         </ul>
@@ -120,6 +123,9 @@
 
             $('#ui__connecting').addClass('ui__hidden');                // Finished connecting, hide spinner
         })
+
+        // Check for Updates button
+        // TODO
 
         // Reboot button
         $('#ctl__reboot--button').click(function() {
