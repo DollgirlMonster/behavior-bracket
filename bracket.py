@@ -12,6 +12,7 @@ from flask_socketio import SocketIO, emit                           # flask-sock
 import pigpio                                                       # pigpio
 import berryimu
 import battery
+import wifi
 
 # create and configure the Flask app
 app = Flask(__name__, instance_relative_config=True)
@@ -106,6 +107,8 @@ app.config.update(
 
     emitMotionData =    True,                   # Whether to send motion values to debug page
     motionAlgorithm =   'fast'                  # Algorithm used to calculate device rotation -- can be 'fast' or 'accurate'
+
+    networkConnected =  None                    # Keep track of whether we're connected to the internet
 )
 
 # ooooooooooooo oooo                                           .o8           
@@ -395,6 +398,7 @@ class beepThread(Thread):
             'noncompliant': ['chirp', 'chirp'],
             'warning':      ['beep'],
             'soliton':      ['chirp', 'beep'],
+            'error':        ['beep', 'beep', 'beep'],
         }
         
         super(beepThread, self).__init__()
@@ -839,14 +843,10 @@ def manualControl(msg):
     elif msg['command'] =='warn':
         requestBeep = 'warning'
 
-# Start threads only if they haven't been started before
-if not thread.isAlive():
+if __name__ == "__main__":
+    # Start power management & sound threads
     print('Starting Power Management Thread')
     thread = pwrThread()
-    thread.start()
-
-    print('Starting Radio Thread')
-    thread = radioThread()
     thread.start()
 
     print('Starting Beep Thread')
@@ -857,9 +857,24 @@ if not thread.isAlive():
     if app.config['startupChime']:      # If chime is enabled
         requestBeep = 'soliton'
 
+    # Check wifi connection
+    if not wifi.isConnected():
+        # Start in access point mode
+        app.config.update(networkConnected = False)
+        requestBeep = 'error'
+        # wifi.setAccessPointMode(enableAP = True)  # TODO: uncomment once debugged
+    else:
+        # Start in client mode
+        app.config.update(networkConnected = True)
+
+    # Start radio & motion threads
+    print('Starting Radio Thread')
+    thread = radioThread()
+    thread.start()
+
     print('Starting Motion Thread')
     thread = motionThread()
     thread.start()
-
-if __name__ == "__main__":
+    
+    # Start webserver 
     app.run(debug=False, host='0.0.0.0')
