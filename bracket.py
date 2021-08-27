@@ -783,6 +783,7 @@ def mocap_toggle(msg):
     else:
         app.config['moCap'].value = False   # Turn off motion capture
 
+# Remote Control page
 @app.route('/', methods=["GET"])
 def control():
     return render_template(
@@ -822,9 +823,9 @@ def update(msg):
 
     socketio.emit('update', 
         {
-            'mode': app.config['mode'],
-            'intensity': punishmentIntensity,
-            'dockLock': app.config['dockLock'],
+            'mode':         app.config['mode'],
+            'intensity':    punishmentIntensity,
+            'dockLock':     app.config['dockLock'],
         }, namespace='/test')
 
 # Shut down request
@@ -840,10 +841,10 @@ def update(msg):
         metadata = update.getNewestVersionDetails()
         socket.emit('softwareUpdate',
             {
-                'name': metadata['name'],
-                'version': metadata['version'],
-                'description': metadata['description'],
-                'url':  metadata['url'],
+                'name':         metadata['name'],
+                'version':      metadata['version'],
+                'description':  metadata['description'],
+                'url':          metadata['url'],
                 
                 'updateIsNewer': compareVersions(__version__, metadata['version'])
             }, namespace='/test')
@@ -887,6 +888,13 @@ def manualControl(msg):
     elif msg['command'] =='warn':
         requestBeep = 'warning'
 
+# ooo        ooooo            o8o              
+# `88.       .888'            `"'              
+#  888b     d'888   .oooo.   oooo  ooo. .oo.   
+#  8 Y88. .P  888  `P  )88b  `888  `888P"Y88b  
+#  8  `888'   888   .oP"888   888   888   888  
+#  8    Y     888  d8(  888   888   888   888  
+# o8o        o888o `Y888""8o o888o o888o o888o 
 if __name__ == "__main__":
     # Start power management & sound threads
     print('Starting Power Management Thread')
@@ -897,19 +905,17 @@ if __name__ == "__main__":
     thread = beepThread()
     thread.start()
 
-    # Play startup chime as soon as we can
-    if app.config['startupChime']:      # If chime is enabled
-        requestBeep = 'soliton'
-
     # Check wifi connection
     if not wifi.isConnected():
         # Start in access point mode
         app.config.update(networkConnected = False)
-        requestBeep = 'error'
+        requestBeep = 'error'   # Play error beep
         # wifi.setAccessPointMode(enableAP = True)  # TODO: uncomment once debugged
     else:
         # Start in client mode
         app.config.update(networkConnected = True)
+
+        requestBeep = 'soliton' # Play startup chime
 
     # Start radio & motion threads
     print('Starting Radio Thread')
