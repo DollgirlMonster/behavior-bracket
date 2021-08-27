@@ -846,7 +846,7 @@ def reboot(msg):
 @socketio.on('softwareUpdate', namespace='/test')
 def update(msg):
     # Get update metadata
-    if msg.command = 'getNewestVersionDetails':
+    if msg.command == 'getNewestVersionDetails':
         metadata = update.getNewestVersionDetails()
         socket.emit('softwareUpdate',
             {
