@@ -1,3 +1,7 @@
+#!/usr/bin/python
+#
+#   This file is for low-level communication with the IMU
+
 import smbus
 import time
 
