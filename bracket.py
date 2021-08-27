@@ -109,9 +109,9 @@ app.config.update(
     startupChime =      True,                   # Whether to play a beep at launch to let the user know the device is ready to connect
 
     emitMotionData =    True,                   # Whether to send motion values to debug page
-    motionAlgorithm =   'fast'                  # Algorithm used to calculate device rotation -- can be 'fast' or 'accurate'
+    motionAlgorithm =   'fast',                 # Algorithm used to calculate device rotation -- can be 'fast' or 'accurate'
 
-    networkConnected =  None                    # Keep track of whether we're connected to the internet
+    networkConnected =  None,                   # Keep track of whether we're connected to the internet
 )
 
 # ooooooooooooo oooo                                           .o8           
