@@ -16,8 +16,8 @@ If you build this project or fork it to make something cool, I'd love to hear ab
     - Safer than the E-Sky unit (designed for use on humans)
     - Everything will fit in one package as opposed to being multiple devices
  2. Virtual Leash: Link the collar with a nearby Bluetooth device. If the device goes out of range, deliver a shock to the wearer
- 3. Add some kind of settings/preferences menu for easy configuration via the web UI
- 4. Detailed build instructions
+ 3. Fitness mode: Already have a demo of this working, just need to build it out more -- basically automatically enforced exercise routines using the IMU to count reps
+ 4. Add some kind of settings/preferences menu for easy configuration via the web UI
 
 ## Modes
  - Pet Mode:
@@ -40,19 +40,23 @@ If you build this project or fork it to make something cool, I'd love to hear ab
  - Power management
     - Low battery warning
     - Critical battery auto-shutdown
+ - Mag-Lock power switch
+    - The Bracket is put to sleep and woken up using a magnetic key
+    - When the device is asleep, the key wakes it up
+    - When the device is awake, the key pops up a confirmation panel in the web UI, and then goes to sleep
+ - (At version 1.0) OTA software update
+    - Download and patch the latest version of the Behavior Bracket System Software via the web UI
 
 ## Hardware
  - Raspberry Pi Zero W ($10)
  - BerryIMU v3 ($28)
-    - SDA on board pin 27
-    - SCL on board pin 28
  - WaveShare UPS HAT (C) ($24)
  - HiLetGo 3-01-0420-A (any cheap 433mHz transmitter should work) (~$5)
-    - DATA on board pin 22
  - E-Sky 998DR-1 
     - These can be tricky to find; similar possibly compatable collars exist, but may operate on a different protocol or frequency. YMMV)
     - DO NOT use the shock function of this device on the wearer's neck -- I recommend the thigh
     - DO NOT lock this device to the wearer -- I haven't done enough testing yet to verify that the app won't crash in a weird and possibly dangerous way, so it's important to be able to remove the device quickly
+ - Plastic case N/O reed switch (~$5/5 pack)
  - (Optional) MicroUSB to magnetic charging cable adapter (~$15/3 pack)
  - (Optional) 3v Active Buzzer for audio feedback (>$1)
 
