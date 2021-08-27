@@ -36,11 +36,11 @@ def setAccessPointMode(enableAP):
     cmd = sudo_mode + f'systemctl {cmdVerb} dnsmasq'
     cmd_result = ""
     cmd_result = os.system(cmd)
-    print cmd + " - " + str(cmd_result)
+    print(cmd + " - " + str(cmd_result))
 
     cmd = sudo_mode + f'systemctl {cmdVerb} hostapd'
     cmd_result = os.system(cmd)
-    print cmd + " - " + str(cmd_result)
+    print(cmd + " - " + str(cmd_result))
 
     # Set up dhcpcd config
     with open('dhcpcd.conf', 'w') as f:
@@ -65,7 +65,7 @@ def setAccessPointMode(enableAP):
     # Copy host mode dhcpcd config to system folder
     cmd = 'cp dhcpcd.conf ' + dhcpcd_conf
     cmd_result = os.system(cmd)
-    print cmd + " - " + str(cmd_result)
+    print(cmd + " - " + str(cmd_result))
 
 def clientConnect(ssid, passkey):
     """ 
@@ -88,28 +88,28 @@ def clientConnect(ssid, passkey):
     cmd = 'mv wifi.conf ' + wpa_supplicant_conf
     cmd_result = ""
     cmd_result = os.system(cmd)
-    print cmd + " - " + str(cmd_result)
+    print(cmd + " - " + str(cmd_result))
 
     # restart wifi adapter
     cmd = sudo_mode + 'ifdown wlan0'
     cmd_result = os.system(cmd)
-    print cmd + " - " + str(cmd_result)
+    print(cmd + " - " + str(cmd_result))
 
     time.sleep(2)
 
     cmd = sudo_mode + 'ifup wlan0'
     cmd_result = os.system(cmd)
-    print cmd + " - " + str(cmd_result)
+    print(cmd + " - " + str(cmd_result))
 
     time.sleep(10)
 
     cmd = 'iwconfig wlan0'
     cmd_result = os.system(cmd)
-    print cmd + " - " + str(cmd_result)
+    print(cmd + " - " + str(cmd_result))
 
     cmd = 'ifconfig wlan0'
     cmd_result = os.system(cmd)
-    print cmd + " - " + str(cmd_result)
+    print(cmd + " - " + str(cmd_result))
 
     # Get IP address
     p = subprocess.Popen(['ifconfig', 'wlan0'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
