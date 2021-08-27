@@ -13,16 +13,29 @@
 -->
 
 <body>
+    <header>
+        <!-- Back button -->
+        <div id="ui__back">
+            <a href="/" class="link">&laquo; Remote</a>
+        </div>
+
+        <!-- Battery widget -->
+        {% include '_battery-widget.html' %}
+    </header>
+
     <main>
         <ul class="ctl__buttons">
             <li>
-                <a id="ctl__" class="button">Button</a>
+                <a id="ctl__reboot--button" class="button">Restart</a>
             </li>
         </ul>
         <div class="stat__version">
             <p>BBSS Version <span>{{ version }}</span></p>
         </div>
     </main>
+
+    <!-- Modals -->
+    {% include '_modals.html' %}
 </body>
 
 <!-- Import jQuery, SocketIO -->
@@ -35,6 +48,94 @@
         // Connect to socket server
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/test');
         console.log("Connected to Socket");
+
+        //   Battery level
+        socket.on('battery', function(msg) {
+            // Update battery status indicator
+            //   Update percent string
+            var percent = parseInt(msg.percent);
+            $('#stat__battery--percent').html(percent.toString());
+
+            //   Update battery fill width
+            var pxWidth = 21 * (msg.percent / 100);
+            $('#stat__battery--level').css('width',  pxWidth.toString() + 'px');
+
+            //   Update battery icon color
+            if (msg.percent <= 20) {
+                $('#stat__battery--level').addClass('lowBatt');
+                // If this is the first time the battery has dropped below 20%, show a warning
+                // TODO: This needs better logic, the dock lock window trigger does too
+                if (hasShownBattWarning == false) {
+                    $('#ui__batt-warning').addClass('ui__hidden--show');
+                    hasShownBattWarning = true;
+                }
+            } else {
+                $('#stat__battery--level').removeClass('lowBatt');
+            }
+
+            // Reset warning trigger if battery has certain values
+            if (msg.percent >= 25) {
+                hasShownBattWarning = false;    // Reset low battery warning if battery goes above 25%
+            } else if (msg.percent >= 90) {
+                hasShownDockLockModal = false;  // Reset dock lock if battery goes above 90%
+            }
+
+            // Charging status-related checks
+            if (msg.charging == true) {
+                $('#stat__battery--dock-lock').removeClass('shock');                // If the device is charging, don't light up the battery icon
+
+                // Check Dock Lock status on charging status update
+                if (msg.dockLock == true) {                                         // DL on and device is charging
+                    dockLock = true;                                                //   Keep track of DL status clientside
+                    $('#stat__battery--dock-lock').addClass('ui__hidden--show');    //   Show DL icon
+                    $('#stat__battery--charging').removeClass('ui__hidden--show');  //   Hide charging bolt icon
+                } else {                                                            // DL off
+                    dockLock = false;                                               //   Keep track of DL status clientside
+                    $('#stat__battery--charging').addClass('ui__hidden--show');     //   Show charging bolt icon
+                    $('#stat__battery--dock-lock').removeClass('ui__hidden--show'); //   Hide DL icon
+                }
+
+                // Ask user if Dock Lock should be enabled
+                if (hasShownDockLockModal == false) {                               // If we haven't shown the DL modal before
+                    $('#ui__dock-lock--enable').addClass('ui__hidden--show');       // Show the modal
+                    hasShownDockLockModal = true;                                   // Remember that we have shown the modal
+                }
+            } else {    // msg.charging == false
+                $('#stat__battery--charging').removeClass('ui__hidden--show');      // Hide charging bolt icon
+
+                // Check Dock Lock status on charging status update
+                if (dockLock == true) {                                             // DL on and device not charging
+                    $('#stat__battery--dock-lock').addClass('shock');               //   Light up the battery icon
+                } else {                                                            // DL off
+                    $('#stat__battery--dock-lock').removeClass('ui__hidden--show'); //   Hide DL icon
+                }
+            }
+        })
+    
+
+        // Request inital state
+        socket.emit('update', {'foo': 'bar'});
+        socket.on('update', function(msg) {
+            if (msg.dockLock) {dockLock = true;}                        // Keep track of Dock Lock status clientside
+
+            $('#ui__connecting').addClass('ui__hidden');                // Finished connecting, hide spinner
+        })
+
+        // Reboot button
+        $('#ctl__reboot--button').click(function() {
+            $('#ui__reboot--confirmation-dialog').addClass('ui__hidden--show');
+        })
+
+        $('#ctl__reboot--no').click(function() {
+            $('#ui__reboot--confirmation-dialog').removeClass('ui__hidden--show');
+        })
+
+        $('#ctl__reboot--yes').click(function() {
+            console.log("Rebooting...");
+            $('#ui__reboot--confirmation-dialog').removeClass('ui__hidden--show');
+            $('#ui__reboot').addClass('ui__hidden--show');
+            socket.emit('reboot', {'foo': 'bar'});
+        })
     });
 </script>
 </html>
