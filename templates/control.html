@@ -22,54 +22,12 @@
 <body>
     <header>
         <!-- Power Off button -->
-        <div id="ctl__reboot">
-            <a id="ctl__reboot--button" class="link">Restart</a>
+        <div id="ui__settings">
+            <a href="/settings" class="link">Settings</a>
         </div>
 
         <!-- Battery widget -->
-        <div id="stat__battery--container">
-            <div id="stat__battery--text"><span id="stat__battery--percent">??</span>%</div>
-            <!-- Charging icon -->
-            <div id="stat__battery--charging" class="ui__hidden">
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-                viewBox="0 0 31.09 55.71" style="enable-background:new 0 0 31.09 55.71;" xml:space="preserve">
-                        <g>
-                            <path class="charging__fill" d="M8.34,54.21c-0.57,0-1.11-0.27-1.45-0.73c-0.34-0.46-0.44-1.03-0.27-1.58l5.57-18.23H4.14
-                                c-0.99,0-1.89-0.55-2.34-1.42c-0.45-0.88-0.38-1.93,0.19-2.73L21.3,2.26c0.34-0.47,0.88-0.76,1.45-0.76c0.57,0,1.11,0.27,1.45,0.73
-                                s0.43,1.03,0.27,1.58l-5.57,18.23h8.06c0.99,0,1.89,0.55,2.34,1.42s0.38,1.93-0.19,2.73L9.79,53.45
-                                C9.46,53.92,8.91,54.21,8.34,54.21L8.34,54.21z"/>
-                            <path class="charging__stroke" d="M22.75,3c0.17,0,0.34,0.16,0.28,0.37l-6.17,20.17h10.09c0.92,0,1.46,1.04,0.93,1.79L8.57,52.58
-                                c-0.06,0.09-0.15,0.12-0.23,0.12c-0.17,0-0.34-0.16-0.28-0.37l6.17-20.17H4.14c-0.92,0-1.46-1.04-0.93-1.79L22.52,3.12
-                                C22.58,3.04,22.67,3,22.75,3 M22.75,0L22.75,0c-1.06,0-2.06,0.52-2.68,1.39L0.76,28.64c-0.9,1.27-1.01,2.91-0.3,4.29
-                                c0.71,1.38,2.12,2.24,3.67,2.24h6.04L5.19,51.46c-0.3,0.99-0.12,2.08,0.5,2.91c0.62,0.84,1.61,1.34,2.65,1.34
-                                c1.06,0,2.06-0.52,2.68-1.39l19.31-27.25c0.9-1.27,1.01-2.91,0.3-4.29c-0.71-1.38-2.12-2.24-3.67-2.24h-6.04L25.9,4.25
-                                c0.3-0.99,0.12-2.08-0.5-2.91C24.78,0.5,23.79,0,22.75,0L22.75,0z"/>
-                        </g>
-                </svg>
-            </div>
-            <!-- Dock Lock icon -->
-            <div id="stat__battery--dock-lock" class="ui__hidden">
-                <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 45.76 64.66" style="enable-background:new 0 0 45.76 64.66;" xml:space="preserve">
-                    <g>
-                        <path class="charging__fill" d="M7.07,63.16c-3.39,0-5.57-2.58-5.57-6.57v-27.3c0-3.38,1.56-5.74,4.09-6.39v-6.1
-                            c0-8.43,6.86-15.29,15.29-15.29h4.14c8.43,0,15.29,6.86,15.29,15.29v6.14c2.44,0.71,3.95,3.06,3.95,6.35v27.3
-                            c0,3.99-2.19,6.57-5.57,6.57H7.07z M24.1,44.21l-1.96,6.41l6.15-8.69h-6.64l1.96-6.41l-6.15,8.68H24.1z M32.13,22.71v-5.92
-                            c0-3.92-3.19-7.1-7.1-7.1h-4.14c-3.92,0-7.1,3.19-7.1,7.1v5.92H32.13z"/>
-                        <path class="charging__stroke" d="M25.03,3c7.61,0,13.79,6.19,13.79,13.79v7.42c2.73,0.07,3.95,2.32,3.95,5.07v27.3c0,2.79-1.28,5.07-4.07,5.07
-                            H7.07C4.28,61.66,3,59.38,3,56.58v-27.3c0-2.79,1.28-5.07,4.07-5.07h0.02v-7.42C7.09,9.19,13.28,3,20.89,3H25.03 M12.28,24.21
-                            h21.35v-7.42c0-4.74-3.86-8.6-8.6-8.6h-4.14c-4.74,0-8.6,3.86-8.6,8.6V24.21 M15.91,45.71h6.17l-3.77,12.33
-                            c-0.04,0.13,0.06,0.23,0.17,0.23c0.05,0,0.1-0.02,0.14-0.08l11.81-16.66c0.33-0.46,0-1.09-0.57-1.09h-6.17l3.77-12.33
-                            c0.04-0.13-0.06-0.23-0.17-0.23c-0.05,0-0.1,0.02-0.14,0.07L15.34,44.62C15.02,45.07,15.34,45.71,15.91,45.71 M25.03,0h-4.14
-                            C11.63,0,4.09,7.53,4.09,16.79v5.04C1.56,23,0,25.71,0,29.28v27.3c0,4.83,2.84,8.07,7.07,8.07h31.62c4.23,0,7.07-3.24,7.07-8.07
-                            v-27.3c0-3.49-1.5-6.16-3.95-7.37v-5.12C41.82,7.53,34.29,0,25.03,0L25.03,0z M15.28,21.21v-4.42c0-3.09,2.51-5.6,5.6-5.6h4.14
-                            c3.09,0,5.6,2.51,5.6,5.6v4.42H15.28L15.28,21.21z"/>
-                    </g>
-                </svg>
-            </div>
-            <div id="stat__battery--outer">
-                <div id="stat__battery--level"></div>
-            </div>
-        </div>
+        {% include '_battery-widget.html' %}
     </header>
 
     <!-- Mode switch -->
@@ -122,54 +80,8 @@
         </div>
     </footer>
 
-    <!-- Modal: Connecting spinner -->
-    <div id="ui__connecting" class="ui__modal--centered">
-        <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
-        <p>Connecting to collar...</p>
-    </div>
-
-    <!-- Modal: Hardware power off confirmation -->
-    <div id="ui__reboot--confirmation-dialog" class="ui__hidden ui__modal--centered">
-        <p>Are you sure you want to restart?</p>
-        <ul class="ctl__buttons">
-            <li>
-                <a id="ctl__reboot--yes" class="button">Yes</a>
-            </li>
-            <li>
-                <a id="ctl__reboot--no" class="button__filled">No</a>
-            </li>
-        </ul>
-    </div>
-
-    <!-- Modal: Reboot spinner -->
-    <div id="ui__reboot" class="ui__modal--centered ui__hidden">
-        <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
-        <p>Restarting...</p>
-    </div>
-
-    <!-- Modal: Dock Lock toggle -->
-    <div id="ui__dock-lock--enable" class="ui__hidden ui__modal--centered">
-        <p>Enable Dock Lock?</p>
-        <p>Dock Lock punishes the wearer for disconnecting the charger before the collar is charged past 95%.</p>
-        <ul class="ctl__buttons">
-            <li>
-                <a id="ctl__dock-lock--enable" class="button">Enable</a>
-            </li>
-            <li>
-                <a id="ctl__dock-lock--disable" class="button">Disable</a>
-            </li>
-        </ul>
-    </div>
-
-    <!-- Modal: Low battery warning -->
-    <div id="ui__batt-warning" class="ui__hidden ui__modal--centered">
-        <p>The collar's battery is low. Charge the battery soon or the collar will turn off.</p>
-        <ul class="ctl__buttons">
-            <li>
-                <a id="ctl__battWarning--ok" class="button">Ok</a>
-            </li>
-        </ul>
-    </div>
+    <!-- Modals -->
+    {% include '_modals.html' %}
 </body>
 
 <!-- Import jQuery, SocketIO -->
@@ -371,21 +283,6 @@
         // UI popup window button functions
         $('#ctl__battWarning--ok').click(function() {
             $('#ui__batt-warning').removeClass('ui__hidden--show');
-        })
-
-        $('#ctl__reboot--button').click(function() {
-            $('#ui__reboot--confirmation-dialog').addClass('ui__hidden--show');
-        })
-
-        $('#ctl__reboot--no').click(function() {
-            $('#ui__reboot--confirmation-dialog').removeClass('ui__hidden--show');
-        })
-
-        $('#ctl__reboot--yes').click(function() {
-            console.log("Rebooting...");
-            $('#ui__reboot--confirmation-dialog').removeClass('ui__hidden--show');
-            $('#ui__reboot').addClass('ui__hidden--show');
-            socket.emit('reboot', {'foo': 'bar'});
         })
 
         $('#stat__battery--container').click(function() {

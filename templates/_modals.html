@@ -1,0 +1,48 @@
+<!-- Modal: Connecting spinner -->
+<div id="ui__connecting" class="ui__modal--centered">
+    <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
+    <p>Connecting to collar...</p>
+</div>
+
+<!-- Modal: Hardware power off confirmation -->
+<div id="ui__reboot--confirmation-dialog" class="ui__hidden ui__modal--centered">
+    <p>Are you sure you want to restart?</p>
+    <ul class="ctl__buttons">
+        <li>
+            <a id="ctl__reboot--yes" class="button">Yes</a>
+        </li>
+        <li>
+            <a id="ctl__reboot--no" class="button__filled">No</a>
+        </li>
+    </ul>
+</div>
+
+<!-- Modal: Reboot spinner -->
+<div id="ui__reboot" class="ui__modal--centered ui__hidden">
+    <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
+    <p>Restarting...</p>
+</div>
+
+<!-- Modal: Dock Lock toggle -->
+<div id="ui__dock-lock--enable" class="ui__hidden ui__modal--centered">
+    <p>Enable Dock Lock?</p>
+    <p>Dock Lock punishes the wearer for disconnecting the charger before the collar is charged past 95%.</p>
+    <ul class="ctl__buttons">
+        <li>
+            <a id="ctl__dock-lock--enable" class="button">Enable</a>
+        </li>
+        <li>
+            <a id="ctl__dock-lock--disable" class="button">Disable</a>
+        </li>
+    </ul>
+</div>
+
+<!-- Modal: Low battery warning -->
+<div id="ui__batt-warning" class="ui__hidden ui__modal--centered">
+    <p>The collar's battery is low. Charge the battery soon or the collar will turn off.</p>
+    <ul class="ctl__buttons">
+        <li>
+            <a id="ctl__battWarning--ok" class="button">Ok</a>
+        </li>
+    </ul>
+</div>
