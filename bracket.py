@@ -858,7 +858,7 @@ def update(msg):
                 'updateIsNewer': compareVersions(__version__, metadata['version'])
             }, namespace='/test')
 
-    elif msg.command = 'updateSoftware':
+    elif msg.command == 'updateSoftware':
         # Update progresses through stages 'dl', 'install', 'reboot'
         # Download update
         socket.emit('softwareUpdate',
