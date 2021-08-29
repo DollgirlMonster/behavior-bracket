@@ -470,14 +470,29 @@ class motionThread(Thread):
 
         super(motionThread, self).__init__()
 
+    def angleTest(self, angle, lowBound, highBound):
+        """
+        Generalized function for angle-related compliance checks
+        """
+        forgiveness = 5     # +/- activation amounts on angles for debouncing and UX improvement
+
+        # Adjust activation angles to account for forgiveness
+        if self.compliance.value:           # If wearer is compliant
+            lowBound -= forgiveness         # Widen the low and high bounds 
+            highBound += forgiveness        # so that it's easier to stay within them
+        else:                               # if wearer is noncompliant
+            lowBound += forgiveness         # Tighten the low and high bounds
+            highBound -= forgiveness        # so that it's harder to slip out once back in
+
+        if highBound > angle > lowBound:    # If wearer is within a valid angle
+            return True
+        else: return False
+
     def petTest(self):
         """
-        pet training mode: user's neck must face down (Y rotation between -130 to -50)
+        Pet Training Mode: wearer's neck must face down (Y rotation between -130 to -50)
         """
-        if self.angleY > -130 and self.angleY < -50:
-            return True
-        else:
-            return False
+        return self.angleTest(self.angleY, -130, -50)
 
     def getMotionDelta(self):
         """
@@ -783,9 +798,9 @@ def control():
 @socketio.on('moCap', namespace='/test')
 def mocap_toggle(msg):
     if msg['moCap']:
-        app.config.update(moCap = True) # Turn on motion capture
+        app.config.update(moCap = True)     # Turn on motion capture
     else:
-        app.config.update(moCap = False) # Turn off motion capture
+        app.config.update(moCap = False)    # Turn off motion capture
 
         # Set up the .csv file headers
         with open('motion.csv', 'a', newline='') as file:
