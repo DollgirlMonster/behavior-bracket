@@ -5,6 +5,7 @@ import csv
 from threading import Thread, Event, Timer
 import time
 import datetime
+import statistics
 
 from flask import Flask, request, abort, redirect, render_template  # Flask
 from flask_socketio import SocketIO, emit                           # flask-socketio
@@ -296,22 +297,18 @@ class pwrThread(Thread):
         self.delay = 120
         self.pwrPin = 3   # GPIO pin for power switch
 
-        self.loadVoltage = 0
-        self.current = 0
-        self.power = 0
-        self.percent = 0
-        self.avgPercent = 0     # Stablized to prevent bouncing
-
         self.charging = EdgeDetector(False) # Charging status with edge detection
         self.pwrSwitch = EdgeDetector(1)    # Power switch status with edge detection
 
-        self.battPercentHistory = []   # List of dicts with loadVoltage, current, power, percent
+        self.PERCENT_MEAN_TABLE_SIZE = 300                              # Size of the mean table for the battery percentage
+        self.battPercentHistory = [50] * self.PERCENT_MEAN_TABLE_SIZE   # List of previous percent values
 
         super(pwrThread, self).__init__()
 
-    def pwrSwitchCheck(self):
+    def magSwitchCheck(self):
+        # TODO: If I can't find a use for the magnet switch/key, remove this function
         """ 
-        Query the power switch for state, on low edge send shutdown confirmation to webUI
+        Query the magnet switch for state, on low edge send shutdown confirmation to webUI
         Pin is high on open, low on closed
         """
         pwrJustChanged = self.pwrSwitch.update(gpio.read(self.pwrPin))  # Query GPIO for power switch state
@@ -319,15 +316,6 @@ class pwrThread(Thread):
             socketio.emit('shutdownConfirmation', {
                 'foo': 'bar',
             }, namespace='/test')
-
-    def chargingCheck(self):
-        """ Returns false if the collar should be charging and is not """
-        
-        if self.charging.value:       # If the charger is connected, wearer is in the clear
-            return True
-
-        else: 
-            return False      # If dockLock is on and charger is disconnected, punish
 
     def battLoop(self):
         """
@@ -338,23 +326,22 @@ class pwrThread(Thread):
         global requestBeep
 
         while not thread_stop_event.isSet():
-            # Check power button and shut down if it's switched
-            self.pwrSwitchCheck()
-
             battStat = battery.get_battery()
 
-            self.loadVoltage = battStat['loadVoltage']
-            self.current = battStat['current']
-            self.power = battStat['power']
-            self.percent = battStat['percent']
+            # loadVoltage = battStat['loadVoltage']
+            # current = battStat['current']
+            # power = battStat['power']
+            percent = battStat['percent']   # This is the only stat we actually use
 
-            # Update battery history
-            self.battPercentHistory.append(self.percent)
-            if len(self.battPercentHistory) > 100:
-                del self.battPercentHistory[0]
+            # Cycle battery history
+            for i in range(self.PERCENT_MEAN_TABLE_SIZE-1, 0, -1):
+                self.battPercentHistory[i] = self.battPercentHistory[i - 1]
+
+            # Insert new battery history value
+            self.battPercentHistory[0] = percent
 
             # Get the mean of the battery percent history
-            self.avgPercent = sum(self.battPercentHistory) / len(self.battPercentHistory)
+            avgPercent = statistics.mean(battPercentHistory)
 
             # Figure out whether we're charging
             if self.current > 0:
@@ -365,7 +352,7 @@ class pwrThread(Thread):
 
             # If the state just changed, do dock lock check
             if app.config['dockLock']:                  # If Dock Lock enabled
-                if self.chargingCheck():                # And unit is charging
+                if self.charging.value:                 # And unit is charging
                     if plugStatusChanged:               # And unit just got plugged in
                         requestBeep = 'compliant'       # Play compliance beep
                 else:                                   # Otherwise, if the unit is unplugged when it shouldn't be
