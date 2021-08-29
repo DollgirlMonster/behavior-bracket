@@ -41,22 +41,29 @@ gpio = pigpio.pi()          # Set up gpio
 class EdgeDetector:
     """ Detects false/true transitions on an external signal"""
     def __init__(self, value=None):
-        self.value = value      # Bool to detect on
-        self.last_value = None  # Initialize history
-        self.firstCheck = True  # Keep track of first time we test for edge detection
+        self.value = value          # Var to detect on
+        self.edgeDetected = False   # Whether or not the value just changed
+        # self.firstCheck = True      # Keep track of first time we test for edge detection
 
-    def edgeDetect(self):
-        if self.value != self.last_value:
-            self.last_value = self.value
+    def __str__(self):
+        return str(self.value)
 
-            if self.firstCheck: # First run return false
-                self.firstCheck = False
-                return False
-            else: return True
+    def update(self, newValue):
+        """ Update the stored value and return whether or not the value changed """
+        # Compare the stored value against the new value,
+        # and update edgeDetected bool accordingly
+        if self.value != newValue:
+            self.edgeDetected = True
+        else: self.edgeDetected = False
 
-        else: 
-            self.last_value = self.value
-            return False
+        # if self.firstCheck: # First run return false
+        #     self.firstCheck = False
+        #     return False
+        # else: return True
+
+        self.value = newValue           # Replace stored value with new value
+
+        return self.edgeDetected        # Return whether or not the value changed
 
 class PunishmentTimer:
     """ 
@@ -104,7 +111,7 @@ class PunishmentTimer:
 app.config.update(
     mode =              'off',                  # Operation mode for the device -- decides what logic is used for compliance determination
     safetyMode =        True,                   # If true, shocks will instead be delivered as vibrations
-    moCap =             EdgeDetector(False),    # Whether we should log motion data
+    moCap =             False,                  # Whether we should log motion data
     dockLock =          False,                  # Whether to enable Dock Lock (punish wearer if charger disconnected)
     startupChime =      True,                   # Whether to play a beep at launch to let the user know the device is ready to connect
 
@@ -307,8 +314,8 @@ class pwrThread(Thread):
         Query the power switch for state, on low edge send shutdown confirmation to webUI
         Pin is high on open, low on closed
         """
-        self.pwrSwitch.value = gpio.read(self.pwrPin)
-        if self.pwrSwitch.edgeDetect() and self.pwrSwitch.value == 0:   # Low edge detected
+        pwrJustChanged = self.pwrSwitch.update(gpio.read(self.pwrPin))  # Query GPIO for power switch state
+        if pwrJustChanged and self.pwrSwitch.value == 0:                # Low edge detected
             socketio.emit('shutdownConfirmation', {
                 'foo': 'bar',
             }, namespace='/test')
@@ -351,23 +358,23 @@ class pwrThread(Thread):
 
             # Figure out whether we're charging
             if self.current > 0:
-                self.charging.value = True
+                plugStatusChanged = self.charging.update(True)
 
             else:
-                self.charging.value = False
+                plugStatusChanged = self.charging.update(False)
 
             # If the state just changed, do dock lock check
-            if app.config['dockLock']:   # If Dock Lock enabled
-                if self.chargingCheck():    # User just plugged in and dock lock passed
-                    if self.charging.edgeDetect():
-                        requestBeep = 'compliant'
-                else:                       # User is unplugged when they shouldn't be
-                    requestPunishment = 'dockLock'
-                    if self.charging.edgeDetect():
-                        requestBeep = 'noncompliant'
+            if app.config['dockLock']:                  # If Dock Lock enabled
+                if self.chargingCheck():                # And unit is charging
+                    if plugStatusChanged:               # And unit just got plugged in
+                        requestBeep = 'compliant'       # Play compliance beep
+                else:                                   # Otherwise, if the unit is unplugged when it shouldn't be
+                    requestPunishment = 'dockLock'      # Request punishment
+                    if plugStatusChanged:               # If the unit just got unplugged
+                        requestBeep = 'noncompliant'    # Play noncompliance beep
                 
-            # If charge is over 95, disable Dock Lock
-            if self.percent >= 95:
+            # If charge is over 99, disable Dock Lock
+            if self.percent >= 99:
                 app.config.update(dockLock = False)
 
             # Broadcast to WebUI
@@ -569,22 +576,20 @@ class motionThread(Thread):
 
         # Check wearer's position
         if self.angleY < 20:                                            # Check Y rotation for situp detection
-            self.wearerInRestPosition.value = False
-        else: self.wearerInRestPosition.value = True
+            positionJustChanged = self.wearerInRestPosition.update(False)
+        else: positionJustChanged = self.wearerInRestPosition.update(True)
 
-        positionJustChanged = self.wearerInRestPosition.edgeDetect()    # Check if we just went in or out of a rep
+        if self.wearerInRestPosition.value: # If the wearer ir in rest position
+            if positionJustChanged:         # and they just got into rest position
+                self.resetRepTimer()        # reset the rep timer
+                self.resetPunishmentTimer() # reset the punishment timer
 
-        if self.wearerInRestPosition.value:
-            if positionJustChanged:
-                self.resetRepTimer()
-                self.resetPunishmentTimer()
-
-        else:   # Wearer doing a rep
-            if positionJustChanged:
-                requestBeep = 'compliant'
-                self.reps += 1
-                self.resetRepTimer()
-                self.resetPunishmentTimer()
+        else:                               # Wearer is doing a rep
+            if positionJustChanged:         # If their position just changed
+                requestBeep = 'compliant'   # Request compliance beep
+                self.reps += 1              # Increment rep counter
+                self.resetRepTimer()        # Reset the rep timer
+                self.resetPunishmentTimer() # Reset the punishment timer
 
         # Increment rep timer
         # TODO: Use this (in combination with gyroYangle for pushups?) to tell the wearer if they should do the exercise slower or faster
@@ -620,12 +625,12 @@ class motionThread(Thread):
         global requestPunishment    # Get visibility of should transmit bool
         global requestBeep          # Get visibility of beep queue
 
-        if app.config['mode'] == 'off':         self.compliance.value = True
-        elif app.config['mode'] == 'freeze':    self.compliance.value = self.freezeTest()
-        elif app.config['mode'] == 'pet':       self.compliance.value = self.petTest()
-        elif app.config['mode'] == 'sleepDep':  self.compliance.value = self.sleepDepTest()
-        elif app.config['mode'] == 'random':    self.compliance.value = self.randomTest()
-        elif app.config['mode'] == 'posture':   self.compliance.value = self.postureTest()
+        if app.config['mode'] == 'off':         complianceJustChanged = self.compliance.update(True)
+        elif app.config['mode'] == 'freeze':    complianceJustChanged = self.compliance.update(self.freezeTest())
+        elif app.config['mode'] == 'pet':       complianceJustChanged = self.compliance.update(self.petTest())
+        elif app.config['mode'] == 'sleepDep':  complianceJustChanged = self.compliance.update(self.sleepDepTest())
+        elif app.config['mode'] == 'random':    complianceJustChanged = self.compliance.update(self.randomTest())
+        elif app.config['mode'] == 'posture':   complianceJustChanged = self.compliance.update(self.postureTest())
 
         ### BEGIN Testing area for fitness mode
         elif app.config['mode'] == 'fitness':
@@ -641,21 +646,15 @@ class motionThread(Thread):
             'requestPunishment': requestPunishment,
         }, namespace='/test')
 
-        # Decide whether we should beep based on change in compliance
-        shouldBeep = False
-        if self.compliance.edgeDetect():
-            shouldBeep = True
-    
         # If compliance is true, do not request punishment
-        if self.compliance.value:
-            if shouldBeep:
-                requestBeep = 'compliant'
+        if self.compliance.value:           # If wearer is compliant
+            if complianceJustChanged:       # And they just started being compliant
+                requestBeep = 'compliant'   # Request compliance beep
                 
-        else: 
-            requestPunishment = 'motion'
-
-            if shouldBeep:
-                requestBeep = 'noncompliant'
+        else:                               # If wearer is noncompliant
+            requestPunishment = 'motion'    # Request punishment
+            if complianceJustChanged:       # If they just started being noncompliant
+                requestBeep = 'noncompliant'# Request noncompliance beep
 
     def getMotion(self):
         """
@@ -719,12 +718,6 @@ class motionThread(Thread):
                 del self.motionHistory[0]
 
             # Motion snapshot
-            if app.config['moCap'].edgeDetect():                                # If we just started the snapshot
-                # TODO: remove file if exists? show a warning? something
-                with open('motion.csv', 'a', newline='') as file:               # Set up the .csv file headers
-                    writer = csv.DictWriter(file, fieldnames = list(motion.keys()))
-                    writer.writeheader()
-
             if app.config['moCap'].value:                                       # If motion logging enabled
                 with open('motion.csv', 'a', newline='') as file:               # Log motion
                     writer = csv.DictWriter(file, list(motion.keys()))
@@ -795,10 +788,15 @@ def control():
 # Motion Data Snapshot
 @socketio.on('moCap', namespace='/test')
 def mocap_toggle(msg):
-    if msg['moCap']:    
-        app.config['moCap'].value = True    # Turn on motion capture
+    if msg['moCap']:
+        app.config.update(moCap = True) # Turn on motion capture
     else:
-        app.config['moCap'].value = False   # Turn off motion capture
+        app.config.update(moCap = False) # Turn off motion capture
+
+        # Set up the .csv file headers
+        with open('motion.csv', 'a', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames = list(motion.keys()))
+            writer.writeheader()
 
 # On client connect
 @socketio.on('connect', namespace='/test')
