@@ -112,6 +112,7 @@ class PunishmentTimer:
 app.config.update(
     mode =              'off',                  # Operation mode for the device -- decides what logic is used for compliance determination
     safetyMode =        True,                   # If true, shocks will instead be delivered as vibrations
+    warnBeforeShock =   True,                   # Whether to give a warning beep before punishing for noncompliance
     moCap =             False,                  # Whether we should log motion data
     dockLock =          False,                  # Whether to enable Dock Lock (punish wearer if charger disconnected)
     startupChime =      True,                   # Whether to play a beep at launch to let the user know the device is ready to connect
@@ -489,15 +490,11 @@ class motionThread(Thread):
         else: return False
 
     def petTest(self):
-        """
-        Pet Training Mode: wearer's neck must face down (Y rotation between -130 to -50)
-        """
+        """ Pet Training Mode: wearer's neck must face down (Y rotation between -130 to -50) """
         return self.angleTest(self.angleY, -130, -50)
 
     def getMotionDelta(self):
-        """
-        Find change in recent movement
-        """
+        """ Find change in recent movement """
         # Get the mean of the motion history values
         m = 0 
         for i in self.motionHistory:
@@ -659,11 +656,16 @@ class motionThread(Thread):
         if self.compliance.value:           # If wearer is compliant
             if complianceJustChanged:       # And they just started being compliant
                 requestBeep = 'compliant'   # Request compliance beep
+                if self.punishmentTimer != None: self.punishmentTimer.cancel()              # Cancel current punishment timer if exists
                 
         else:                               # If wearer is noncompliant
-            requestPunishment = 'motion'    # Request punishment
             if complianceJustChanged:       # If they just started being noncompliant
-                requestBeep = 'noncompliant'# Request noncompliance beep
+                if app.config['warnBeforeShock']:                                           # If pre-punishment warning
+                    self.punishmentTimer = PunishmentTimer(3, punishmentSource='motion')    # Start punishment timer
+                else:                                                                       # Otherwise,
+                    requestBeep = 'noncompliant'                                            # Request noncompliance beep
+            if not app.config['warnBeforeShock']:
+                requestPunishment = 'motion'                                                # Request looping punishment
 
     def getMotion(self):
         """
