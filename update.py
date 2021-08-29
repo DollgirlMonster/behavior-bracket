@@ -3,8 +3,9 @@ import json
 from zipfile import ZipFile
 import re
 import os
+import shutil
 
-dlFolder = './'
+downloadDir = './'
 
 def getNewestVersionDetails(includePreReleases = True):
     """ Returns meta info about the latest release """
@@ -67,19 +68,23 @@ def downloadUpdate(updateURL):
 
     # Save update file
     print("Saving file...")
-    with open(dlFolder + 'latest.zip', 'wb') as updateFile:
+    with open(downloadDir + 'latest.zip', 'wb') as updateFile:
         updateFile.write(updatePackage.content)
 
 def updateSoftware():
     """ Replace program files with those from the update file """
     # Uncompress update
     print("Decompressing update...")
-    with ZipFile(dlFolder + 'latest.zip', 'r') as zipObj:
-        zipObj.extractall('behavior-bracket')
+    with ZipFile(downloadDir + 'latest.zip', 'r') as zipObj:
+        zipObj.extractall('update')
+
+    print("Copying update...")
+    shutil.copytree(downloadDir + 'update', downloadDir + 'behavior-bracket')
 
     # Delete old .zip file
     print("Cleaning up...")
-    os.remove(dlFolder + 'latest.zip')
+    os.remove(downloadDir + 'latest.zip')
+    os.removedirs(downloadDir + 'update')
 
 # Update procedure
 # update = getNewestVersionDetails()
