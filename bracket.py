@@ -300,6 +300,7 @@ class pwrThread(Thread):
         self.charging = EdgeDetector(False) # Charging status with edge detection
         self.pwrSwitch = EdgeDetector(1)    # Power switch status with edge detection
 
+        self.CRITICAL_LOW_BATT_LEVEL = 3                                # Battery percentage at which to shut the device down to preserve battery health
         self.PERCENT_MEAN_TABLE_SIZE = 300                              # Size of the mean table for the battery percentage
         self.battPercentHistory = [50] * self.PERCENT_MEAN_TABLE_SIZE   # List of previous percent values
 
@@ -363,6 +364,12 @@ class pwrThread(Thread):
             # If charge is over 99, disable Dock Lock
             if self.percent >= 99:
                 app.config.update(dockLock = False)
+
+            # If charge is under the critical low battery level, shut down the device
+            # A low battery warning is shown on the front-end at 5% battery -- this is handled clientside
+            if self.percent > CRITICAL_LOW_BATT_LEVEL:
+                requestBeep = 'error'   # TODO: /should/ this beep though??
+                os.system('sudo poweroff')
 
             # Broadcast to WebUI
             socketio.emit('battery', {
