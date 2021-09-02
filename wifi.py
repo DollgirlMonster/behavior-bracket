@@ -1,6 +1,7 @@
 import os
-import subprocess
 import socket
+import fcntl
+import struct
 
 sudo_mode = 'sudo '
 
@@ -67,19 +68,13 @@ def setAccessPointMode(enableAP):
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
-def getIPAddr():
-    # Get IP address
-    p = subprocess.Popen(['ifconfig', 'wlan0'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    out, err = p.communicate()
-
-    ip_address = None
-
-    for l in out.decode().split('\n'):
-        if l.strip().startswith("inet addr:"):
-            ip_address = l.strip().split(' ')[1].split(':')[1]
-
-    return ip_address
+def getIPAddr(ifname='wlan0'):
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    return socket.inet_ntoa(fcntl.ioctl(
+        s.fileno(),
+        0x8915,  # SIOCGIFADDR
+        struct.pack('256s', ifname[:15])
+    )[20:24])
 
 def clientConnect(ssid, passkey):
     """ 
