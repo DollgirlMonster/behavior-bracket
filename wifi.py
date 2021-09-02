@@ -67,6 +67,20 @@ def setAccessPointMode(enableAP):
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
+def getIPAddr():
+    # Get IP address
+    p = subprocess.Popen(['ifconfig', 'wlan0'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    out, err = p.communicate()
+
+    ip_address = None
+
+    for l in out.decode.split('\n'):
+        if l.strip().startswith("inet addr:"):
+            ip_address = l.strip().split(' ')[1].split(':')[1]
+
+    return ip_address
+
 def clientConnect(ssid, passkey):
     """ 
     Connect the device to a WiFi access point 
@@ -111,29 +125,6 @@ def clientConnect(ssid, passkey):
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
-    # Get IP address
-    p = subprocess.Popen(['ifconfig', 'wlan0'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    out, err = p.communicate()
-
-    ip_address = "<Not Set>"
-
-    for l in out.split('\n'):
-        if l.strip().startswith("inet addr:"):
-            ip_address = l.strip().split(' ')[1].split(':')[1]
-
-    return ip_address
-
-def getIPAddr():
-    # Get IP address
-    p = subprocess.Popen(['ifconfig', 'wlan0'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    out, err = p.communicate()
-
-    ip_address = None
-
-    for l in out.split('\n'):
-        if l.strip().startswith("inet addr:"):
-            ip_address = l.strip().split(' ')[1].split(':')[1]
+    ip_address = getIPAddr()
 
     return ip_address
