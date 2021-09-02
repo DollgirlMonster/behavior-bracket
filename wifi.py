@@ -123,3 +123,17 @@ def clientConnect(ssid, passkey):
             ip_address = l.strip().split(' ')[1].split(':')[1]
 
     return ip_address
+
+def getIPAddr():
+    # Get IP address
+    p = subprocess.Popen(['ifconfig', 'wlan0'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    out, err = p.communicate()
+
+    ip_address = None
+
+    for l in out.split('\n'):
+        if l.strip().startswith("inet addr:"):
+            ip_address = l.strip().split(' ')[1].split(':')[1]
+
+    return ip_address

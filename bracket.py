@@ -777,6 +777,7 @@ def debug():
     return render_template(
         'debug.html',
         title = 'BBSS Debug',
+        ipAddr = wifi.getIPAddr(),
     )
 
 # Settings page
