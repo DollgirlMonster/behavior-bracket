@@ -75,7 +75,7 @@ def getIPAddr():
 
     ip_address = None
 
-    for l in out.decode.split('\n'):
+    for l in out.decode().split('\n'):
         if l.strip().startswith("inet addr:"):
             ip_address = l.strip().split(' ')[1].split(':')[1]
 
