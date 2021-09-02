@@ -4,6 +4,7 @@ from zipfile import ZipFile
 import re
 import os
 import shutil
+from hashlib import md5
 
 downloadDir = './'
 
@@ -59,6 +60,14 @@ def compareVersions(current, new):
     elif versionComparison == 1: newerVersion = True
 
     return newerVersion
+
+def hashZip(zipLocation=downloadDir + 'latest.zip'):
+    """ Return the md5 hash of the most recent update """
+    m = md5()
+    with open(zipLocation, "rb") as f:
+        data = f.read() # read file in chunk and call update on each chunk if file is large.
+        m.update(data)
+        return m.hexdigest()
 
 def downloadUpdate(updateURL):
     """ Download and uncompress update files """
