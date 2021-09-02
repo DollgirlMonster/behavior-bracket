@@ -729,7 +729,7 @@ class motionThread(Thread):
                 del self.motionHistory[0]
 
             # Motion snapshot
-            if app.config['moCap'].value:                                       # If motion logging enabled
+            if app.config['moCap']:                                             # If motion logging enabled
                 with open('motion.csv', 'a', newline='') as file:               # Log motion
                     writer = csv.DictWriter(file, list(motion.keys()))
                     writer.writerow({
