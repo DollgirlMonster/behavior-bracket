@@ -1,7 +1,5 @@
 import os
 import socket
-import fcntl
-import struct
 
 sudo_mode = 'sudo '
 
@@ -70,11 +68,12 @@ def setAccessPointMode(enableAP):
 
 def getIPAddr(ifname='wlan0'):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    return socket.inet_ntoa(fcntl.ioctl(
-        s.fileno(),
-        0x8915,  # SIOCGIFADDR
-        struct.pack('256s', ifname[:15])
-    )[20:24])
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+    s.connect(('<broadcast>',0))
+    ip = s.getsockname()[0]
+    s.close()
+
+    return ip
 
 def clientConnect(ssid, passkey):
     """ 
