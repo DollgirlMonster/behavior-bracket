@@ -144,16 +144,17 @@ a.ctl__mode--active {
   border: 1px solid #e60400;
 }
 
-div[id^=ui__] {
+.ui-dialog {
   border: 1px solid #6c6060;
   background-color: #efeae7;
-}
-div[id^=ui__] .no-close .ui-dialog-titlebar-close {
-  display: none;
 }
 
 .ui__modal--centered {
   text-align: center;
+}
+
+.ui-dialog-titlebar-close {
+  display: none;
 }
 
 a.link {
