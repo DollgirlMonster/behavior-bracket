@@ -157,7 +157,7 @@ a.ctl__mode--active {
 }
 
 .ui-dialog-buttonpane {
-  margin-bottom: 1rem;
+  margin: 0 1rem 1rem;
 }
 
 .ui-dialog-titlebar-close {
@@ -194,12 +194,12 @@ a[class^=button].button__filled, button.button__filled {
   color: #efeae7;
 }
 
-.ui-dialog-buttonset {
+.ui-dialog-buttonset, .ctl__buttons {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
   grid-gap: 1em;
 }
-.ui-dialog-buttonset li {
+.ui-dialog-buttonset li, .ctl__buttons li {
   width: auto;
 }
 

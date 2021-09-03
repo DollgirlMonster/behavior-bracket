@@ -31,7 +31,7 @@ a[class^="button"], button {
     }
 }
 
-.ui-dialog-buttonset {
+.ui-dialog-buttonset, .ctl__buttons {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
     grid-gap: 1em;
