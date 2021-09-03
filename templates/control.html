@@ -99,16 +99,16 @@
     $(document).ready(function() {
         // Initialize dialogs
         $('#ui__modal').dialog({
-            autoOpen: False,
-            modal: True,
-            resizable: False,
+            autoOpen: false,
+            modal: true,
+            resizable: false,
         });
 
         $('#ui__spinner').dialog({
-            autoOpen: False,
-            modal: True,
-            resizable: False,
-            closeOnEscape: False,
+            autoOpen: false,
+            modal: true,
+            resizable: false,
+            closeOnEscape: false,
         });
 
         // Create connecting to collar spinner
@@ -237,7 +237,7 @@
                     text: "Yes",
                     click: function() {
                         console.log("Rebooting...");
-                        
+
                         $('#ui__spinner--body').text("Restarting...")
                         $('#ui__spinner').dialog( "open" );
 
