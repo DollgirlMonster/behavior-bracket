@@ -368,7 +368,7 @@ class pwrThread(Thread):
 
             # If charge is under the critical low battery level, shut down the device
             # A low battery warning is shown on the front-end at 5% battery -- this is handled clientside
-            if avgPercent > CRITICAL_LOW_BATT_LEVEL:
+            if avgPercent > self.CRITICAL_LOW_BATT_LEVEL:
                 requestBeep = 'error'   # TODO: /should/ this beep though??
                 os.system('sudo poweroff')
 
