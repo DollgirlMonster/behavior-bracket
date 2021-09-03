@@ -833,14 +833,14 @@ def intensity_select(msg):
 def dock_lock(msg):
     app.config.update(dockLock = msg['enabled'])
 
-# Update request
-@socketio.on('update', namespace='/test')
-def update(msg):
+# Request for info update
+@socketio.on('infoUpdate', namespace='/test')
+def infoUpdate(msg):
     # Need visibility of global vars to display in UI
     global mode
     global punishmentIntensity
 
-    socketio.emit('update', 
+    socketio.emit('infoUpdate', 
         {
             'mode':         app.config['mode'],
             'intensity':    punishmentIntensity,

@@ -182,8 +182,8 @@
         })
 
         // Request inital state
-        socket.emit('update', {'foo': 'bar'});
-        socket.on('update', function(msg) {
+        socket.emit('infoUpdate', {'foo': 'bar'});
+        socket.on('infoUpdate', function(msg) {
             switchMode(msg.mode);                                       // Get current mode
             $('#ctl__intensity--input').slider("value", msg.intensity); // Set intensity slider to serverside intensity value
             safetyModeNotificationCheck();                              //   Check if we're in safety mode (intensity <= 3) and show notification if so
