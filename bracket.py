@@ -906,9 +906,10 @@ def softwareUpdate(msg):
         update.updateSoftware()                         # Apply the update
 
         # Let user know we're done and restart
-        socket.emit('softwareUpdate',
+        socket.emit('spinner',
         {
-            'status': 'reboot',
+            'body': "Rebooting...",
+            'timer': 30
         }, namespace='/test')
         os.system('sudo reboot')
 
