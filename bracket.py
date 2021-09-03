@@ -112,7 +112,7 @@ class PunishmentTimer:
 app.config.update(
     mode =              'off',                  # Operation mode for the device -- decides what logic is used for compliance determination
     safetyMode =        True,                   # If true, shocks will instead be delivered as vibrations
-    warnBeforeShock =   True,                   # Whether to give a warning beep before punishing for noncompliance
+    warnBeforeShock =   False,                  # Whether to give a warning beep before punishing for noncompliance
     moCap =             False,                  # Whether we should log motion data
     dockLock =          False,                  # Whether to enable Dock Lock (punish wearer if charger disconnected)
     startupChime =      True,                   # Whether to play a beep at launch to let the user know the device is ready to connect
@@ -664,8 +664,9 @@ class motionThread(Thread):
                     self.punishmentTimer = PunishmentTimer(3, punishmentSource='motion')    # Start punishment timer
                 else:                                                                       # Otherwise,
                     requestBeep = 'noncompliant'                                            # Request noncompliance beep
-            if not app.config['warnBeforeShock']:
+            if not app.config['warnBeforeShock']:                                           # If in fast punish mode
                 requestPunishment = 'motion'                                                # Request looping punishment
+
 
     def getMotion(self):
         """
