@@ -96,6 +96,31 @@
 
     var dockLock = false;   // Keep track of dockLock clientside
 
+    function showdockLockModal() {
+        // Construct and show Dock Lock modal
+        $('#ui__modal').dialog("option", "title", "Enable Dock Lock?");
+        $('#ui__modal--body').text('Dock Lock punishes the wearer for disconnecting the charger before the Bracket is fully charged.');
+        $('#ui__modal').dialog("option", "buttons", [
+            {
+                text: "Disable",
+                click: function() {
+                    console.log("Dock Lock disabled");
+                    socket.emit('dockLock', {'enabled': false});
+                    $( this ).dialog( "close" );
+                }
+            },
+            {
+                text: "Enable",
+                click: function() {
+                    console.log("Dock Lock enabled");
+                    socket.emit('dockLock', {'enabled': true});
+                    $( this ).dialog( "close" );
+                },
+            },
+        ]);
+        $('#ui__modal').dialog( "open" );
+    }
+
     $(document).ready(function() {
         // Initialize dialogs
         $('#ui__modal').dialog({
@@ -182,28 +207,7 @@
 
                 // Ask user if Dock Lock should be enabled
                 if (hasShownDockLockModal == false) {                               // If we haven't shown the DL modal before
-                    // Construct and show DL modal
-                    $('#ui__modal').dialog("option", "title", "Enable Dock Lock?");
-                    $('#ui__modal--body').text('Dock Lock punishes the wearer for disconnecting the charger before the Bracket is fully charged.');
-                    $('#ui__modal').dialog("option", "buttons", [
-                        {
-                            text: "Disable",
-                            click: function() {
-                                console.log("Dock Lock disabled");
-                                socket.emit('dockLock', {'enabled': false});
-                                $( this ).dialog( "close" );
-                            }
-                        },
-                        {
-                            text: "Enable",
-                            click: function() {
-                                console.log("Dock Lock enabled");
-                                socket.emit('dockLock', {'enabled': true});
-                                $( this ).dialog( "close" );
-                            },
-                        },
-                    ]);
-                    $('#ui__modal').dialog( "open" );
+                    showdockLockModal();                                            // Construct and show DL modal
                     hasShownDockLockModal = true;                                   // Remember that we have shown the modal
                 }
             } else {    // msg.charging == false
@@ -357,7 +361,7 @@
 
         $('#stat__battery--container').click(function() {
             if(dockLock == true) {
-                $('#ui__dock-lock--enable').addClass('ui__hidden--show');
+                    showdockLockModal();    // Construct and show DL modal
             }
         })
     })
