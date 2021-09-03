@@ -343,7 +343,7 @@ class pwrThread(Thread):
             self.battPercentHistory[0] = percent
 
             # Get the mean of the battery percent history
-            avgPercent = statistics.mean(battPercentHistory)
+            avgPercent = statistics.mean(self.battPercentHistory)
 
             # Figure out whether we're charging
             if self.current > 0:
