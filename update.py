@@ -21,7 +21,7 @@ def getNewestVersionDetails(includePreReleases = True):
     return {
         'name':         response[0]['name'],
         'version':      response[0]['tag_name'],
-        'description':  response[0]['body'].replace('\r', ''),
+        'description':  response[0]['body'].replace('\r', ''),  # \r characters interfere with PGP validation
         'url':          response[0]['zipball_url'],
     }
 
