@@ -7,7 +7,7 @@ a.link {
     }
 }
 
-a[class^="button"] {
+a[class^="button"], button {
     border: $button-border-style-inactive;
     font-family: $body-font-stack;
     padding: $button-padding;

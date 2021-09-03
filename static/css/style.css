@@ -151,7 +151,12 @@ a.ctl__mode--active {
 }
 
 .ui-dialog-titlebar {
+  margin-top: 1rem;
   font-weight: bold;
+}
+
+.ui-dialog-buttonpane {
+  margin-bottom: 1rem;
 }
 
 .ui-dialog-titlebar-close {
@@ -166,7 +171,7 @@ a.link:hover {
   color: #e60400;
 }
 
-a[class^=button] {
+a[class^=button], button {
   border: 1px solid #591f1c;
   font-family: neuzeit-grotesk, sans-serif;
   padding: 6px 20px;
@@ -177,12 +182,12 @@ a[class^=button] {
   margin: auto;
   width: 100%;
 }
-a[class^=button]:active {
+a[class^=button]:active, button:active {
   background-color: #e60400 !important;
   border: 1px solid #e60400;
   color: #efeae7;
 }
-a[class^=button].button__filled {
+a[class^=button].button__filled, button.button__filled {
   background-color: #591f1c;
   color: #efeae7;
 }

@@ -14,7 +14,12 @@
 }
 
 .ui-dialog-titlebar {
+    margin-top: 1rem;
     font-weight: bold;
+}
+
+.ui-dialog-buttonpane {
+    margin-bottom: 1rem;
 }
 
 .ui-dialog-titlebar-close {
