@@ -346,7 +346,7 @@ class pwrThread(Thread):
             avgPercent = statistics.mean(self.battPercentHistory)
 
             # Figure out whether we're charging
-            if self.current > 0:
+            if current > 0:
                 plugStatusChanged = self.charging.update(True)
 
             else:
