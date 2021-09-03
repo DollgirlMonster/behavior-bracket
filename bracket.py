@@ -16,7 +16,7 @@ import battery
 import wifi
 import update
 
-__version__ = '0.1-alpha.0'
+__version__ = '0.1-alpha.1'
 
 # create and configure the Flask app
 app = Flask(__name__, instance_relative_config=True)
