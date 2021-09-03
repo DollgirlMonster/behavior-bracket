@@ -127,7 +127,19 @@
                 // If this is the first time the battery has dropped below 20%, show a warning
                 // TODO: This needs better logic, the dock lock window trigger does too
                 if (hasShownBattWarning == false) {
-                    $('#ui__batt-warning').addClass('ui__hidden--show');
+
+                    // Construct and show battery warning
+                    $('#ui__modal').dialog("option", "title", "Low Battery");
+                    $('#ui__modal--body').text("The Bracket's battery is low. Charge the battery soon or the Bracket will turn off");
+                    $('#ui__modal').dialog("option", "buttons", [
+                        {
+                            text: "Ok",
+                            click: function() {
+                                $( this ).dialog( "close" );
+                            }
+                        },
+                    ]);
+
                     hasShownBattWarning = true;
                 }
             } else {
@@ -325,11 +337,6 @@
         })
         $('#ctl__manual--warn').click(function(event) {
             socket.emit('manualControl', {'command': 'warn'});
-        })
-
-        // UI popup window button functions
-        $('#ctl__battWarning--ok').click(function() {
-            $('#ui__batt-warning').removeClass('ui__hidden--show');
         })
 
         $('#stat__battery--container').click(function() {
