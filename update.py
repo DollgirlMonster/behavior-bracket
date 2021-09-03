@@ -110,19 +110,3 @@ def updateSoftware():
     print("Cleaning up...")
     os.remove(downloadDir + 'latest.zip')
     shutil.rmtree(downloadDir + 'update')
-
-# Update procedure
-
-# Get newest version details from github
-# Compare version string to current version
-# If newer, download the update
-
-# Hash the zip and compare with the signed hash on github
-# If match, apply the update
-
-# update = getNewestVersionDetails()
-
-# print(compareVersions(__version__, update['version']))
-
-# downloadUpdate(update['url'])
-# updateSoftware()
