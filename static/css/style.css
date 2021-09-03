@@ -152,7 +152,7 @@ a.ctl__mode--active {
 }
 
 .ui-dialog-titlebar {
-  margin-top: 1rem;
+  padding-top: 1rem;
   font-weight: bold;
 }
 
