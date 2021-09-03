@@ -317,7 +317,7 @@ class pwrThread(Thread):
         if pwrJustChanged and self.pwrSwitch.value == 0:                # Low edge detected
             socketio.emit('shutdownConfirmation', {
                 'foo': 'bar',
-            }, namespace='/remote')
+            }, namespace='/control')
 
     def battLoop(self):
         """
@@ -377,7 +377,7 @@ class pwrThread(Thread):
                 'percent': self.avgPercent,
                 'charging': self.charging.value,
                 'dockLock': app.config['dockLock'],
-            }, namespace='/remote')
+            }, namespace='/control')
 
             time.sleep(0.25)
 
@@ -507,7 +507,7 @@ class motionThread(Thread):
         # Send to the debug page
         socketio.emit('Mdelta', {
             'Mdelta': Mdelta,
-        }, namespace='/remote')
+        }, namespace='/control')
 
         return Mdelta
 
@@ -612,7 +612,7 @@ class motionThread(Thread):
             'repTime':              self.repTimer['time'].second,
             'reps':                 self.reps,
             'wearerInRestPosition': self.wearerInRestPosition.value,
-        }, namespace='/remote')
+        }, namespace='/control')
 
     def resetRepTimer(self):
         """ Reset repTimer to 0 """
@@ -650,7 +650,7 @@ class motionThread(Thread):
         socketio.emit('compliance', {
             'compliance': self.compliance.value,
             'requestPunishment': requestPunishment,
-        }, namespace='/remote')
+        }, namespace='/control')
 
         # If compliance is true, do not request punishment
         if self.compliance.value:           # If wearer is compliant
@@ -714,7 +714,7 @@ class motionThread(Thread):
                     # 'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
 
                     'loopTime': motion['loopTime'],
-                }, namespace='/remote')
+                }, namespace='/control')
 
             # Update history with acceleration & rotation
             self.motionHistory.append({
@@ -800,7 +800,7 @@ def control():
 
 # INTERACTIONS
 # Motion Data Snapshot
-@socketio.on('moCap', namespace='/remote')
+@socketio.on('moCap', namespace='/control')
 def mocap_toggle(msg):
     if msg['moCap']:
         app.config.update(moCap = True)     # Turn on motion capture
@@ -813,17 +813,17 @@ def mocap_toggle(msg):
             writer.writeheader()
 
 # On client connect
-@socketio.on('connect', namespace='/remote')
+@socketio.on('connect', namespace='/control')
 def test_connect():
     print('SocketIO Client connected')
 
 # Mode selection
-@socketio.on('mode', namespace='/remote')
+@socketio.on('mode', namespace='/control')
 def mode_select(msg):
     app.config.update(mode = msg['mode'])
 
 # Intenstiy setting
-@socketio.on('intensity', namespace='/remote')
+@socketio.on('intensity', namespace='/control')
 def intensity_select(msg):
     # Need visibility of global intensity var
     global punishmentIntensity
@@ -831,12 +831,12 @@ def intensity_select(msg):
     punishmentIntensity = msg['intensity']
 
 # Dock Lock
-@socketio.on('dockLock', namespace='/remote')
+@socketio.on('dockLock', namespace='/control')
 def dock_lock(msg):
     app.config.update(dockLock = msg['enabled'])
 
 # Request for info update
-@socketio.on('infoUpdate', namespace='/remote')
+@socketio.on('infoUpdate', namespace='/control')
 def infoUpdate(msg):
     # Need visibility of global vars to display in UI
     global mode
@@ -847,15 +847,15 @@ def infoUpdate(msg):
             'mode':         app.config['mode'],
             'intensity':    punishmentIntensity,
             'dockLock':     app.config['dockLock'],
-        }, namespace='/remote')
+        }, namespace='/control')
 
 # Shut down request
-@socketio.on('reboot', namespace='/remote')
+@socketio.on('reboot', namespace='/control')
 def reboot(msg):
     os.system('sudo reboot')
 
 # Software update request
-@socketio.on('softwareUpdate', namespace='/remote')
+@socketio.on('softwareUpdate', namespace='/control')
 def softwareUpdate(msg):
     metadata = update.getNewestVersionDetails()
 
@@ -868,7 +868,7 @@ def softwareUpdate(msg):
                 'url':          metadata['url'],
                 
                 'updateIsNewer': compareVersions(__version__, metadata['version'])
-            }, namespace='/remote')
+            }, namespace='/control')
 
     elif msg.command == 'updateSoftware':
         updateIsNewer = update.compareVersions(         # Compare update version number against current version number
@@ -880,7 +880,7 @@ def softwareUpdate(msg):
             socket.emit('modal',
             {
                 'body': "You're already on the latest version of BBSS!"
-            }, namespace='/remote')
+            }, namespace='/control')
             return False
 
         signatureVerified, updateHash = update.verifyPGPSignature(metadata['description'])  # Check signature of update hash and retrieve the update hash
@@ -890,7 +890,7 @@ def softwareUpdate(msg):
             socket.emit('modal',
             {
                 'body': "There was an error verifying the update information."
-            }, namespace='/remote')
+            }, namespace='/control')
             return False
 
         update.downloadUpdate(metadata['url'])          # Download the update
@@ -902,7 +902,7 @@ def softwareUpdate(msg):
             socket.emit('modal',
             {
                 'body': "There was an error verifying the update data."
-            }, namespace='/remote')
+            }, namespace='/control')
             return False
 
         update.updateSoftware()                         # Apply the update
@@ -912,11 +912,11 @@ def softwareUpdate(msg):
         {
             'body': "Rebooting...",
             'timer': 30
-        }, namespace='/remote')
+        }, namespace='/control')
         os.system('sudo reboot')
 
 # Manual control
-@socketio.on('manualControl', namespace='/remote')
+@socketio.on('manualControl', namespace='/control')
 def manualControl(msg):
     # Need visibility of punishment and beep requests
     global requestPunishment

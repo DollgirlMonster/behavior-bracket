@@ -99,7 +99,7 @@
     $(document).ready(function() {
         // SOCKETIO
         // Connect to socket server
-        var socket = io.connect('http://' + document.domain + ':' + location.port + '/remote');
+        var socket = io.connect('http://' + document.domain + ':' + location.port + '/control');
         console.log("Connected to Socket");
 
         // When we recieve information from server
