@@ -5,6 +5,7 @@ import re
 import os
 import shutil
 from hashlib import sha1
+from pgpy import PGPKey, PGPMessage
 
 downloadDir = './'
 
@@ -68,6 +69,15 @@ def hashZip(zipLocation=downloadDir + 'latest.zip'):
         data = f.read() # read file in chunk and call update on each chunk if file is large.
         s.update(data)
         return s.hexdigest()
+
+def verifyPGPSignature(message):
+    """ Verify update zip hash signature """
+    key, _ = PGPKey.from_file(downloadDir + 'updateConfirmation_publicKey.asc')
+
+    message = PGPMessage.from_blob(message)
+    verification = key.verify(message)
+
+    return verification
 
 def downloadUpdate(updateURL):
     """ Download and uncompress update files """
