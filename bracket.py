@@ -333,7 +333,7 @@ class pwrThread(Thread):
             # loadVoltage = battStat['loadVoltage']
             current = battStat['current']
             # power = battStat['power']
-            percent = battStat['percent']   # This is the only stat we actually use
+            percent = battStat['percent']
 
             # Cycle battery history
             for i in range(self.PERCENT_MEAN_TABLE_SIZE-1, 0, -1):
@@ -363,18 +363,18 @@ class pwrThread(Thread):
                         requestBeep = 'noncompliant'    # Play noncompliance beep
                 
             # If charge is over 99, disable Dock Lock
-            if self.percent >= 99:
+            if avgPercent >= 99:
                 app.config.update(dockLock = False)
 
             # If charge is under the critical low battery level, shut down the device
             # A low battery warning is shown on the front-end at 5% battery -- this is handled clientside
-            if self.percent > CRITICAL_LOW_BATT_LEVEL:
+            if avgPercent > CRITICAL_LOW_BATT_LEVEL:
                 requestBeep = 'error'   # TODO: /should/ this beep though??
                 os.system('sudo poweroff')
 
             # Broadcast to WebUI
             socketio.emit('battery', {
-                'percent': self.avgPercent,
+                'percent': avgPercent,
                 'charging': self.charging.value,
                 'dockLock': app.config['dockLock'],
             }, namespace='/control')
