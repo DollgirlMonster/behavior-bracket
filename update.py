@@ -69,13 +69,22 @@ def hashZip(zipLocation=downloadDir + 'latest.zip'):
         s.update(data)
         return s.hexdigest()
 
-def verifyPGPSignature(PGPMessage):
-    """ Verify PGPMessage() with our onboard public key """
+def verifyPGPSignature(message):
+    """ 
+    Verify PGPMessage() with our onboard public key 
+    Returns:
+    verification    bool    whether or not public key validates message
+    updateHash      str     the sha1 hash included in the message
+    """
     key, _ = PGPKey.from_file(downloadDir + 'updateConfirmation_publicKey.asc')
 
-    verification = key.verify(PGPMessage)
+    # Construct PGPMessage() from message
+    message = PGPMessage.from_blob(message)
 
-    return verification
+    verification = key.verify(message)
+    updateHash = message._message.decode()
+
+    return verification, updateHash
 
 def downloadUpdate(updateURL):
     """ Download and uncompress update files """
