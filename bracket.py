@@ -854,10 +854,10 @@ def reboot(msg):
 
 # Software update request
 @socketio.on('softwareUpdate', namespace='/test')
-def update(msg):
-    # Get update metadata
+def softwareUpdate(msg):
+    metadata = update.getNewestVersionDetails()
+
     if msg.command == 'getNewestVersionDetails':
-        metadata = update.getNewestVersionDetails()
         socket.emit('softwareUpdate',
             {
                 'name':         metadata['name'],
@@ -869,22 +869,41 @@ def update(msg):
             }, namespace='/test')
 
     elif msg.command == 'updateSoftware':
-        # Update progresses through stages 'dl', 'install', 'reboot'
-        # Download update
-        socket.emit('softwareUpdate',
-        {
-            'status': 'dl',
-        }, namespace='/test')
-        update.downloadUpdate(update['url'])
+        updateIsNewer = update.compareVersions(         # Compare update version number against current version number
+            __version__, 
+            metadata['version']
+        )
 
-        # Install update
-        socket.emit('softwareUpdate',
-        {
-            'status': 'install',
-        }, namespace='/test')
-        update.updateSoftware()
+        if not updateIsNewer:                           # Verify that the update is a newer version than current
+            socket.emit('modal',
+            {
+                'body': "You're already on the latest version of BBSS!"
+            }, namespace='/test')
+            return False
 
-        # TODO: handle errors
+        signatureVerified, updateHash = update.verifyPGPSignature(metadata['description'])  # Check signature of update hash and retrieve the update hash
+
+        if not signatureVerified:                       # Check that expected hash signature is verified
+            # TODO: Check the date?
+            socket.emit('modal',
+            {
+                'body': "There was an error verifying the update information."
+            }, namespace='/test')
+            return False
+
+        update.downloadUpdate(metadata['url'])          # Download the update
+
+        zipHash = update.hashZip()                      # Hash the update zip file
+
+        if zipHash != updateHash:                       # Check that update hash matches expected hash
+            # Hashes do not match
+            socket.emit('modal',
+            {
+                'body': "There was an error verifying the update data."
+            }, namespace='/test')
+            return False
+
+        update.updateSoftware()                         # Apply the update
 
         # Let user know we're done and restart
         socket.emit('softwareUpdate',
