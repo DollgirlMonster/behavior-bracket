@@ -331,7 +331,7 @@ class pwrThread(Thread):
             battStat = battery.get_battery()
 
             # loadVoltage = battStat['loadVoltage']
-            # current = battStat['current']
+            current = battStat['current']
             # power = battStat['power']
             percent = battStat['percent']   # This is the only stat we actually use
 
