@@ -565,11 +565,11 @@ class motionThread(Thread):
         postureThreshold = 13    # Activation threshold
         Ycalibration = -15      # Account for the angle of the device on the Y axis from its weight hanging from the collar
 
-        if self.angleZ < -postureThreshold or self.angleZ > postureThreshold \
-        or self.angleY < -postureThreshold + Ycalibration or self.angleY > postureThreshold + Ycalibration:
-            return False
-        else:
+        if self.angleTest(self.angleZ, postureThreshold, -postureThreshold) \
+        or self.angleTest(self.angleY, postureThreshold + Ycalibration, -postureThreshold + Ycalibration):
             return True
+        else:
+            return False
 
     def fitnessTest(self):
         """
