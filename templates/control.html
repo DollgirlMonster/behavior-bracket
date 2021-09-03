@@ -158,17 +158,10 @@
 
                 // Ask user if Dock Lock should be enabled
                 if (hasShownDockLockModal == false) {                               // If we haven't shown the DL modal before
+                    // Construct and show DL modal
                     $('#ui__modal').dialog("option", "title", "Enable Dock Lock?");
                     $('#ui__modal--body').text('Dock Lock punishes the wearer for disconnecting the charger before the Bracket is fully charged.');
                     $('#ui__modal').dialog("option", "buttons", [
-                        {
-                            text: "Enable",
-                            click: function() {
-                                console.log("Dock Lock enabled");
-                                socket.emit('dockLock', {'enabled': true});
-                                $( this ).dialog( "close" );
-                            },
-                        },
                         {
                             text: "Disable",
                             click: function() {
@@ -176,6 +169,14 @@
                                 socket.emit('dockLock', {'enabled': false});
                                 $( this ).dialog( "close" );
                             }
+                        },
+                        {
+                            text: "Enable",
+                            click: function() {
+                                console.log("Dock Lock enabled");
+                                socket.emit('dockLock', {'enabled': true});
+                                $( this ).dialog( "close" );
+                            },
                         },
                     ]);
                     $('#ui__modal').dialog( "open" );
@@ -203,9 +204,28 @@
             }
         })
 
-        //   Hardware shutdown switch actuated
-        socket.on('shutdownConfirmation', function(msg) {
-            $("#ui__reboot--confirmation-dialog").addClass('ui__hidden--show'); // Show power off confirmation dialog
+        //   Reboot
+        // Construct and show reboot confirmation dialog
+        socket.on('rebootConfirmation', function(msg) {
+            $('#ui__modal').dialog("option", "title", "Restart?");
+            $('#ui__modal--body').text('Are you sure you want to restart?');
+            $('#ui__modal').dialog("option", "buttons", [
+                {
+                    text: "Yes",
+                    click: function() {
+                        console.log("Rebooting...");
+                        socket.emit('reboot', {'foo': bar});
+                        $( this ).dialog( "close" );
+                    },
+                },
+                {
+                    text: "No",
+                    click: function() {
+                        $( this ).dialog( "close" );
+                    }
+                },
+            ]);
+            $('#ui__modal').dialog( "open" );
         })
 
         // Request inital state
