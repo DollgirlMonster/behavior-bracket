@@ -652,6 +652,8 @@ class motionThread(Thread):
             'requestPunishment': requestPunishment,
         }, namespace='/control')
 
+        print(complianceJustChanged)
+
         # If compliance is true, do not request punishment
         if self.compliance.value:           # If wearer is compliant
             if complianceJustChanged:       # And they just started being compliant
