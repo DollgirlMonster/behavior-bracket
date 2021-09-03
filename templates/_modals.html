@@ -23,12 +23,6 @@
     <p>Restarting...</p>
 </div>
 
-<!-- Modal: Spinner with a customizable message -->
-<div id="ui__spinner" class="ui__modal--centered ui__hidden">
-    <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
-    <p class="ui__spinner--message"></p>
-</div>
-
 <!-- Modal: Updates - You're on the latest version -->
 <div id="ui__check-updates--latest-version" class="ui__hidden ui__modal--centered">
     <p>Behavior Bracket System Software is up-to-date.</p>
@@ -54,20 +48,6 @@
     </ul>
 </div>
 
-<!-- Modal: Dock Lock toggle -->
-<div id="ui__dock-lock--enable" class="ui__hidden ui__modal--centered">
-    <p>Enable Dock Lock?</p>
-    <p>Dock Lock punishes the wearer for disconnecting the charger before the Bracket is fully charged.</p>
-    <ul class="ctl__buttons">
-        <li>
-            <a id="ctl__dock-lock--enable" class="button">Enable</a>
-        </li>
-        <li>
-            <a id="ctl__dock-lock--disable" class="button">Disable</a>
-        </li>
-    </ul>
-</div>
-
 <!-- Modal: Low battery warning -->
 <div id="ui__batt-warning" class="ui__hidden ui__modal--centered">
     <p>The collar's battery is low. Charge the battery soon or the collar will turn off.</p>
@@ -77,3 +57,14 @@
         </li>
     </ul>
 </div>
+
+<!-- Programatically customizable template modal -->
+<div id="ui__modal" class="ui__modal--centered">
+    <p><span id="ui__modal--body"></span></p>
+</div>
+
+<!-- Modal: Spinner with a customizable message -->
+<!-- <div id="ui__spinner" class="ui__modal--centered">
+    <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
+    <p class="ui__spinner--message"></p>
+</div> -->

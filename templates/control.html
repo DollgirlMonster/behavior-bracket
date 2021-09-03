@@ -97,6 +97,13 @@
     var dockLock = false;   // Keep track of dockLock clientside
 
     $(document).ready(function() {
+        // Initialize dialogs
+        $('#ui__modal').dialog({
+            autoOpen: False,
+            modal: True,
+            resizable: False,
+        });
+
         // SOCKETIO
         // Connect to socket server
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/control');
@@ -151,7 +158,27 @@
 
                 // Ask user if Dock Lock should be enabled
                 if (hasShownDockLockModal == false) {                               // If we haven't shown the DL modal before
-                    $('#ui__dock-lock--enable').addClass('ui__hidden--show');       // Show the modal
+                    $('#ui__modal').dialog("option", "title", "Enable Dock Lock?");
+                    $('#ui__modal--body').text('Dock Lock punishes the wearer for disconnecting the charger before the Bracket is fully charged.');
+                    $('#ui__modal').dialog("option", "buttons", [
+                        {
+                            text: "Enable",
+                            click: function() {
+                                console.log("Dock Lock enabled");
+                                socket.emit('dockLock', {'enabled': true});
+                                $( this ).dialog( "close" );
+                            },
+                        },
+                        {
+                            text: "Disable",
+                            click: function() {
+                                console.log("Dock Lock disabled");
+                                socket.emit('dockLock', {'enabled': false});
+                                $( this ).dialog( "close" );
+                            }
+                        },
+                    ]);
+                    $('#ui__modal').dialog( "open" );
                     hasShownDockLockModal = true;                                   // Remember that we have shown the modal
                 }
             } else {    // msg.charging == false
@@ -289,18 +316,6 @@
             if(dockLock == true) {
                 $('#ui__dock-lock--enable').addClass('ui__hidden--show');
             }
-        })
-
-        $('#ctl__dock-lock--enable').click(function() {
-            console.log("Dock Lock enabled");
-            $('#ui__dock-lock--enable').removeClass('ui__hidden--show');
-            socket.emit('dockLock', {'enabled': true});
-        })
-
-        $('#ctl__dock-lock--disable').click(function() {
-            console.log("Dock Lock disabled");
-            $('#ui__dock-lock--enable').removeClass('ui__hidden--show');
-            socket.emit('dockLock', {'enabled': false});
         })
     })
 </script>
