@@ -9,10 +9,12 @@
     // padding: 0 1em 1em;
     border: $ui-border-style;
     background-color: $bg-color;
+
+    text-align: $ui-modal-text-alignment;
 }
 
-.ui__modal--centered {
-    text-align: center;
+.ui-dialog-titlebar {
+    font-weight: bold;
 }
 
 .ui-dialog-titlebar-close {

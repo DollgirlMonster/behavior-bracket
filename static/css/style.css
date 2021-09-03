@@ -147,10 +147,11 @@ a.ctl__mode--active {
 .ui-dialog {
   border: 1px solid #6c6060;
   background-color: #efeae7;
+  text-align: center;
 }
 
-.ui__modal--centered {
-  text-align: center;
+.ui-dialog-titlebar {
+  font-weight: bold;
 }
 
 .ui-dialog-titlebar-close {
