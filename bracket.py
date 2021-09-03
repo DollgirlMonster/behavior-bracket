@@ -302,7 +302,7 @@ class pwrThread(Thread):
         self.pwrSwitch = EdgeDetector(1)    # Power switch status with edge detection
 
         self.CRITICAL_LOW_BATT_LEVEL = 3                                # Battery percentage at which to shut the device down to preserve battery health
-        self.PERCENT_MEAN_TABLE_SIZE = 300                              # Size of the mean table for the battery percentage
+        self.PERCENT_MEAN_TABLE_SIZE = 100                              # Size of the mean table for the battery percentage
         self.battPercentHistory = [50] * self.PERCENT_MEAN_TABLE_SIZE   # List of previous percent values
 
         super(pwrThread, self).__init__()
