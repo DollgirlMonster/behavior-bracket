@@ -14,6 +14,7 @@ a[class^="button"], button {
     border-radius: $ui-border-radius;
     transition: all $transition-time;
     display: block;
+    background: none;
     text-align: center;
     margin: auto;
     width: 100%;
@@ -30,19 +31,19 @@ a[class^="button"], button {
     }
 }
 
-.ctl__mode--container {
-    li, a {
-        width: 100%;
-    }
-}
-
-.ctl__buttons {
+.ui-dialog-buttonset {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
     grid-gap: 1em;
 
     li {
         width: auto;
+    }
+}
+
+.ctl__mode--container {
+    li, a {
+        width: 100%;
     }
 }
 

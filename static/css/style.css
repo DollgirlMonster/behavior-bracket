@@ -39,9 +39,10 @@ h2 {
     color: #6c6060;
   }
 }
-p, span {
+p, span, button {
   font-family: neuzeit-grotesk, sans-serif;
   color: #6c6060;
+  font-size: 1rem;
   transition: color 0.1s;
 }
 
@@ -178,6 +179,7 @@ a[class^=button], button {
   border-radius: 2px;
   transition: all 0.1s;
   display: block;
+  background: none;
   text-align: center;
   margin: auto;
   width: 100%;
@@ -192,17 +194,17 @@ a[class^=button].button__filled, button.button__filled {
   color: #efeae7;
 }
 
-.ctl__mode--container li, .ctl__mode--container a {
-  width: 100%;
-}
-
-.ctl__buttons {
+.ui-dialog-buttonset {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(10px, 1fr));
   grid-gap: 1em;
 }
-.ctl__buttons li {
+.ui-dialog-buttonset li {
   width: auto;
+}
+
+.ctl__mode--container li, .ctl__mode--container a {
+  width: 100%;
 }
 
 input[type=range], .ui-slider {
