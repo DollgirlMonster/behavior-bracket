@@ -231,12 +231,16 @@
         // Construct and show reboot confirmation dialog
         socket.on('rebootConfirmation', function(msg) {
             $('#ui__modal').dialog("option", "title", "Restart?");
-            $('#ui__modal--body').text('Are you sure you want to restart?');
+            $('#ui__modal--body').text("Are you sure you want to restart?");
             $('#ui__modal').dialog("option", "buttons", [
                 {
                     text: "Yes",
                     click: function() {
                         console.log("Rebooting...");
+                        
+                        $('#ui__spinner--body').text("Restarting...")
+                        $('#ui__spinner').dialog( "open" );
+
                         socket.emit('reboot', {'foo': bar});
                         $( this ).dialog( "close" );
                     },

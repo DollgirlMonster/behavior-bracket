@@ -1,40 +1,9 @@
-<!-- Modal: Reboot spinner -->
-<div id="ui__reboot" class="ui__modal--centered ui__hidden">
-    <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
-    <p>Restarting...</p>
-</div>
-
-<!-- Modal: Updates - You're on the latest version -->
-<div id="ui__check-updates--latest-version" class="ui__hidden ui__modal--centered">
-    <p>Behavior Bracket System Software is up-to-date.</p>
-    <ul class="ctl__buttons">
-        <li>
-            <a id="ctl__reboot--no" class="button__filled">OK</a>
-        </li>
-    </ul>
-</div>
-
-<!-- Modal: Updates - New version available -->
-<div id="ui__check-updates--new-version" class="ui__hidden ui__modal--centered">
-    <p>Behavior Bracket System Software version <span class="stat__check-updates--version"></span> is available!</p>
-    <p>Would you like to update to the latest version?</p>
-
-    <ul class="ctl__buttons">
-        <li>
-            <a id="ctl__update-software--yes" class="button">No</a>
-        </li>
-        <li>
-            <a id="ctl__update-software--no" class="button__filled">No</a>
-        </li>
-    </ul>
-</div>
-
-<!-- Programatically customizable template modal -->
+<!-- Modal -->
 <div id="ui__modal" class="ui__modal--centered">
     <p><span id="ui__modal--body"></span></p>
 </div>
 
-<!-- Spinner with a customizable message and optional self-destruct timer -->
+<!-- Spinner -->
 <div id="ui__spinner" class="ui__modal--centered">
     <div class="ui__loading"><div></div><div></div><div></div><div></div></div>
     <p><span id="ui__spinner--body"></span></p>
