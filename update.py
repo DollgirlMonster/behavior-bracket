@@ -1,6 +1,5 @@
 import requests
 import json
-from zipfile import ZipFile
 import re
 import os
 import shutil
@@ -93,8 +92,7 @@ def updateSoftware():
     """ Replace program files with those from the update file """
     # Uncompress update
     print("Decompressing update...")
-    with ZipFile(downloadDir + 'latest.zip', 'r') as zipObj:
-        zipObj.extractall('update')
+    shutil.unpack_archive(downloadDir + 'latest.zip', 'update', 'zip')
 
     print("Copying update...")
     shutil.copytree(downloadDir + 'update', downloadDir + 'behavior-bracket')
@@ -102,7 +100,7 @@ def updateSoftware():
     # Delete old .zip file
     print("Cleaning up...")
     os.remove(downloadDir + 'latest.zip')
-    os.removedirs(downloadDir + 'update')
+    shutil.rmtree(downloadDir + 'update')
 
 # Update procedure
 
