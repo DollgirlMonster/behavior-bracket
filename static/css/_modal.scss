@@ -8,6 +8,10 @@ div[id^="ui__"] {
     padding: 0 1em 1em;
     border: $ui-border-style;
     background-color: $bg-color;
+
+    .no-close .ui-dialog-titlebar-close {
+        display: none;
+    }
 }
 
 .ui__modal--centered {
