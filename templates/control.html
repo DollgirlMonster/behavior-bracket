@@ -104,6 +104,17 @@
             resizable: False,
         });
 
+        $('#ui__spinner').dialog({
+            autoOpen: False,
+            modal: True,
+            resizable: False,
+            closeOnEscape: False,
+        });
+
+        // Create connecting to collar spinner
+        $('#ui__spinner--body').text("Connecting to Bracket...");
+        $('#ui__spinner').dialog( "open" );
+
         // SOCKETIO
         // Connect to socket server
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/control');
@@ -248,7 +259,7 @@
             safetyModeNotificationCheck();                              //   Check if we're in safety mode (intensity <= 3) and show notification if so
             if (msg.dockLock) {dockLock = true;}                        // Keep track of Dock Lock status clientside
 
-            $('#ui__connecting').addClass('ui__hidden');                // Finished connecting, hide spinner
+            $('#ui__spinner').dialog( "close" );                // Finished connecting, hide loading spinner
         })
 
         // Safety mode notification check
