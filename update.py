@@ -21,7 +21,7 @@ def getNewestVersionDetails(includePreReleases = True):
     return {
         'name':         response[0]['name'],
         'version':      response[0]['tag_name'],
-        'description':  response[0]['body'],
+        'description':  response[0]['body'].replace('\r', ''),
         'url':          response[0]['zipball_url'],
     }
 
