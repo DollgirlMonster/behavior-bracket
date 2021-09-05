@@ -33,7 +33,7 @@ thread = Thread()
 thread_stop_event = Event()
 
 # Init global variables
-requestPunishment = None    # If not None, signal to punish and reason we are punishing
+requestPunishment = False   # If not None, signal to punish and reason we are punishing
 requestBeep = False         # If not False, what beep pattern to play
 punishmentIntensity = 50    # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
 
