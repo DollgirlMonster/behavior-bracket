@@ -157,7 +157,7 @@ class radioThread(Thread):
             time.sleep(txTime)
             gpio.wave_tx_stop()            # stop transmitting waveform
             gpio.write(self.radioPin, 0)
-            gpio.wave_clear     # clear existing waveforms
+            gpio.wave_clear()              # clear existing waveforms
 
             self.transmitting = False
         else:
@@ -168,7 +168,7 @@ class radioThread(Thread):
         """
         Create a waveform from our sequence of bytes
         """
-        gpio.wave_clear     # clear existing waveforms
+        gpio.wave_clear()                   # clear existing waveforms
         
         # create lists of parts of the wave we need 
         start_=[]
@@ -272,7 +272,7 @@ class radioThread(Thread):
         global requestPunishment                    # Get visibility of bool that determines whether we should transmit
         
         gpio.set_mode(self.radioPin, pigpio.OUTPUT) # Set up pin 22 as output
-        gpio.wave_clear                             # clear existing waveforms
+        gpio.wave_clear()                           # clear existing waveforms
 
         while not thread_stop_event.isSet():
             # Punish if requested
