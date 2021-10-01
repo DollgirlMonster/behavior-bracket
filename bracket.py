@@ -141,6 +141,7 @@ class radioThread(Thread):
         self.radioPin = 25  # Board pin 22
 
         self.transmitting = False
+        self.safetyLimit = 10               # Number of punishment cycles until emergency auto-off
 
         super(radioThread, self).__init__()
 
@@ -276,13 +277,18 @@ class radioThread(Thread):
 
         while not thread_stop_event.isSet():
             # Punish if requested
+            punishmentCycles = 0                    # Keep track of how many punishment transmissions we've sent
             if requestPunishment != False:
-                sequence = self.makeSequence()
-                waveID = self.makeWaveform(sequence)
-                self.transmit(waveID)
+                if punishmentCycles > self.safetyLimit: # Only punish if we're within safety bounds
+                    sequence = self.makeSequence()      # Create punishment data sequence
+                    waveID = self.makeWaveform(sequence)# Make waveform from data sequence
+                    self.transmit(waveID)               # Transmit waveform
 
+                punishmentCycles += 1
                 requestPunishment = False
             else:
+                punishmentCycles = 0                # Reset punishment cycles counter
+                
                 # Stop the shock unit from going into sleep mode by periodically flashing the LED
                 # We want to ping every two minutes on the first second
                 # Unless we're already transmitting a punishment
