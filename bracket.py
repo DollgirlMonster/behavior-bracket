@@ -136,7 +136,6 @@ app.config.update(
 # Major shout-out to its contributors and maintainers for making integration with this project a breeze
 class radioThread(Thread):
     def __init__(self):
-        # TODO: add safety auto-off timer
         self.txKey = '00101100101001010'
         self.radioPin = 25  # Board pin 22
 
@@ -375,7 +374,7 @@ class pwrThread(Thread):
             # If charge is under the critical low battery level, shut down the device
             # A low battery warning is shown on the front-end at 5% battery -- this is handled clientside
             if avgPercent < self.CRITICAL_LOW_BATT_LEVEL:
-                requestBeep = 'error'   # TODO: /should/ this beep though??
+                requestBeep = 'error'   # /should/ this beep though??
                 os.system('sudo poweroff')
 
             # Broadcast to WebUI
