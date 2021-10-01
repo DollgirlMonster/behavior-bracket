@@ -274,9 +274,9 @@ class radioThread(Thread):
         gpio.set_mode(self.radioPin, pigpio.OUTPUT) # Set up pin 22 as output
         gpio.wave_clear()                           # clear existing waveforms
 
+        punishmentCycles = 0                        # Keep track of how many punishment transmissions we've sent
         while not thread_stop_event.isSet():
             # Punish if requested
-            punishmentCycles = 0                    # Keep track of how many punishment transmissions we've sent
             if requestPunishment != False:
                 if punishmentCycles < self.safetyLimit: # Only punish if we're within safety bounds
                     sequence = self.makeSequence()      # Create punishment data sequence
