@@ -669,7 +669,7 @@ class motionThread(Thread):
                     self.punishmentTimer = PunishmentTimer(3, punishmentSource='motion')    # Start punishment timer
                 else:                                                                       # Otherwise,
                     requestBeep = 'noncompliant'                                            # Request noncompliance beep
-            if not app.config['warnBeforeShock']:                                           # If in fast punish mode
+            if app.config['warnBeforeShock'] == False:                                      # If in fast punish mode
                 requestPunishment = 'motion'                                                # Request looping punishment
 
 
