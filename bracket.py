@@ -278,7 +278,7 @@ class radioThread(Thread):
             # Punish if requested
             punishmentCycles = 0                    # Keep track of how many punishment transmissions we've sent
             if requestPunishment != False:
-                if punishmentCycles > self.safetyLimit: # Only punish if we're within safety bounds
+                if punishmentCycles < self.safetyLimit: # Only punish if we're within safety bounds
                     sequence = self.makeSequence()      # Create punishment data sequence
                     waveID = self.makeWaveform(sequence)# Make waveform from data sequence
                     self.transmit(waveID)               # Transmit waveform
