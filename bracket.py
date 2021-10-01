@@ -284,6 +284,9 @@ class radioThread(Thread):
                     self.transmit(waveID)               # Transmit waveform
 
                 punishmentCycles += 1
+                socketio.emit('safetyPunishmentCycles', {
+                    'punishmentCycles': punishmentCycles,
+                }, namespace='/control')
                 requestPunishment = False
             else:
                 punishmentCycles = 0                # Reset punishment cycles counter

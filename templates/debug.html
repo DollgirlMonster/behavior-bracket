@@ -47,6 +47,9 @@
             <b>Motion Delta:</b> <span id="Mdelta">??</span> <br />
             <b>Motion Loop Time:</b> <span id="loopTime">??</span> <br />
         </p>
+        <p>
+            <b>Punishment Cycles</b> <span id="safety__punishment-cycles">??</span> <br />
+        </p>
     </div>
     <div>
         <p>
@@ -181,6 +184,11 @@
         socket.on('compliance', function(msg) {
             $('#compliance').html(msg.compliance.toString());
             $('#requestPunishment').html(msg.requestPunishment.toString());
+        })
+
+        // Safety auto-off debug info
+        socket.on('safetyPunishmentCycles', function(msg) {
+            $('#safety__punishment-cycles').html(msg.punishmentCycles.toString());
         })
 
         // Freeze Mode Debug info
