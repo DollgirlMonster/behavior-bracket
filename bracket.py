@@ -652,11 +652,6 @@ class motionThread(Thread):
             self.punishmentTimer = None
         ### END   Testing area for fitness mode
 
-        socketio.emit('compliance', {
-            'compliance': self.compliance.value,
-            'requestPunishment': requestPunishment,
-        }, namespace='/control')
-
         # If compliance is true, do not request punishment
         if self.compliance.value:           # If wearer is compliant
             if complianceJustChanged:       # And they just started being compliant
@@ -671,6 +666,11 @@ class motionThread(Thread):
                     requestBeep = 'noncompliant'                                            # Request noncompliance beep
             if app.config['warnBeforeShock'] == False:                                      # If in fast punish mode
                 requestPunishment = 'motion'                                                # Request looping punishment
+
+        socketio.emit('compliance', {
+            'compliance': self.compliance.value,
+            'requestPunishment': requestPunishment,
+        }, namespace='/control')
 
 
     def getMotion(self):
