@@ -111,7 +111,7 @@ class PunishmentTimer:
 # TODO: Most globals will slowly be ported over to here as I get around to it
 app.config.update(
     mode =              'off',                  # Operation mode for the device -- decides what logic is used for compliance determination
-    safetyMode =        False,                  # If true, shocks will instead be delivered as vibrations
+    safetyMode =        True,                   # If true, shocks will instead be delivered as vibrations
     warnBeforeShock =   False,                  # Whether to give a warning beep before punishing for noncompliance
     moCap =             False,                  # Whether we should log motion data
     dockLock =          False,                  # Whether to enable Dock Lock (punish wearer if charger disconnected)
