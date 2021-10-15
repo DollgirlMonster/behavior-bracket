@@ -315,17 +315,16 @@ class pwrThread(Thread):
 
         super(pwrThread, self).__init__()
 
-    def magSwitchCheck(self):
-        # TODO: If I can't find a use for the magnet switch/key, remove this function
+    def pwrSwitchCheck(self):
         """ 
-        Query the magnet switch for state, on low edge send shutdown confirmation to webUI
+        Query the power switch pin for state, on low edge send shutdown confirmation to webUI
         Pin is high on open, low on closed
         """
         pwrJustChanged = self.pwrSwitch.update(gpio.read(self.pwrPin))  # Query GPIO for power switch state
         if pwrJustChanged and self.pwrSwitch.value == 0:                # Low edge detected
-            # socketio.emit('shutdownConfirmation', {
-            #     'foo': 'bar',
-            # }, namespace='/control')
+            socketio.emit('shutdownConfirmation', {
+                'foo': 'bar',
+            }, namespace='/control')
 
     def battLoop(self):
         """
