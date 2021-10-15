@@ -1,9 +1,16 @@
 <!doctype HTML>
 <html>
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Collar Remote">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
     <title>{{ title }}</title>
+    <link rel="stylesheet" href="https://use.typekit.net/ncu4jxx.css">
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}" />
-</head>.
+</head>
 
 <!-- 
     Namespaces
@@ -23,7 +30,7 @@
         {% include '_battery-widget.html' %}
     </header>
 
-    <main>
+    <menu>
         <ul class="ctl__buttons">
             <li>
                 <a id="ctl__check-updates--button" class="button">Check for Updates</a>
@@ -38,7 +45,7 @@
         <div class="stat__version">
             <p>BBSS Version <span>{{ version }}</span></p>
         </div>
-    </main>
+    </menu>
 
     <!-- Modals -->
     {% include '_modals.html' %}
