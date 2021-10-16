@@ -41,6 +41,10 @@ a[class^="button"], button {
     }
 }
 
+.ctl__buttons + .ctl__buttons {
+    margin-top: 1rem;
+}
+
 .ctl__mode--container {
     li, a {
         width: 100%;

@@ -57,6 +57,21 @@
 
 <script type="module">
     $(document).ready(function() {
+        // Initialize dialogs
+        $('#ui__modal').dialog({
+            autoOpen: false,
+            modal: true,
+            resizable: false,
+            dialogClass: "no-close",
+        });
+
+        $('#ui__spinner').dialog({
+            autoOpen: false,
+            modal: true,
+            resizable: false,
+            closeOnEscape: false,
+        });
+        
         // SOCKETIO
         // Connect to socket server
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/control');
@@ -130,27 +145,84 @@
         socket.emit('update', {'foo': 'bar'});
         socket.on('update', function(msg) {
             if (msg.dockLock) {dockLock = true;}                        // Keep track of Dock Lock status clientside
-
-            $('#ui__connecting').addClass('ui__hidden');                // Finished connecting, hide spinner
         })
 
         // Check for Updates button
-        // TODO
+        $('#ctl__check-updates--button').click(function() {
+            // Create and show checking for updates spinner
+            $('#ui__spinner--body').text("Checking for updates...");
+            $('#ui__spinner').dialog( "open" );
+
+            socket.emit('softwareUpdate', {'command': 'getNewestVersionDetails'});
+            socket.on('softwareUpdate', function(msg) {
+                $('#ui__spinner').dialog( "close" );
+                
+                if (msg.updateIsNewer == true) {    // Newer version available
+                    // Create and show update modal
+                    $('#ui__modal').dialog("option", "title", "BBSS Update");
+                    $('#ui__modal--body').text("A new version of BBSS (version " + msg.version + ") is available. Would you like to update?");
+                    $('#ui__modal').dialog("option", "buttons", [
+                        {
+                            text: "Yes",
+                            click: function() {
+                                console.log("Updating...");
+                                socket.emit('softwareUpdate', {'command': 'updateSoftware'});
+                                $( this ).dialog( "close" );
+
+                                $('#ui__spinner--body').text("Updating BBSS...");
+                                $('#ui__spinner').dialog( "open" );
+                            }
+                        },
+                        {
+                            text: "No",
+                            click: function() {
+                                $( this ).dialog( "close" );
+                            }
+                        }
+                    ]);
+                }
+                else {                              // Already on newest version
+                    // Create and show message
+                    $('#ui__modal').dialog("option", "title", "BBSS Update");
+                    $('#ui__modal--body').text("You're already running the latest version of Behavior Bracket's System Software.");
+                    $('#ui__modal').dialog("option", "buttons", [
+                        {
+                            text: "Ok",
+                            click: function() {
+                                $( this ).dialog( "close" );
+                            }
+                        }
+                    ]);
+                }
+            }
+        }
 
         // Reboot button
         $('#ctl__reboot--button').click(function() {
-            $('#ui__reboot--confirmation-dialog').addClass('ui__hidden--show');
-        })
+            // Construct and show reboot modal
+            $('#ui__modal').dialog("option", "title", "Restart?");
+            $('#ui__modal--body').text("Are you sure you want to restart?");
+            $('#ui__modal').dialog("option", "buttons", [
+                {
+                    text: "Yes",
+                    click: function() {
+                        console.log("Rebooting...");
 
-        $('#ctl__reboot--no').click(function() {
-            $('#ui__reboot--confirmation-dialog').removeClass('ui__hidden--show');
-        })
+                        $('#ui__spinner--body').text("Restarting...")
+                        $('#ui__spinner').dialog( "open" );
 
-        $('#ctl__reboot--yes').click(function() {
-            console.log("Rebooting...");
-            $('#ui__reboot--confirmation-dialog').removeClass('ui__hidden--show');
-            $('#ui__reboot').addClass('ui__hidden--show');
-            socket.emit('reboot', {'foo': 'bar'});
+                        socket.emit('reboot', {'foo': bar});
+                        $( this ).dialog( "close" );
+                    },
+                },
+                {
+                    text: "No",
+                    click: function() {
+                        $( this ).dialog( "close" );
+                    }
+                },
+            ]);
+            $('#ui__modal').dialog( "open" );
         })
     });
 </script>

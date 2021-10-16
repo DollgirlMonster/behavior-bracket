@@ -203,6 +203,10 @@ a[class^=button].button__filled, button.button__filled {
   width: auto;
 }
 
+.ctl__buttons + .ctl__buttons {
+  margin-top: 1rem;
+}
+
 .ctl__mode--container li, .ctl__mode--container a {
   width: 100%;
 }
