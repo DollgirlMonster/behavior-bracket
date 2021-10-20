@@ -17,7 +17,7 @@
             <b>Charging:</b> <span id="battCharging">??</span><br />
             <b>Mode:</b> <span id="mode">off</span><br />
             <b>Compliance:</b> <span id="compliance">??</span><br />
-            <b>requestPunishment:</b> <span id="requestPunishment">??</span><br />
+            <b>punishmentSource:</b> <span id="punishmentSource">??</span><br />
             <b>IP:</b> <span>{{ ipAddr }}</span><br />
         </p>
         <p>
@@ -183,7 +183,7 @@
         // Compliance
         socket.on('compliance', function(msg) {
             $('#compliance').html(msg.compliance.toString());
-            $('#requestPunishment').html(msg.requestPunishment.toString());
+            $('#punishmentSource').html(msg.punishmentSource.toString());
         })
 
         // Safety auto-off debug info

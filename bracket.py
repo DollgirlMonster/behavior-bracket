@@ -33,7 +33,8 @@ thread = Thread()
 thread_stop_event = Event()
 
 # Init global variables
-requestPunishment = False   # If not None, signal to punish and reason we are punishing
+punishmentRequests = {}     # Create empty container for punishment requests
+requestPunishment = False   # [Obsolete] If not False, signal to punish and reason we are punishing TODO: delete
 requestBeep = False         # If not False, what beep pattern to play
 punishmentIntensity = 50    # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
 
@@ -269,7 +270,7 @@ class radioThread(Thread):
         return sequence
 
     def run(self):
-        global requestPunishment                    # Get visibility of bool that determines whether we should transmit
+        global punishmentRequests                   # Get visibility of punishment requests container
         
         gpio.set_mode(self.radioPin, pigpio.OUTPUT) # Set up pin 22 as output
         gpio.wave_clear()                           # clear existing waveforms
@@ -277,7 +278,7 @@ class radioThread(Thread):
         punishmentCycles = 0                        # Keep track of how many punishment transmissions we've sent
         while not thread_stop_event.isSet():
             # Punish if requested
-            if requestPunishment != False:
+            if True in punishmentRequests.values():
                 if punishmentCycles < self.safetyLimit: # Only punish if we're within safety bounds
                     sequence = self.makeSequence()      # Create punishment data sequence
                     waveID = self.makeWaveform(sequence)# Make waveform from data sequence
@@ -287,9 +288,19 @@ class radioThread(Thread):
                 socketio.emit('safetyPunishmentCycles', {
                     'punishmentCycles': punishmentCycles,
                 }, namespace='/control')
-                requestPunishment = False
+
+                punishmentSource = [key for key,value in punishmentRequests.items() if value==True] # Find the source of the punishment request
+                socketio.emit('compliance', {
+                    'compliance': False,
+                    'punishmentSource': punishmentSource,
+                }, namespace='/control')
             else:
                 punishmentCycles = 0                # Reset punishment cycles counter
+
+                socketio.emit('compliance', {
+                    'compliance': True,
+                    'punishmentSource': None,
+                }, namespace='/control')
                 
                 # Stop the shock unit from going into sleep mode by periodically flashing the LED
                 # We want to ping every two minutes on the first second
@@ -331,7 +342,7 @@ class pwrThread(Thread):
         Check the system battery level and broadcast to a socketio instance
         """
         # Need visiblity of global vars for communication
-        global requestPunishment
+        global punishmentRequests
         global requestBeep
 
         while not thread_stop_event.isSet():
@@ -360,14 +371,17 @@ class pwrThread(Thread):
                 plugStatusChanged = self.charging.update(False)
 
             # If the state just changed, do dock lock check
-            if app.config['dockLock']:                  # If Dock Lock enabled
-                if self.charging.value:                 # And unit is charging
-                    if plugStatusChanged:               # And unit just got plugged in
-                        requestBeep = 'compliant'       # Play compliance beep
-                else:                                   # Otherwise, if the unit is unplugged when it shouldn't be
-                    requestPunishment = 'dockLock'      # Request punishment
-                    if plugStatusChanged:               # If the unit just got unplugged
-                        requestBeep = 'noncompliant'    # Play noncompliance beep
+            if app.config['dockLock']:                      # If Dock Lock enabled
+                if self.charging.value:                     # And unit is charging
+                    punishmentRequests['dockLock'] = False  # No punishment
+                    if plugStatusChanged:                   # And if unit just got plugged in
+                        requestBeep = 'compliant'           # Play compliance beep
+                else:                                       # Otherwise, if the unit is unplugged when it shouldn't be
+                    punishmentRequests['dockLock'] = True   # Request punishment
+                    if plugStatusChanged:                   # And if the unit just got unplugged
+                        requestBeep = 'noncompliant'        # Play noncompliance beep
+            else:
+                punishmentRequests['dockLock'] = False      # If Dock Lock is off, cancel punishment
                 
             # If charge is over 99, disable Dock Lock
             if avgPercent >= 99:
@@ -389,6 +403,9 @@ class pwrThread(Thread):
             time.sleep(0.25)
 
     def run(self):
+        global punishmentRequests               # Get visibility of punishment request container
+        punishmentRequests['dockLock'] = False  # Register dock lock channel
+
         # Set up gpio pin for communication with power switch
         gpio.set_mode(self.pwrPin, pigpio.INPUT)
         gpio.set_pull_up_down(self.pwrPin, pigpio.PUD_UP)
@@ -635,7 +652,7 @@ class motionThread(Thread):
         """
         Decide what test must be done based on the mode, and execute it
         """
-        global requestPunishment    # Get visibility of should transmit bool
+        global punishmentRequests   # Get visibility of punishment requests
         global requestBeep          # Get visibility of beep queue
 
         if app.config['mode'] == 'off':         complianceJustChanged = self.compliance.update(True)
@@ -655,24 +672,16 @@ class motionThread(Thread):
         ### END   Testing area for fitness mode
 
         # If compliance is true, do not request punishment
-        if self.compliance.value:           # If wearer is compliant
-            if complianceJustChanged:       # And they just started being compliant
-                requestBeep = 'compliant'   # Request compliance beep
-                if self.punishmentTimer != None: self.punishmentTimer.cancel()              # Cancel current punishment timer if exists
-                
-        else:                               # If wearer is noncompliant
-            if complianceJustChanged:       # If they just started being noncompliant
-                if app.config['warnBeforeShock']:                                           # If pre-punishment warning
-                    self.punishmentTimer = PunishmentTimer(3, punishmentSource='motion')    # Start punishment timer
-                else:                                                                       # Otherwise,
-                    requestBeep = 'noncompliant'                                            # Request noncompliance beep
-            if app.config['warnBeforeShock'] == False:                                      # If in fast punish mode
-                requestPunishment = 'motion'                                                # Request looping punishment
+        if self.compliance.value:                       # If wearer is compliant
+            punishmentRequests['interaction'] = False   # Set punishment request to False
 
-        socketio.emit('compliance', {
-            'compliance': self.compliance.value,
-            'requestPunishment': requestPunishment,
-        }, namespace='/control')
+            if complianceJustChanged:                   # And if they just started being compliant
+                requestBeep = 'compliant'               # Request compliance beep
+                
+        else:                                           # If wearer is noncompliant
+            punishmentRequests['interaction'] = True    # Set punishment request to True
+            if complianceJustChanged:                   # And If they just started being noncompliant
+                requestBeep = 'noncompliant'            # Request noncompliance beep
 
 
     def getMotion(self):
@@ -768,6 +777,9 @@ class motionThread(Thread):
             self.testCompliance(motion)
 
     def run(self):
+        global punishmentRequests                   # Get visibility of punishment requests
+        punishmentRequests['interaction'] = False   # Register sensor channel in punishment requests
+
         self.getMotion()
 
 
@@ -833,8 +845,7 @@ def mode_select(msg):
 # Intenstiy setting
 @socketio.on('intensity', namespace='/control')
 def intensity_select(msg):
-    # Need visibility of global intensity var
-    global punishmentIntensity
+    global punishmentIntensity  # Need visibility of global intensity var
 
     punishmentIntensity = msg['intensity']
 
@@ -924,15 +935,17 @@ def softwareUpdate(msg):
         os.system('sudo reboot')
 
 # Manual control
+punishmentRequests['manual'] = False    # Register manual punishment channel
 @socketio.on('manualControl', namespace='/control')
 def manualControl(msg):
     # Need visibility of punishment and beep requests
-    global requestPunishment
+    global punishmentRequests
     global requestBeep
 
     if msg['command'] == 'punish':
         requestBeep = 'noncompliant'
-        requestPunishment = 'manual'
+        punishmentRequests['manual'] = True     # Quickly toggle punishment on and off
+        punishmentRequests['manual'] = False    # TODO: Test this
         
     elif msg['command'] =='warn':
         requestBeep = 'warning'
