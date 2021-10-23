@@ -3,11 +3,6 @@ import socket
 
 sudo_mode = 'sudo '
 
-wpa_supplicant_conf =   "/etc/wpa_supplicant/wpa_supplicant.conf"
-dhcpcd_conf =           "/etc/dhcpcd.conf"
-
-client_country = "US"  # TODO: optionify this
-
 def isConnected():
     """ Returns True if connected to the Internet """
     try:
@@ -62,7 +57,9 @@ def setAccessPointMode(enableAP):
             f.write('routers=192.168.50.1')
 
     # Copy host mode dhcpcd config to system folder
-    cmd = 'cp dhcpcd.conf ' + dhcpcd_conf
+    system_dhcpcd_conf_location = "/etc/dhcpcd.conf"
+
+    cmd = 'cp dhcpcd.conf ' + system_dhcpcd_conf_location
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
@@ -75,46 +72,53 @@ def getIPAddr(ifname='wlan0'):
 
     return ip
 
-def clientConnect(ssid, passkey):
+def clientConnect(ssid, passkey, client_country='US'):
     """ 
     Connect the device to a WiFi access point 
     Returns IP address
     """
-    # write wifi config to file
-    f = open('wifi.conf', 'w')
+    # write wifi config to wpa_supplicant.conf
+    f = open('wpa_supplicant.conf', 'w')
     f.write(f'country={client_country}\n')
     f.write('ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\n')
     f.write('update_config=1\n')
     f.write('\n')
     f.write('network={\n')
-    f.write('    ssid="' + ssid + '"\n')
-    f.write('    psk="' + passkey + '"\n')
+    f.write(f'    ssid={ssid}\n')
+    f.write(f'    psk={passkey}\n')
     f.write('}\n')
     f.close()
 
-    # Move wifi config to system folder
-    cmd = 'mv wifi.conf ' + wpa_supplicant_conf
+    # Move wpa_supplicant.conf to system folder
+    system_wpa_supplicant_conf_location = "/etc/wpa_supplicant/wpa_supplicant.conf"
+
+    cmd = 'mv wpa_supplicant.conf ' + system_wpa_supplicant_conf_location
     cmd_result = ""
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
     # restart wifi adapter
+    print("Restarting wifi adapter...")
+    print("Bringing down wlan0 interface...")
     cmd = sudo_mode + 'ifdown wlan0'
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
     time.sleep(2)
 
+    print("Restarting wlan0 interface...")
     cmd = sudo_mode + 'ifup wlan0'
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
     time.sleep(10)
 
+    print("Running iwconfig for wlan0...")
     cmd = 'iwconfig wlan0'
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
+    print("Running ifconfig for wlan0...")
     cmd = 'ifconfig wlan0'
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
