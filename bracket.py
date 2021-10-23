@@ -898,7 +898,7 @@ def softwareUpdate(msg):
         if not updateIsNewer:                           # Verify that the update is a newer version than current
             socket.emit('modal',
             {
-                'title': "System Update Error",
+                'title': "System Update Error (0)",
                 'body': "You're already on the latest version of BBSS!"
             }, namespace='/control')
             return False
@@ -909,7 +909,7 @@ def softwareUpdate(msg):
             # TODO: Check the date?
             socket.emit('modal',
             {
-                'title': "System Update Error",
+                'title': "System Update Error (1)",
                 'body': "There was an error verifying the update information. Please try downloading the update again."
             }, namespace='/control')
             return False
@@ -922,7 +922,7 @@ def softwareUpdate(msg):
             # Hashes do not match
             socket.emit('modal',
             {
-                'title': "System Update Error",
+                'title': "System Update Error (2)",
                 'body': "There was an error verifying the update data. Please try downloading the update again."
             }, namespace='/control')
             return False
