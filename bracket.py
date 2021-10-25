@@ -349,8 +349,8 @@ class pwrThread(Thread):
             battStat = battery.get_battery()
 
             # loadVoltage = battStat['loadVoltage']
-            current = battStat['current']
             # power = battStat['power']
+            current = battStat['current']
             percent = battStat['percent']
 
             # Cycle battery history
@@ -363,10 +363,9 @@ class pwrThread(Thread):
             # Get the mean of the battery percent history
             avgPercent = statistics.mean(self.battPercentHistory)
 
-            # Figure out whether we're charging
+            # Figure out whether we're charging to determine whether plugged status changed
             if current > 0:
                 plugStatusChanged = self.charging.update(True)
-
             else:
                 plugStatusChanged = self.charging.update(False)
 

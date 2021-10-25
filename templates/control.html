@@ -97,20 +97,7 @@
     var dockLock = false;   // Keep track of dockLock clientside
 
     $(document).ready(function() {
-        // Initialize dialogs
-        $('#ui__modal').dialog({
-            autoOpen: false,
-            modal: true,
-            resizable: false,
-            dialogClass: "no-close",
-        });
-
-        $('#ui__spinner').dialog({
-            autoOpen: false,
-            modal: true,
-            resizable: false,
-            closeOnEscape: false,
-        });
+        // Dialogs are already initialized by script in _modals.html
 
         // Create connecting to collar spinner
         $('#ui__spinner--body').text("Connecting to Bracket...");
@@ -151,8 +138,8 @@
         socket.on('battery', function(msg) {
             // Update battery status indicator
             //   Update percent string
-            var percent = parseInt(msg.percent);
-            $('#stat__battery--percent').html(percent.toString());
+            var battPercentage = parseInt(msg.percent); // Get percentage as string
+            $('#stat__battery--percent').html(battPercentage.toString());
 
             //   Update battery fill width
             var pxWidth = 21 * (msg.percent / 100);
