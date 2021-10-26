@@ -23,7 +23,6 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_mapping(
     SECRET_KEY='dev',
     DEBUG=True,
-    INTERNET_CONNECTED=wifi.is_connected(),
 )
 
 # Turn the flask app into a socketio app
@@ -112,17 +111,17 @@ class PunishmentTimer:
 # Init config
 # TODO: Most globals will slowly be ported over to here as I get around to it
 app.config.update(
+    INTERNET_CONNECTED = wifi.is_connected(),   # Whether or not we are connected to the internet
+
     mode =              'off',                  # Operation mode for the device -- decides what logic is used for compliance determination
     safetyMode =        True,                   # If true, shocks will instead be delivered as vibrations
     warnBeforeShock =   False,                  # Whether to give a warning beep before punishing for noncompliance
-    moCap =             False,                  # Whether we should log motion data
+    moCap =             False,                  # Whether we should be logging motion data
     dockLock =          False,                  # Whether to enable Dock Lock (punish wearer if charger disconnected)
     startupChime =      True,                   # Whether to play a beep at launch to let the user know the device is ready to connect
 
     emitMotionData =    True,                   # Whether to send motion values to debug page
     motionAlgorithm =   'fast',                 # Algorithm used to calculate device rotation -- can be 'fast' or 'accurate'
-
-    networkConnected =  None,                   # Keep track of whether we're connected to the internet
 )
 
 # ooooooooooooo oooo                                           .o8           
@@ -285,17 +284,17 @@ class radioThread(Thread):
                     waveID = self.makeWaveform(sequence)# Make waveform from data sequence
                     self.transmit(waveID)               # Transmit waveform
 
-                punishmentCycles += 1
-                socketio.emit('safetyPunishmentCycles', {
+                punishmentCycles += 1                       # Increment punishment cycles
+                socketio.emit('safetyPunishmentCycles', {   # Send punishment cycles to web client
                     'punishmentCycles': punishmentCycles,
                 }, namespace='/control')
 
                 punishmentSource = [key for key,value in punishmentRequests.items() if value==True] # Find the source of the punishment request
-                socketio.emit('compliance', {
+                socketio.emit('compliance', {                                                       # Emit punishment info to web client
                     'compliance': False,
                     'punishmentSource': punishmentSource,
                 }, namespace='/control')
-            else:
+            else:                                   # No punishment requests
                 punishmentCycles = 0                # Reset punishment cycles counter
 
                 socketio.emit('compliance', {
