@@ -904,7 +904,7 @@ def softwareUpdate(msg):
             socket.emit('modal',
             {
                 'title': "System Update Error (0)",
-                'body': "You're already on the latest version of BBSS!"
+                'body': "You're already on the latest version of Behavior Bracket's System Software."
             }, namespace='/control')
             return False
 
