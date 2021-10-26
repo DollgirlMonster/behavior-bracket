@@ -23,6 +23,7 @@ app = Flask(__name__, instance_relative_config=True)
 app.config.from_mapping(
     SECRET_KEY='dev',
     DEBUG=True,
+    INTERNET_CONNECTED=wifi.is_connected(),
 )
 
 # Turn the flask app into a socketio app
@@ -812,10 +813,16 @@ def settings():
 # Remote Control page
 @app.route('/', methods=["GET"])
 def control():
-    return render_template(
-        'control.html',
-        title = 'Behavior Bracket',
-    )
+    if app.config['INTERNET_CONNECTED']:    # If internet is connected
+        return render_template(             # Return remote control page
+            'control.html',
+            title = 'Behavior Bracket',
+        )
+    else:
+        return render_template(             # Otherwise, return setup page
+            'wifi-setup.html',
+            title = 'Behavior Bracket Setup',
+        )
 
 # INTERACTIONS
 # Motion Data Snapshot
@@ -970,15 +977,14 @@ if __name__ == "__main__":
     thread.start()
 
     # Check wifi connection
-    if not wifi.isConnected():
+    if not app.config['INTERNET_CONNECTED']:
         # Start in access point mode
-        app.config.update(networkConnected = False)
         requestBeep = 'error'   # Play error beep
         # wifi.setAccessPointMode(enableAP = True)  # TODO: uncomment once debugged
     else:
         # Start in client mode
-        app.config.update(networkConnected = True)
 
+        # wifi.setAccessPointMode(enableAP = False) # TODO: uncomment once debugged
         requestBeep = 'soliton' # Play startup chime
 
     # Start radio & motion threads
