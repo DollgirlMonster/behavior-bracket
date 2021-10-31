@@ -979,11 +979,11 @@ if __name__ == "__main__":
     if not app.config['INTERNET_CONNECTED']:
         # Start in access point mode
         requestBeep = 'error'   # Play error beep
-        # wifi.setAccessPointMode(enableAP = True)  # TODO: uncomment once debugged
+        # wifi.setWiFiMode('host')  # TODO: uncomment once debugged
     else:
         # Start in client mode
 
-        # wifi.setAccessPointMode(enableAP = False) # TODO: uncomment once debugged
+        # wifi.setWiFiMode('client') # TODO: uncomment once debugged
         requestBeep = 'soliton' # Play startup chime
 
     # Start radio & motion threads
