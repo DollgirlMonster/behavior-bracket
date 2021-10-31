@@ -320,22 +320,14 @@ class pwrThread(Thread):
         self.charging = EdgeDetector(False) # Charging status with edge detection
         self.pwrSwitch = EdgeDetector(1)    # Power switch status with edge detection
 
-        self.CRITICAL_LOW_BATT_LEVEL = 3                                # Battery percentage at which to shut the device down to preserve battery health
+        self.hasShownLowBatteryWarning = False  # Keep track of whether we've warned the user about low battery
+
+        self.LOW_BATT_LEVEL = 20                                        # Battery percentage at which to warn the user that they should charge
+        self.CRITICAL_BATT_LEVEL = 3                                    # Battery percentage at which to safely shut down the device to prevent damage
         self.PERCENT_MEAN_TABLE_SIZE = 100                              # Size of the mean table for the battery percentage
         self.battPercentHistory = [50] * self.PERCENT_MEAN_TABLE_SIZE   # List of previous percent values
 
         super(pwrThread, self).__init__()
-
-    def pwrSwitchCheck(self):
-        """ 
-        Query the power switch pin for state, on low edge send shutdown confirmation to webUI
-        Pin is high on open, low on closed
-        """
-        pwrJustChanged = self.pwrSwitch.update(gpio.read(self.pwrPin))  # Query GPIO for power switch state
-        if pwrJustChanged and self.pwrSwitch.value == 0:                # Low edge detected
-            socketio.emit('shutdownConfirmation', {
-                'foo': 'bar',
-            }, namespace='/control')
 
     def battLoop(self):
         """
@@ -357,16 +349,14 @@ class pwrThread(Thread):
             for i in range(self.PERCENT_MEAN_TABLE_SIZE-1, 0, -1):
                 self.battPercentHistory[i] = self.battPercentHistory[i - 1]
 
-            # Insert new battery history value
-            self.battPercentHistory[0] = percent
-
-            # Get the mean of the battery percent history
-            avgPercent = statistics.mean(self.battPercentHistory)
+            self.battPercentHistory[0] = percent                        # Insert new battery history value
+            avgBattPercent = statistics.mean(self.battPercentHistory)   # Get the mean of the battery percent history
 
             # Figure out whether we're charging to determine whether plugged status changed
-            if current > 0:
+            if current > 0: # Device is charging
                 plugStatusChanged = self.charging.update(True)
-            else:
+                self.hasShownLowBatteryWarning = False  # Reset low battery warning
+            else:           # Device is not charging
                 plugStatusChanged = self.charging.update(False)
 
             # If the state just changed, do dock lock check
@@ -382,19 +372,33 @@ class pwrThread(Thread):
             else:
                 punishmentRequests['dockLock'] = False      # If Dock Lock is off, cancel punishment
                 
-            # If charge is over 99, disable Dock Lock
-            if avgPercent >= 99:
+            # If fully charged, disable Dock Lock
+            if avgBattPercent >= 99:
                 app.config.update(dockLock = False)
 
+            # If charge is under the low battery level, emit a warning to the user
+            if avgBattPercent < self.LOW_BATT_LEVEL and self.charging.value = False:
+                if not self.hasShownLowBatteryWarning:      # If we haven't shown the warning before
+                    socket.emit('modal',
+                    {
+                        'title': "Low Battery",
+                        'body': "Behavior Bracket's battery is running low. Charge the device soon, or it will shut down."
+                    }, namespace='/control')                # Emit the warning
+                    self.hasShownLowBatteryWarning = True   # Keep track of the fact that we've shown it
+
             # If charge is under the critical low battery level, shut down the device
-            # A low battery warning is shown on the front-end at 5% battery -- this is handled clientside
-            if avgPercent < self.CRITICAL_LOW_BATT_LEVEL:
-                requestBeep = 'error'   # /should/ this beep though??
+            if avgBattPercent < self.CRITICAL_BATT_LEVEL:
+                requestBeep = 'error'
+                socket.emit('modal',
+                {
+                    'title': "Critical Battery",
+                    'body': "Behavior Bracket's battery has been depleted. The device is now shutting down."
+                }, namespace='/control')
                 os.system('sudo poweroff')
 
             # Broadcast to WebUI
             socketio.emit('battery', {
-                'percent': avgPercent,
+                'percent': avgBattPercent,
                 'charging': self.charging.value,
                 'dockLock': app.config['dockLock'],
             }, namespace='/control')
@@ -404,10 +408,6 @@ class pwrThread(Thread):
     def run(self):
         global punishmentRequests               # Get visibility of punishment request container
         punishmentRequests['dockLock'] = False  # Register dock lock channel
-
-        # Set up gpio pin for communication with power switch
-        gpio.set_mode(self.pwrPin, pigpio.INPUT)
-        gpio.set_pull_up_down(self.pwrPin, pigpio.PUD_UP)
 
         self.battLoop()
 

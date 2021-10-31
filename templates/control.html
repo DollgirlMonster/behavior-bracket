@@ -97,19 +97,56 @@
     var dockLock = false;   // Keep track of dockLock clientside
 
     $(document).ready(function() {
-        // Dialogs are already initialized by script in _modals.html
+        // Initialize dialogs
+        $('#ui__modal').dialog({    // Initialize modal
+            autoOpen: false,
+            modal: true,
+            resizable: false,
+            dialogClass: "no-close",
+        });
+
+        $('#ui__spinner').dialog({  // Initialize spinner
+            autoOpen: false,
+            modal: true,
+            resizable: false,
+            closeOnEscape: false,
+        });
+
+        // Simple Modal: Construct and display modal for non-actionable notifications emitted directly from backend
+        socket.on('dialog', function(msg) {
+            // Construct title if one exists
+            if (msg.title != "") {
+                $('#ui__modal').dialog("option", "title", msg.title)
+            } else {
+                $('#ui__modal').dialog("option", "title", null)
+            }
+
+            // Construct body
+            $('#ui__modal').text(msg.body)
+
+            // Construct confirmation button to close the dialog
+            $('#ui__modal').dialog("option", "buttons", [
+                {
+                    text: "Ok",
+                    click: function() {
+                        $( this ).dialog( 'close' )
+                    }
+                }
+            ])
+
+            $('#ui__modal').dialog( 'open' )
+        })
 
         // Create connecting to collar spinner
         $('#ui__spinner--body').text("Connecting to Bracket...");
         $('#ui__spinner').dialog( "open" );
 
-        // SOCKETIO
         // Connect to socket server
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/control');
         console.log("Connected to Socket");
 
-        function showdockLockModal() {
-            // Construct and show Dock Lock modal
+        // Battery level & Charging state
+        function showdockLockModal() {  // Construct and show Dock Lock modal
             $('#ui__modal').dialog("option", "title", "Enable Dock Lock?");
             $('#ui__modal--body').text('Dock Lock punishes the wearer for disconnecting the charger before the Bracket is fully charged.');
             $('#ui__modal').dialog("option", "buttons", [
@@ -133,19 +170,16 @@
             $('#ui__modal').dialog( "open" );
         }
 
-        // When we recieve information from server
-        //   Battery level
-        socket.on('battery', function(msg) {
-            // Update battery status indicator
-            //   Update percent string
+        socket.on('battery', function(msg) {    // Update battery status indicator
+            // Update percent string
             var battPercentage = parseInt(msg.percent); // Get percentage as string
             $('#stat__battery--percent').html(battPercentage.toString());
 
-            //   Update battery fill width
+            // Update battery fill width
             var pxWidth = 21 * (msg.percent / 100);
             $('#stat__battery--level').css('width',  pxWidth.toString() + 'px');
 
-            //   Update battery icon color
+            // Set battery fill color
             if (msg.percent <= 20) {
                 $('#stat__battery--level').addClass('lowBatt');
                 // If this is the first time the battery has dropped below 20%, show a warning
