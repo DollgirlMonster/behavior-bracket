@@ -144,6 +144,7 @@
         // Connect to socket server
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/control');
         console.log("Connected to Socket");
+        $('#ui__spinner').dialog( "close" );    // Destroy connecting to collar spinner
 
         // Battery level & Charging state
         function showdockLockModal() {  // Construct and show Dock Lock modal
@@ -204,13 +205,6 @@
                 $('#stat__battery--level').removeClass('lowBatt');
             }
 
-            // Reset warning trigger if battery has certain values
-            if (msg.percent >= 25) {
-                hasShownBattWarning = false;    // Reset low battery warning if battery goes above 25%
-            } else if (msg.percent >= 90) {
-                hasShownDockLockModal = false;  // Reset dock lock if battery goes above 90%
-            }
-
             // Charging status-related checks
             if (msg.charging == true) {
                 $('#stat__battery--dock-lock').removeClass('shock');                // If the device is charging, don't light up the battery icon
@@ -241,6 +235,11 @@
                     $('#stat__battery--dock-lock').removeClass('ui__hidden--show'); //   Hide DL icon
                 }
             }
+            
+            // Reset dock lock prompt if battery goes above 95%
+            if (msg.percent >= 95) {
+                hasShownDockLockModal = false;
+            }
         })
 
         //   Compliance
@@ -256,15 +255,15 @@
         //   Reboot
         // Construct and show reboot confirmation dialog
         socket.on('rebootConfirmation', function(msg) {
-            $('#ui__modal').dialog("option", "title", "Restart?");
-            $('#ui__modal--body').text("Are you sure you want to restart?");
+            $('#ui__modal').dialog("option", "title", "Reboot?");
+            $('#ui__modal--body').text("Are you sure you want to reboot?");
             $('#ui__modal').dialog("option", "buttons", [
                 {
                     text: "Yes",
                     click: function() {
                         console.log("Rebooting...");
 
-                        $('#ui__spinner--body').text("Restarting...")
+                        $('#ui__spinner--body').text("Rebooting...")
                         $('#ui__spinner').dialog( "open" );
 
                         socket.emit('reboot', {'foo': bar});
