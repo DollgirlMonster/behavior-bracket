@@ -377,7 +377,7 @@ class pwrThread(Thread):
                 app.config.update(dockLock = False)
 
             # If charge is under the low battery level, emit a warning to the user
-            if avgBattPercent < self.LOW_BATT_LEVEL and self.charging.value = False:
+            if avgBattPercent < self.LOW_BATT_LEVEL and self.charging.value == False:
                 if not self.hasShownLowBatteryWarning:      # If we haven't shown the warning before
                     socket.emit('modal',
                     {
