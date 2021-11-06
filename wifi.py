@@ -23,28 +23,54 @@ def setWiFiMode(mode):
 
     mode    string  ('host', 'client'), determines the WiFi mode we're switching into
     """
-    # Determine what mode to switch to
-    if mode == 'host': cmdVerb = 'enable'
-    elif mode == 'client': cmdVerb = 'disable'
+    # Copy appropriate dhcpcd config to system folder
+    system_dhcpcd_conf_location = "/etc/dhcpcd.conf"
+    dhcpcd_conf = f'./wifi-conf/dhcpcd/dhcpcd.{mode}.conf'
+
+    cmd = f'cp {dhcpcd_conf} {system_dhcpcd_conf_location}'
+    cmd_result = os.system(cmd)
+    print(cmd + " - " + str(cmd_result))
+
+    # Copy appropriate dnsmasq config to system folder
+    system_dnsmasq_conf_location = "/etc/dnsmasq.conf"
+    dnsmasq_conf = f'./wifi-conf/dnsmasq/dnsmasq.{mode}.conf'
+
+    cmd = f'cp {dnsmasq_conf} {system_dnsmasq_conf_location}'
+    cmd_result = os.system(cmd)
+    print(cmd + " - " + str(cmd_result))
+
+    # Copy appropriate hostapd config to system folder
+    system_hostapd_conf_location = "/etc/hostapd/hostapd.conf"
+    hostapd_conf = f'./wifi-conf/hostapd/hostapd.{mode}.conf'
+
+    cmd = f'cp {hostapd_conf} {system_hostapd_conf_location}'
+    cmd_result = os.system(cmd)
+    print(cmd + " - " + str(cmd_result))
+
+    # Rerun systemctl generators
+    cmd = sudo_mode + 'systemctl daemon-reload'
+    cmd_result = os.system(cmd)
+    print(cmd + " - " + str(cmd_result))
+
+    # Restart dhcpd service
+    cmd = sudo_mode + 'service dhcpcd restart'
+    cmd_result = os.system(cmd)
+    print(cmd + " - " + str(cmd_result))
 
     # Enable/disable dnsmasq
-    cmd = sudo_mode + f'systemctl {cmdVerb} dnsmasq'
-    cmd_result = ""
+    if mode == 'host':
+        cmd = sudo_mode + 'systemctl start dnsmasq'
+    elif mode == 'client':
+        cmd = sudo_mode + 'systemctl stop dnsmasq'
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
     # Enable/disable hostapd
-    cmd = sudo_mode + f'systemctl {cmdVerb} hostapd'
-    cmd_result = os.system(cmd)
-    print(cmd + " - " + str(cmd_result))
+    if mode == 'host':
+        cmd = sudo_mode + 'systemctl start hostapd'
+    elif mode == 'client':
+        cmd = sudo_mode + 'systemctl stop hostapd'
 
-    # Copy appropriate dhcpcd config to system folder
-    system_dhcpcd_conf_location = "/etc/dhcpcd.conf"
-
-    if mode == 'host': dhcpcd_conf = './wifi-conf/dhcpcd/dhcpcd.host.conf'
-    elif mode == 'client': dhcpcd_conf = './wifi-conf/dhcpcd/dhcpcd.client.conf'
-
-    cmd = f'cp {dhcpcd_conf} {system_dhcpcd_conf_location}'
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
