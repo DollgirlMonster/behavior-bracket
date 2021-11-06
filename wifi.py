@@ -1,5 +1,6 @@
 import os
 import socket
+import dbus
 
 sudo_mode = 'sudo '
 
@@ -52,27 +53,30 @@ def setWiFiMode(mode):
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
-    # Restart dhcpd service
-    cmd = sudo_mode + 'service dhcpcd restart'
-    cmd_result = os.system(cmd)
-    print(cmd + " - " + str(cmd_result))
+    # Get visibility of DBus API so we can restart services running under systemd
+    sysbus = dbus.SystemBus()
+    systemd1 = sysbus.get_object('org.freedesktop.systemd1', '/org/freedesktop/systemd1')
+    manager = dbus.Interface(systemd1, 'org.freedesktop.systemd1.Manager')
+
+    # Restart dhcpcd service
+    job = manager.RestartUnit('dhcpcd.service', 'replace')
+    print(job)
 
     # Enable/disable dnsmasq
     if mode == 'host':
-        cmd = sudo_mode + 'systemctl start dnsmasq'
+        job = manager.StartUnit('dnsmasq.service', 'replace')
+        print(job)
     elif mode == 'client':
-        cmd = sudo_mode + 'systemctl stop dnsmasq'
-    cmd_result = os.system(cmd)
-    print(cmd + " - " + str(cmd_result))
+        job = manager.StopUnit('dnsmasq.service')
+        print(job)
 
     # Enable/disable hostapd
     if mode == 'host':
-        cmd = sudo_mode + 'systemctl start hostapd'
+        job = manager.StartUnit('hostapd.service', 'replace')
+        print(job)
     elif mode == 'client':
-        cmd = sudo_mode + 'systemctl stop hostapd'
-
-    cmd_result = os.system(cmd)
-    print(cmd + " - " + str(cmd_result))
+        job = manager.StopUnit('hostapd.service')
+        print(job)
 
 def getIPAddr(ifname='wlan0'):
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -95,8 +99,8 @@ def clientConnect(ssid, passkey, client_country='US'):
     f.write('update_config=1\n')
     f.write('\n')
     f.write('network={\n')
-    f.write(f'    ssid={ssid}\n')
-    f.write(f'    psk={passkey}\n')
+    f.write(f'ssid={ssid}\n')
+    f.write(f'psk={passkey}\n')
     f.write('}\n')
     f.close()
 
