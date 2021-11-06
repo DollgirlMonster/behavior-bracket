@@ -67,7 +67,7 @@ def setWiFiMode(mode):
         job = manager.StartUnit('dnsmasq.service', 'replace')
         print(job)
     elif mode == 'client':
-        job = manager.StopUnit('dnsmasq.service')
+        job = manager.StopUnit('dnsmasq.service', 'replace')
         print(job)
 
     # Enable/disable hostapd
@@ -75,7 +75,7 @@ def setWiFiMode(mode):
         job = manager.StartUnit('hostapd.service', 'replace')
         print(job)
     elif mode == 'client':
-        job = manager.StopUnit('hostapd.service')
+        job = manager.StopUnit('hostapd.service', 'replace')
         print(job)
 
 def getIPAddr(ifname='wlan0'):
