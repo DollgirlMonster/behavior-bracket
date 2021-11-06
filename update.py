@@ -62,7 +62,7 @@ def compareVersions(current, new):
     return newerVersion
 
 def hashZip(zipLocation=downloadDir + 'latest.zip'):
-    """ Return the sha1 hash of the most recent update """
+    """ Return the sha1 hash of the update zipfile """
     s = sha1()
     with open(zipLocation, "rb") as f:
         data = f.read() # read file in chunk and call update on each chunk if file is large.
@@ -76,37 +76,35 @@ def verifyPGPSignature(message):
     verification    bool    whether or not public key validates message
     updateHash      str     the sha1 hash included in the message
     """
-    key, _ = PGPKey.from_file(downloadDir + 'updateConfirmation_publicKey.asc')
+    key, _ = PGPKey.from_file(downloadDir + 'updateConfirmation_publicKey.asc') # read public key from file
 
-    # Construct PGPMessage() from message
-    message = PGPMessage.from_blob(message)
+    message = PGPMessage.from_blob(message)                                     # Construct PGPMessage() from message
 
-    verification = key.verify(message)
-    updateHash = message._message.decode()
+    verification = key.verify(message)                                          # Verify message with public key
+    updateHash = message._message.decode()                                      # Decode message to get sha1 hash
 
-    return verification, updateHash
+    return verification, updateHash                                             # Return verification and sha1 hash
 
 def downloadUpdate(updateURL):
     """ Download and uncompress update files """
-    # Download update file
-    print("Downloading update package...")
-    updatePackage = requests.get(updateURL)
 
-    # Save update file
+    print("Downloading update package...")
+    updatePackage = requests.get(updateURL)                     # Download update file
+
     print("Saving file...")
-    with open(downloadDir + 'latest.zip', 'wb') as updateFile:
+    with open(downloadDir + 'latest.zip', 'wb') as updateFile:  # Save update file
         updateFile.write(updatePackage.content)
 
 def updateSoftware():
     """ Replace program files with those from the update file """
-    # Uncompress update
+    
     print("Decompressing update...")
-    shutil.unpack_archive(downloadDir + 'latest.zip', 'update', 'zip')
+    shutil.unpack_archive(downloadDir + 'latest.zip', 'update', 'zip')          # Uncompress update file
 
     print("Copying update...")
-    shutil.copytree(downloadDir + 'update', downloadDir + 'behavior-bracket')
+    shutil.copytree(downloadDir + 'update', downloadDir + 'behavior-bracket')   # Copy update to program directory
 
     # Delete old .zip file
     print("Cleaning up...")
-    os.remove(downloadDir + 'latest.zip')
-    shutil.rmtree(downloadDir + 'update')
+    os.remove(downloadDir + 'latest.zip')                                       # Delete update .zip file
+    shutil.rmtree(downloadDir + 'update')                                       # Delete update directory
