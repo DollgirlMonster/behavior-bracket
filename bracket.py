@@ -8,9 +8,15 @@ import datetime
 import statistics
 
 from flask import Flask, request, abort, redirect, render_template  # Flask
-from flask_socketio import SocketIO, emit                           # flask-socketio
+from flask_socketio import SocketIO, emit                           # Flask-SocketIO
+from flask_wtf import FlaskForm                                     # Flask-WTForms
+from wtforms import StringField
+from wtforms import PasswordField
+from wtforms import SubmitField
+from wtforms.validators import DataRequired
 
-import pigpio                                                       # pigpio
+import pigpio                                                       # piGPIO
+
 import berryimu
 import battery
 import wifi
@@ -809,18 +815,30 @@ def settings():
         version = __version__,
     )
 
-# Remote Control page
-@app.route('/', methods=["GET"])
+# Main Page
+class WiFiForm(FlaskForm):                  # Create form for WiFi settings
+    ssid = StringField('name', validators=[DataRequired()])
+    passkey = PasswordField('password', validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
+@app.route('/', methods=["GET", "POST"])
 def control():
     if app.config['INTERNET_CONNECTED']:    # If internet is connected
         return render_template(             # Return remote control page
             'control.html',
             title = 'Behavior Bracket',
         )
-    else:
+    else:                                   # Else return wifi setup page
+        form = WiFiForm()                   # Initialize wifi form
+
+        if form.validate_on_submit():       # If submitted form validates
+            ssid = form.ssid.data
+            passkey = form.passkey.data
+            
         return render_template(             # Otherwise, return setup page
             'wifi-setup.html',
-            title = 'Behavior Bracket Setup',
+            title = 'Behavior Bracket Wi-Fi Setup',
+            form = form,
         )
 
 # INTERACTIONS
