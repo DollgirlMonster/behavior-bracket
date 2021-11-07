@@ -995,24 +995,20 @@ if __name__ == "__main__":
     thread.start()
 
     # Check wifi connection
-    if not app.config['INTERNET_CONNECTED']:
-        # Start in access point mode
-        requestBeep = 'error'   # Play error beep
-        # wifi.setWiFiMode('host')  # TODO: uncomment once debugged
-    else:
-        # Start in client mode
+    if app.config['INTERNET_CONNECTED']:    # If we're connected, start in client mode (the default operating mode for the system)
+        requestBeep = 'soliton'             # Play startup chime
 
-        # wifi.setWiFiMode('client') # TODO: uncomment once debugged
-        requestBeep = 'soliton' # Play startup chime
+        print('Starting Radio Thread')      # Start radio thread
+        thread = radioThread()
+        thread.start()
 
-    # Start radio & motion threads
-    print('Starting Radio Thread')
-    thread = radioThread()
-    thread.start()
+        print('Starting Motion Thread')     # Start motion thread
+        thread = motionThread()
+        thread.start()
 
-    print('Starting Motion Thread')
-    thread = motionThread()
-    thread.start()
+    else:                                   # Start in wireless access point mode for wifi client setup
+        requestBeep = 'error'               # Play error beep
+
+    # TODO: Figure out logic flow for switching between AP and client modes
     
-    # Start webserver 
-    app.run(debug=False, host='0.0.0.0')
+    app.run(debug=False, host='0.0.0.0')    # Start webserver 
