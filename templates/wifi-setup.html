@@ -44,6 +44,8 @@
 <!-- Import jQuery, SocketIO -->
 <script type="text/javascript" src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script type="text/javascript" src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jqueryui/jquery-ui.min.js') }}"></script>
+<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
 
 <script type="module">
     $(document).ready(function() {
@@ -61,7 +63,7 @@
             resizable: false,
             closeOnEscape: false,
         });
-        
+
         // SOCKETIO
         // Connect to socket server
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/control');
