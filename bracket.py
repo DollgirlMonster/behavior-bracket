@@ -9,11 +9,6 @@ import statistics
 
 from flask import Flask, request, abort, redirect, render_template  # Flask
 from flask_socketio import SocketIO, emit                           # Flask-SocketIO
-from flask_wtf import FlaskForm                                     # Flask-WTForms
-from wtforms import StringField
-from wtforms import PasswordField
-from wtforms import SubmitField
-from wtforms.validators import DataRequired
 
 import pigpio                                                       # piGPIO
 
@@ -817,11 +812,6 @@ def settings():
     )
 
 # Main Page
-class WiFiForm(FlaskForm):                       # Create form for WiFi settings
-    ssid = StringField('name', validators=[DataRequired()])
-    passkey = PasswordField('password', validators=[DataRequired()])
-    submit = SubmitField('Submit')
-
 @app.route('/', methods=["GET", "POST"])
 def control():
     if app.config['INTERNET_CONNECTED']:    # If internet is connected
@@ -830,19 +820,19 @@ def control():
             title = 'Behavior Bracket',
         )
     else:                                   # Else return wifi setup page
-        form = WiFiForm()                   # Initialize wifi form
-
-        if form.validate_on_submit():       # If submitted form validates
-            ssid = form.ssid.data
-            passkey = form.passkey.data
-            
-        return render_template(             # Otherwise, return setup page
+        return render_template(
             'wifi-setup.html',
             title = 'Behavior Bracket Wi-Fi Setup',
-            form = form,
         )
 
 # INTERACTIONS
+# Wi-Fi Connection Setup
+@socketio.on('wifi-setup', namespace='/control')
+def wifi_setup(msg):
+    wifi.clientConnect(msg['ssid'], msg['password'])    # Update wpa_supplicant with new credentials
+    wifi.setWiFiMode('client')                          # Set the device to WiFi client mode
+    os.system('reboot')                                 # Reboot the device
+
 # Motion Data Snapshot
 @socketio.on('moCap', namespace='/control')
 def mocap_toggle(msg):
