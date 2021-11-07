@@ -92,17 +92,17 @@ def updateNetworkCredentials(ssid, passkey, client_country='US'):
     Update wpa_supplicant.conf with new WAP credentials
     """
     # write wifi config to wpa_supplicant.conf
-    f = open('wpa_supplicant.conf', 'w')
-    f.write(f'country={client_country}\n')
-    f.write('ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev\n')
-    f.write('update_config=1\n')
-    f.write('\n')
-    f.write('network={\n')
-    f.write('scan_ssid=1\n')
-    f.write(f'ssid={ssid}\n')
-    f.write(f'psk={passkey}\n')
-    f.write('}\n')
-    f.close()
+    with open('wpa_supplicant.conf', 'w') as f:
+        f.write(
+f'''country={client_country}
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={{
+    ssid="{ssid}"
+    psk="{passkey}"
+}}'''
+        )
 
     # Move wpa_supplicant.conf to system folder
     system_wpa_supplicant_conf_location = "/etc/wpa_supplicant/wpa_supplicant.conf"
