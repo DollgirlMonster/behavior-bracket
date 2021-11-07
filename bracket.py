@@ -9,7 +9,7 @@ import statistics
 
 from flask import Flask, request, abort, redirect, render_template  # Flask
 from flask_socketio import SocketIO, emit                           # Flask-SocketIO
-from wtforms import Form                                            # Flask-WTForms
+from flask_wtf import FlaskForm                                     # Flask-WTForms
 from wtforms import StringField
 from wtforms import PasswordField
 from wtforms import SubmitField
@@ -817,7 +817,7 @@ def settings():
     )
 
 # Main Page
-class WiFiForm(Form):                       # Create form for WiFi settings
+class WiFiForm(FlaskForm):                       # Create form for WiFi settings
     ssid = StringField('name', validators=[DataRequired()])
     passkey = PasswordField('password', validators=[DataRequired()])
     submit = SubmitField('Submit')
