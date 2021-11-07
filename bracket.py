@@ -982,30 +982,26 @@ def manualControl(msg):
 #  8    Y     888  d8(  888   888   888   888  
 # o8o        o888o `Y888""8o o888o o888o o888o 
 if __name__ == "__main__":
-    # Start power management & sound threads
-    print('Starting Power Management Thread')
+    print('Starting Power Management Thread')   # Start power management thread
     thread = pwrThread()
     thread.start()
 
-    print('Starting Beep Thread')
+    print('Starting Beep Thread')           # Start beep thread
     thread = beepThread()
     thread.start()
 
+    print('Starting Radio Thread')          # Start radio thread
+    thread = radioThread()
+    thread.start()
+
+    print('Starting Motion Thread')         # Start motion thread
+    thread = motionThread()
+    thread.start()
+
     # Check wifi connection
-    if app.config['INTERNET_CONNECTED']:    # If we're connected, start in client mode (the default operating mode for the system)
+    if app.config['INTERNET_CONNECTED']:    # If we're connected to the internet
         requestBeep = 'soliton'             # Play startup chime
-
-        print('Starting Radio Thread')      # Start radio thread
-        thread = radioThread()
-        thread.start()
-
-        print('Starting Motion Thread')     # Start motion thread
-        thread = motionThread()
-        thread.start()
-
-    else:                                   # Start in wireless access point mode for wifi client setup
+    else:                                   # Otherwise,
         requestBeep = 'error'               # Play error beep
-
-    # TODO: Figure out logic flow for switching between AP and client modes
     
     app.run(debug=False, host='0.0.0.0')    # Start webserver 
