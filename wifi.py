@@ -94,13 +94,18 @@ def updateNetworkCredentials(ssid, passkey, client_country='US'):
     # write wifi config to wpa_supplicant.conf
     with open('wpa_supplicant.conf', 'w') as f:
         f.write(
-f'''country={client_country}
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+f'''ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
+country={client_country}
 
 network={{
     ssid="{ssid}"
     psk="{passkey}"
+    scan_ssid=1
+    proto=RSN
+    key_mgmt=WPA-PSK
+    pairwise=CCMP
+    auth_alg=OPEN
 }}'''
         )
 
