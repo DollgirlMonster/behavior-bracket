@@ -98,6 +98,7 @@ def updateNetworkCredentials(ssid, passkey, client_country='US'):
     f.write('update_config=1\n')
     f.write('\n')
     f.write('network={\n')
+    f.write('scan_ssid=1\n')
     f.write(f'ssid={ssid}\n')
     f.write(f'psk={passkey}\n')
     f.write('}\n')
