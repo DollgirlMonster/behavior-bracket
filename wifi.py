@@ -141,3 +141,32 @@ def clientConnect(ssid, passkey, client_country='US'):
     ip_address = getIPAddr()
 
     return ip_address
+
+def restartWiFiAdapter():
+    """
+    Restart the wifi adapter
+    """
+    print("Restarting wifi adapter...")
+    print("Bringing down wlan0 interface...")
+    cmd = sudo_mode + 'ifdown wlan0'
+    cmd_result = os.system(cmd)
+    print(cmd + " - " + str(cmd_result))
+
+    time.sleep(2)
+
+    print("Restarting wlan0 interface...")
+    cmd = sudo_mode + 'ifup wlan0'
+    cmd_result = os.system(cmd)
+    print(cmd + " - " + str(cmd_result))
+
+    time.sleep(10)
+
+    print("Running iwconfig for wlan0...")
+    cmd = 'iwconfig wlan0'
+    cmd_result = os.system(cmd)
+    print(cmd + " - " + str(cmd_result))
+
+    print("Running ifconfig for wlan0...")
+    cmd = 'ifconfig wlan0'
+    cmd_result = os.system(cmd)
+    print(cmd + " - " + str(cmd_result))
