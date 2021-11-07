@@ -832,7 +832,7 @@ def control():
 def wifi_setup(msg):
     global requestBeep
 
-    wifi.updateNetworkCredentials(msg['ssid'], msg['password']) # Update wpa_supplicant with new credentials
+    wifi.updateNetworkCredentials(msg['ssid'], msg['passkey'])  # Update wpa_supplicant with new credentials
     wifi.setWiFiMode('client')                                  # Set the device to WiFi client mode
     wifi.restartWiFiAdapter()                                   # Restart the WiFi adapter
     app.config['INTERNET_CONNECTED'] = wifi.isConnected()       # Check internet connection status
