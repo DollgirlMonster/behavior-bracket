@@ -829,9 +829,9 @@ def control():
 # Wi-Fi Connection Setup
 @socketio.on('wifi-setup', namespace='/control')
 def wifi_setup(msg):
-    wifi.clientConnect(msg['ssid'], msg['password'])    # Update wpa_supplicant with new credentials
-    wifi.setWiFiMode('client')                          # Set the device to WiFi client mode
-    os.system('reboot')                                 # Reboot the device
+    wifi.updateNetworkCredentials(msg['ssid'], msg['password']) # Update wpa_supplicant with new credentials
+    wifi.setWiFiMode('client')                                  # Set the device to WiFi client mode
+    os.system('reboot')                                         # Reboot the device
 
 # Motion Data Snapshot
 @socketio.on('moCap', namespace='/control')

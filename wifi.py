@@ -87,10 +87,9 @@ def getIPAddr(ifname='wlan0'):
 
     return ip
 
-def clientConnect(ssid, passkey, client_country='US'):
+def updateNetworkCredentials(ssid, passkey, client_country='US'):
     """ 
-    Connect the device to a WiFi access point 
-    Returns IP address
+    Update wpa_supplicant.conf with new WAP credentials
     """
     # write wifi config to wpa_supplicant.conf
     f = open('wpa_supplicant.conf', 'w')
@@ -111,36 +110,6 @@ def clientConnect(ssid, passkey, client_country='US'):
     cmd_result = ""
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
-
-    # restart wifi adapter
-    print("Restarting wifi adapter...")
-    print("Bringing down wlan0 interface...")
-    cmd = sudo_mode + 'ifdown wlan0'
-    cmd_result = os.system(cmd)
-    print(cmd + " - " + str(cmd_result))
-
-    time.sleep(2)
-
-    print("Restarting wlan0 interface...")
-    cmd = sudo_mode + 'ifup wlan0'
-    cmd_result = os.system(cmd)
-    print(cmd + " - " + str(cmd_result))
-
-    time.sleep(10)
-
-    print("Running iwconfig for wlan0...")
-    cmd = 'iwconfig wlan0'
-    cmd_result = os.system(cmd)
-    print(cmd + " - " + str(cmd_result))
-
-    print("Running ifconfig for wlan0...")
-    cmd = 'ifconfig wlan0'
-    cmd_result = os.system(cmd)
-    print(cmd + " - " + str(cmd_result))
-
-    ip_address = getIPAddr()
-
-    return ip_address
 
 def restartWiFiAdapter():
     """
@@ -170,3 +139,7 @@ def restartWiFiAdapter():
     cmd = 'ifconfig wlan0'
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
+
+    ip_address = getIPAddr()
+
+    return ip_address
