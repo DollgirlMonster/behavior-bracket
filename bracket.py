@@ -117,7 +117,7 @@ class PunishmentTimer:
 # Init config
 # TODO: Most globals will slowly be ported over to here as I get around to it
 app.config.update(
-    INTERNET_CONNECTED = wifi.is_connected(),   # Whether or not we are connected to the internet
+    INTERNET_CONNECTED = wifi.isConnected(),    # Whether or not we are connected to the internet
 
     mode =              'off',                  # Operation mode for the device -- decides what logic is used for compliance determination
     safetyMode =        True,                   # If true, shocks will instead be delivered as vibrations
