@@ -9,7 +9,7 @@ import statistics
 
 from flask import Flask, request, abort, redirect, render_template  # Flask
 from flask_socketio import SocketIO, emit                           # Flask-SocketIO
-from flask_wtf import FlaskForm                                     # Flask-WTForms
+from wtforms import FlaskForm                                     # Flask-WTForms
 from wtforms import StringField
 from wtforms import PasswordField
 from wtforms import SubmitField
