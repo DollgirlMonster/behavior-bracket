@@ -823,6 +823,7 @@ def control():
         return render_template(
             'wifi-setup.html',
             title = 'Behavior Bracket Wi-Fi Setup',
+            version = __version__,
         )
 
 # INTERACTIONS

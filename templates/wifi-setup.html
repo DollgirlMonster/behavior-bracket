@@ -47,30 +47,45 @@
 
 <script type="module">
     $(document).ready(function() {
+        // Initialize dialogs
+        $('#ui__modal').dialog({    // Initialize modal
+            autoOpen: false,
+            modal: true,
+            resizable: false,
+            dialogClass: "no-close",
+        });
+
+        $('#ui__spinner').dialog({  // Initialize spinner
+            autoOpen: false,
+            modal: true,
+            resizable: false,
+            closeOnEscape: false,
+        });
+        
         // SOCKETIO
         // Connect to socket server
         var socket = io.connect('http://' + document.domain + ':' + location.port + '/control');
         console.log("Connected to Socket");
-    });
 
-    $('#ctl__wifi-setup--submit').click(function() {
-        var ssid = $('#ctl__wifi-setup--ssid').val();
-        var passkey = $('#ctl__wifi-setup--passkey').val();
+        $('#ctl__wifi-setup--submit').click(function() {
+            var ssid = $('#ctl__wifi-setup--ssid').val();
+            var passkey = $('#ctl__wifi-setup--passkey').val();
 
-        // Send data to server
-        socket.emit('wifi-setup', {
-            ssid: ssid,
-            passkey: passkey
+            // Send data to server
+            socket.emit('wifi-setup', {
+                ssid: ssid,
+                passkey: passkey
+            });
+
+            // Create and show connecting spinner
+            $('#ui__spinner--body').text("Connecting...");
+                $('#ui__spinner').dialog( "open" );
+
+            // Wait 60 seconds
+            setTimeout(function() {
+                location.reload();  // Reload page
+            }, 60000);
         });
-
-        // Create and show connecting spinner
-        $('#ui__spinner--body').text("Connecting...");
-            $('#ui__spinner').dialog( "open" );
-
-        // Wait 60 seconds
-        setTimeout(function() {
-            location.reload();  // Reload page
-        }, 60000);
     });
 </script>
 </html>
