@@ -92,7 +92,7 @@ def updateNetworkCredentials(ssid, passkey, client_country='US'):
     Update wpa_supplicant.conf with new WAP credentials
     """
     # write wifi config to wpa_supplicant.conf
-    with open('wpa_supplicant.conf', 'w') as f:
+    with open('wpa_supplicant.conf', 'w', newline='') as f:
         f.write(
 f'''ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
