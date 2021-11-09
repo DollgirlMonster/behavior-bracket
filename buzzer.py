@@ -97,98 +97,77 @@ tones = {
 # Create our library of sounds
 sounds = {
     "slide": [
-        ("A5", 0.02),
-        ("AS5", 0.02),
-        ("B5", 0.02),
-        ("C5", 0.02),
-        ("CS5", 0.02),
-        ("D5", 0.02),
-        ("DS5", 0.02),
-        ("E5", 0.02),
-        ("F5", 0.02),
-        ("FS5", 0.02),
-        ("G5", 0.02),
-        ("GS5", 0.02),
-        ("A5", 0.02),
-        ("AS5", 0.02),
-        ("B5", 0.02),
-        ("C6", 0.02),
-        ("CS6", 0.02),
-        ("D6", 0.02),
-        ("DS6", 0.02),
-        ("E6", 0.02),
-        ("F6", 0.02),
-        ("FS6", 0.02),
-        ("G6", 0.02),
-        ("GS6", 0.02),
-        ("A6", 0.02),
-        ("AS6", 0.02),
-        ("B6", 0.02),
-        ("C7", 0.02),
-        ("CS7", 0.02),
-        ("D7", 0.02),
-        ("DS7", 0.02),
-        ("E7", 0.02),
-        ("F7", 0.02),
-        ("FS7", 0.02),
-        ("G7", 0.02),
-        ("GS7", 0.02),
-        ("A7", 0.02),
-        ("AS7", 0.02),
-        ("B7", 0.02),
-        ("C8", 0.02),
-        ("CS8", 0.02),
-        ("D8", 0.02),
-        ("DS8", 0.02),
-        ("E8", 0.02),
-        ("F8", 0.02),
-        ("FS8", 0.02),
-        ("G8", 0.02),
-        ("GS8", 0.02),
-        ("A8", 0.02),
-        ("AS8", 0.02),
-        ("B8", 0.02),
-        ("C9", 0.02),
-        ("CS9", 0.02),
+        ("A5", 0.01),
+        ("B5", 0.01),
+        ("CS5", 0.01),
+        ("DS5", 0.01),
+        ("F5", 0.01),
+        ("G5", 0.01),
+        ("A5", 0.01),
+        ("B5", 0.01),
+        ("CS6", 0.01),
+        ("DS6", 0.01),
+        ("F6", 0.01),
+        ("G6", 0.01),
+        ("A6", 0.01),
+        ("B6", 0.01),
+        ("CS7", 0.01),
+        ("DS7", 0.01),
+        ("F7", 0.01),
+        ("G7", 0.01),
+        ("A7", 0.01),
+        ("B7", 0.01),
+        ("CS8", 0.01),
+        ("DS8", 0.01),
+        ("F8", 0.01),
+        ("G8", 0.01),
+        ("A8", 0.01),
+        ("B8", 0.01),
+        ("CS9", 0.01),
     ],
 
-    "notification": [
+    "notify": [
         ("A4", 0.01),
         ("D4", 0.01),
         ("G5", 0.01),
     ],
 
-    "success": [
+    "compliant": [
         ("DS8", 0.005),
     ],
 
-    "failure": [
+    "noncompliant": [
         ("C2", 0.1),
+    ],
+
+    "warning": [
+        ("A4", 0.25),
+        ("A4", 0.25),
     ],
 }
 
 # Set pins used to interface with the buzzer
-pinA = 33
-pinB = 40
+outputPinA = 33
+outputPinB = 40
 
 def setup():
     # Initialize GPIO pins
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(pinA, GPIO.OUT)
-    GPIO.output(pinA, GPIO.LOW)
-    GPIO.setup(pinB, GPIO.OUT)
-    GPIO.output(pinB, GPIO.LOW)
+    GPIO.setup(outputPinA, GPIO.OUT)
+    GPIO.output(outputPinA, GPIO.LOW)
+    GPIO.setup(outputPinB, GPIO.OUT)
+    GPIO.output(outputPinB, GPIO.LOW)
 
 def playTone(delay, duration):
-    duration = duration / delay         # This doesn't work right but it works well enough
+    duration = duration / delay             # This doesn't work right but it works well enough
     for i in range(1, round(duration)):
-        GPIO.output(pinA, GPIO.HIGH)    # Toggle the pins
-        time.sleep(delay)               # to create a differential
-        GPIO.output(pinA, GPIO.LOW)     # drive effect, which
-        time.sleep(delay)               # is twice as loud as a 
-        GPIO.output(pinB, GPIO.HIGH)    # normal square wave
+        GPIO.output(outputPinA, GPIO.HIGH)  # Toggle the pins
+        time.sleep(delay)                   # to create a differential
+        GPIO.output(outputPinA, GPIO.LOW)   # drive effect, which
+        time.sleep(delay)                   # is twice as loud as a 
+        GPIO.output(outputPinB, GPIO.HIGH)  # normal square wave
         time.sleep(delay)
-        GPIO.output(pinB, GPIO.LOW)
+        GPIO.output(outputPinB, GPIO.LOW)
         time.sleep(delay)
 
 def playSound(song):
@@ -200,12 +179,3 @@ def playSound(song):
         time.sleep(0.05)                                # Pause for 50ms to avoid smearing or skipping notes
     
     GPIO.cleanup()                                      # Clean up the GPIO pins
-
-if __name__ == '__main__':
-    setup()
-    try:
-        playSound(sounds["notification"])
-        GPIO.cleanup()
-
-    except KeyboardInterrupt:
-        GPIO.cleanup()

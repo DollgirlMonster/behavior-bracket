@@ -14,6 +14,7 @@ import pigpio                                                       # piGPIO
 
 import berryimu
 import battery
+import buzzer
 import wifi
 import update
 
@@ -36,7 +37,7 @@ thread_stop_event = Event()
 # Init global variables
 punishmentRequests = {}     # Create empty container for punishment requests
 requestPunishment = False   # [Obsolete] If not False, signal to punish and reason we are punishing TODO: delete
-requestBeep = False         # If not False, what beep pattern to play
+requestBeep = None          # If not None, what beep pattern to play
 punishmentIntensity = 50    # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
 
 gpio = pigpio.pi()          # Set up gpio
@@ -390,7 +391,7 @@ class pwrThread(Thread):
 
             # If charge is under the critical low battery level, shut down the device
             if avgBattPercent < self.CRITICAL_BATT_LEVEL:
-                requestBeep = 'error'
+                requestBeep = 'notify'
                 socket.emit('modal',
                 {
                     'title': "Critical Battery",
@@ -413,44 +414,24 @@ class pwrThread(Thread):
 
         self.battLoop()
 
-# Thread: Beep thread
+# Thread: Audio Output thread
 class beepThread(Thread):
     def __init__(self):
-        self.buzzerPin =    13      # GPIO pin for buzzer
-
-        self.chirpLength =  0.02    # Length of a short beep
-        self.beepLength =   0.6     # Length of a long beep
-        self.restLength =   0.08    # Length of rest between beeps
-        self.delay =        0.1    # Length of time to wait between checking whether we should beep
-
-        self.pattern = {
-            'compliant':    ['chirp'],
-            'noncompliant': ['chirp', 'chirp'],
-            'warning':      ['beep'],
-            'soliton':      ['chirp', 'beep'],
-            'error':        ['beep', 'beep', 'beep'],
-        }
+        buzzer.outputPinA = 33  # Define buzzer output pins
+        buzzer.outputPinB = 40
+        buzzer.setup()          # Set up buzzer pins
         
         super(beepThread, self).__init__()
-
-    def buzzerOn(self, onLength):
-        gpio.write(self.buzzerPin, 1)
-        time.sleep(onLength)
-        gpio.write(self.buzzerPin, 0)
 
     def waitLoop(self):
         # Need visibility of beep request var
         global requestBeep
 
         while not thread_stop_event.isSet():
-            if requestBeep != False:
-                for i in self.pattern[requestBeep]:
-                    if i == 'chirp': self.buzzerOn(self.chirpLength)
-                    elif i == 'beep': self.buzzerOn(self.beepLength)
+            if requestBeep != None:
+                buzzer.playSound(buzzer.sounds[requestBeep])    # Play requested sound over buzzer
 
-                    time.sleep(self.restLength)
-
-                requestBeep = False
+                requestBeep = None
 
             time.sleep(self.delay)
 
@@ -837,9 +818,9 @@ def wifi_setup(msg):
     wifi.restartWiFiAdapter()                                   # Restart the WiFi adapter
     app.config['INTERNET_CONNECTED'] = wifi.isConnected()       # Check internet connection status
     if app.config['INTERNET_CONNECTED']:                        # If internet is connected
-        requestBeep = 'soliton'                                 # Play success sound
+        requestBeep = 'slide'                                   # Play success sound
     else:                                                       # Else
-        requestBeep = 'error'                                   # Play error sound
+        requestBeep = 'notify'                                  # Play error sound
 
 # Motion Data Snapshot
 @socketio.on('moCap', namespace='/control')
