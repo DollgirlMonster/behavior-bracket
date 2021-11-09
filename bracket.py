@@ -39,7 +39,6 @@ thread_stop_event = Event()
 punishmentRequests = {}     # Create empty container for punishment requests
 requestPunishment = False   # [Obsolete] If not False, signal to punish and reason we are punishing TODO: delete
 requestBeep = None          # If not None, what beep pattern to play
-punishmentIntensity = 50    # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
 
 gpio = pigpio.pi()          # Set up gpio
 
@@ -111,6 +110,45 @@ class PunishmentTimer:
     def cancel(self):
         self.timer.cancel()
 
+class Sensor:
+    """
+    Defines and contains a sensor and its values
+    """
+    def __init__(self, name, updateFunction, sensorData, historyLength=20):
+        """
+        name            str     Human-readable name for the sensor to be displayed in the debug backend
+        updateFunction  func    Function to call to update the sensor data: data are expected as a dict with keys matching sensorData
+        sensorData      list    List of keys for recalling sensor data
+        historyLength   int     Amount of historical data captures to store 
+        history         list    last historyLength captures for sensorData
+        """
+        self.name = name
+        self.updateFunction = updateFunction
+
+        self.sensorData = {}    # Initialize sensor data dict
+        for channel in sensorData: 
+            self.sensorData[channel] = None  # Add sensor data keys to dict
+
+        self.historyLength = historyLength
+        self.history = []
+
+    def update(self):
+        newData = self.updateFunction()             # Get new data from the sensor
+        for k in self.sensorData.keys():
+            self.sensorData[k] = newData[k]         # Update sensor data in records
+        
+        socketio.emit(f"sensor_{self.name}", self.sensorData, namespace='/control') # Emit sensor data to server for debug
+
+        self.history.append(self.sensorData)        # Add current sensor data to value history
+        if len(self.history) > self.historyLength:  # If the number of values saved is over historyLength
+            del self.history[0]                     # Delete the oldest value
+
+        # Motion snapshot
+        if app.config['moCap']:                                             # If motion logging enabled
+            with open(f'{self.name}.csv', 'a', newline='') as file:         # Log motion
+                writer = csv.DictWriter(file, list(self.sensorData.keys()))
+                writer.writerow(self.sensorData)
+
 # Init config
 # TODO: Most globals will slowly be ported over to here as I get around to it
 app.config.update(
@@ -120,6 +158,7 @@ app.config.update(
     mode =              'off',                  # Operation mode for the device -- decides what logic is used for compliance determination
     safetyMode =        True,                   # If true, shocks will instead be delivered as vibrations
     warnBeforeShock =   False,                  # Whether to give a warning beep before punishing for noncompliance
+    punishmentIntensity = 50,                   # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
     moCap =             False,                  # Whether we should be logging motion data
     dockLock =          False,                  # Whether to enable Dock Lock (punish wearer if charger disconnected)
     startupChime =      True,                   # Whether to play a beep at launch to let the user know the device is ready to connect
@@ -147,7 +186,6 @@ class radioThread(Thread):
 
     def waitLoop(self):
         global punishmentRequests                   # Get visibility of punishment requests container
-        global punishmentIntensity                  # Get visibility of punishment intensity value
 
         punishmentCycles = 0                        # Keep track of how many punishment transmissions we've sent
         while not thread_stop_event.isSet():
@@ -159,7 +197,7 @@ class radioThread(Thread):
                     else:                                   # Otherwise,
                         punishmentMode = 4                  # Set punishment mode to shock
 
-                    sequence = self.makeSequence(punishmentMode, punishmentIntensity)   # Create punishment data sequence
+                    sequence = self.makeSequence(punishmentMode, app.config['punishmentIntensity'])   # Create punishment data sequence
                     waveID = self.makeWaveform(sequence)    # Make waveform from data sequence
                     radio.transmit(waveID)                  # Transmit waveform
 
@@ -320,29 +358,43 @@ class beepThread(Thread):
     def run(self):
         self.waitLoop()
 
-# Thread: Motion update thread
-class motionThread(Thread):
+# Thread: Compliance update thread
+class complianceThread(Thread):
     def __init__(self):
-        berryimu.init()
+        berryimu.init() # Initialize IMU
+        self.imu = Sensor(   # Set up IMU as Sensor
+            name = 'IMU',
+            updateFunction = berryimu.getValues(app.config['motionAlgorithm']),
+            sensorData = [
+                'accX',
+                'accY',
+                'accZ',
+                'accXAngle',
+                'accYAngle',
+                'accZAngle',
+                'gyroXAngle',
+                'gyroYAngle',
+                'gyroZAngle',
+                'angleX',
+                'angleY',
+                'angleZ',
+                'heading',
+                'tiltCompensatedHeading',
+            ],
+        )
 
-        # Data vars so we can reference later
-        self.AccX = 0
-        self.AccY = 0
-        self.AccZ = 0
-        self.AccXAngle = 0
-        self.AccYangle = 0
-        self.AccZangle = 0
-        self.gyroXangle = 0
-        self.gyroYangle = 0
-        self.gyroZangle = 0
-        self.angleX = 0
-        self.angleY = 0
-        self.angleZ = 0
-        # self.heading = 0
-        # self.tiltCompensatedHeading = 0
-        self.loopTime = 0
+        self.mic = Sensor(   # Set up mic as sensor
+            name = "Microphone",
+            updateFunction = None,
+            sensorData = [
+                'audio',
+                'level',
+            ],
+            historyLength = 10,
+        )
 
-        self.motionHistory = []         # List of dicts with values AccX, AccY, AccZ, gyroXangle, gyroYangle, gyroZangle
+        self.sensors = [self.imu, self.mic] # Bundle sensors in a list for convenient access
+
         self.stickyPunishment = False   # Bool to punish user "until something happens"
 
         # TODO: These would be better as some kind of Exercise() class
@@ -357,7 +409,7 @@ class motionThread(Thread):
 
         self.compliance = EdgeDetector(True)    # Bool to keep track of whether or not wearer is complying with the selected ruleset
 
-        super(motionThread, self).__init__()
+        super(complianceThread, self).__init__()
 
     def angleTest(self, angle, lowBound, highBound):
         """
@@ -376,10 +428,6 @@ class motionThread(Thread):
         if highBound > angle > lowBound:    # If wearer is within a valid angle
             return True
         else: return False
-
-    def petTest(self):
-        """ Pet Training Mode: wearer's neck must face down (Y rotation between -130 to -50) """
-        return self.angleTest(self.angleY, -130, -50)
 
     def getMotionDelta(self):
         """ Find change in recent movement """
@@ -409,6 +457,12 @@ class motionThread(Thread):
             return False
         else:
             return True
+
+    def petTest(self):
+        """ 
+        Pet Training Mode: wearer's neck must face down (Y rotation between -130 to -50) 
+        """
+        return self.angleTest(self.angleY, -130, -50)
 
     def freezeTest(self):
         """
@@ -509,7 +563,7 @@ class motionThread(Thread):
 
     def resetPunishmentTimer(self, delay=5):
         """ reset punishmentTimer to value set in delay """
-        if self.punishmentTimer != None: self.punishmentTimer.cancel()          # Cancel current punishment timer if exists
+        if self.punishmentTimer != None: self.punishmentTimer.cancel()              # Cancel current punishment timer if exists
         self.punishmentTimer = PunishmentTimer(delay, punishmentSource='fitness')   # Start punishment timer
 
     def testCompliance(self, motion):
@@ -553,89 +607,8 @@ class motionThread(Thread):
         Fetch motion data from the IMU
         """
         while not thread_stop_event.isSet():
-            motion = berryimu.getValues(app.config['motionAlgorithm'])
-
-            # Update values
-            self.AccX = motion['AccX']
-            self.AccY = motion['AccX']
-            self.AccZ = motion['AccX']
-            self.AccXAngle = motion['AccXangle']
-            self.AccYangle = motion['AccYangle']
-            self.AccZangle = motion['AccZangle']
-            self.gyroXangle = motion['gyroXangle']
-            self.gyroYangle = motion['gyroYangle']
-            self.gyroZangle = motion['gyroZangle']
-            self.angleX = motion['angleX']
-            self.angleY = motion['angleY']
-            self.angleZ = motion['angleZ']
-            # self.heading = motion['heading']
-            # self.tiltCompensatedHeading = motion['tiltCompensatedHeading']
-            self.loopTime = motion['loopTime']
-
-            # Update web UI with motion data
-            if app.config['emitMotionData']:
-                socketio.emit('motion', {
-                    'AccX': motion['AccX'], 
-                    'AccY': motion['AccY'], 
-                    'AccZ': motion['AccZ'], 
-
-                    'AccXangle': motion['AccXangle'], 
-                    'AccYangle': motion['AccYangle'],
-                    'AccZangle': motion['AccZangle'],
-
-                    'gyroXangle': motion['gyroXangle'],
-                    'gyroYangle': motion['gyroYangle'],
-                    'gyroZangle': motion['gyroZangle'],
-
-                    'angleX': motion['angleX'],
-                    'angleY': motion['angleY'],
-                    'angleZ': motion['angleZ'],
-
-                    # 'heading': motion['heading'],
-                    # 'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
-
-                    'loopTime': motion['loopTime'],
-                }, namespace='/control')
-
-            # Update history with acceleration & rotation
-            self.motionHistory.append({
-                'AccX': motion['AccX'], 
-                'AccY': motion['AccY'], 
-                'AccZ': motion['AccZ'],
-                'gyroXangle': motion['gyroXangle'],
-                'gyroYangle': motion['gyroYangle'],
-                'gyroZangle': motion['gyroZangle'],
-            })
-            if len(self.motionHistory) > 20:
-                del self.motionHistory[0]
-
-            # Motion snapshot
-            if app.config['moCap']:                                             # If motion logging enabled
-                with open('motion.csv', 'a', newline='') as file:               # Log motion
-                    writer = csv.DictWriter(file, list(motion.keys()))
-                    writer.writerow({
-                        'loopTime': motion['loopTime'],
-                        'motionAlgorithm': motion['motionAlgorithm'],
-
-                        'AccX': motion['AccX'], 
-                        'AccY': motion['AccY'], 
-                        'AccZ': motion['AccZ'], 
-
-                        'AccXangle': motion['AccXangle'], 
-                        'AccYangle': motion['AccYangle'],
-                        'AccZangle': motion['AccZangle'],
-
-                        'gyroXangle': motion['gyroXangle'],
-                        'gyroYangle': motion['gyroYangle'],
-                        'gyroZangle': motion['gyroZangle'],
-
-                        'angleX': motion['angleX'],
-                        'angleY': motion['angleY'],
-                        'angleZ': motion['angleZ'],
-
-                        'heading': motion['heading'],
-                        'tiltCompensatedHeading': motion['tiltCompensatedHeading'],
-                    })
+            for sensor in self.sensors:
+                sensor.update()
 
             # Check for compliance
             self.testCompliance(motion)
@@ -725,31 +698,28 @@ def test_connect():
 # Mode selection
 @socketio.on('mode', namespace='/control')
 def mode_select(msg):
-    app.config.update(mode = msg['mode'])
+    app.config.update(mode = msg['mode'])   # Update mode setting with new value
 
 # Intenstiy setting
 @socketio.on('intensity', namespace='/control')
 def intensity_select(msg):
-    global punishmentIntensity  # Need visibility of global intensity var
-
-    punishmentIntensity = msg['intensity']
+    app.config.update(punishmentIntensity = msg['intensity'])   # Update punishment intensity setting with new value
 
 # Dock Lock
 @socketio.on('dockLock', namespace='/control')
 def dock_lock(msg):
-    app.config.update(dockLock = msg['enabled'])
+    app.config.update(dockLock = msg['enabled'])    # Update dock lock setting with new value
 
 # Request for info update
 @socketio.on('infoUpdate', namespace='/control')
 def infoUpdate(msg):
     # Need visibility of global vars to display in UI
     global mode
-    global punishmentIntensity
 
     socketio.emit('infoUpdate', 
         {
             'mode':         app.config['mode'],
-            'intensity':    punishmentIntensity,
+            'intensity':    app.config['punishmentIntensity'],
             'dockLock':     app.config['dockLock'],
         }, namespace='/control')
 
@@ -762,6 +732,7 @@ def reboot(msg):
 @socketio.on('softwareUpdate', namespace='/control')
 def softwareUpdate(msg):
     metadata = update.getNewestVersionDetails()
+    updateIsNewer = update.compareVersions(__version__, metadata['version'])    # Compare update version number against current version number
 
     if msg.command == 'getNewestVersionDetails':
         socket.emit('softwareUpdate',
@@ -771,15 +742,10 @@ def softwareUpdate(msg):
                 'description':  metadata['description'],
                 'url':          metadata['url'],
                 
-                'updateIsNewer': compareVersions(__version__, metadata['version'])
+                'updateIsNewer': updateIsNewer,
             }, namespace='/control')
 
     elif msg.command == 'updateSoftware':
-        updateIsNewer = update.compareVersions(         # Compare update version number against current version number
-            __version__, 
-            metadata['version']
-        )
-
         if not updateIsNewer:                           # Verify that the update is a newer version than current
             socket.emit('modal',
             {
@@ -858,8 +824,8 @@ if __name__ == "__main__":
     thread = radioThread()
     thread.start()
 
-    print('Starting Motion Thread')         # Start motion thread
-    thread = motionThread()
+    print('Starting Compliance Thread')     # Start main thread
+    thread = complianceThread()
     thread.start()
 
     # Check wifi connection
