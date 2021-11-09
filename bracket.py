@@ -15,6 +15,7 @@ import pigpio                                                       # piGPIO
 import berryimu
 import battery
 import buzzer
+import radio
 import wifi
 import update
 
@@ -136,159 +137,34 @@ app.config.update(
 #     o888o     o888o o888o d888b    `Y8bod8P' `Y888""8o `Y8bod88P" 8""888P' 
 
 # Thread: Radio communication
-# This class is an implementation of https://github.com/smouldery/shock-collar-control
-# Major shout-out to its contributors and maintainers for making integration with this project a breeze
 class radioThread(Thread):
     def __init__(self):
-        self.txKey = '00101100101001010'
-        self.radioPin = 25  # Board pin 22
+        radio.radioDataPin = 25 # Board pin 22
 
-        self.transmitting = False
         self.safetyLimit = 10               # Number of punishment cycles until emergency auto-off
 
         super(radioThread, self).__init__()
 
-    def transmit(self, waveID, txTime=1):
-        """
-        Transmit the radio signal in the background
-        If we are already transmitting when this function is called, pass
-        """
-        if not self.transmitting:
-            # Transmit punishment
-            self.transmitting = True
-
-            gpio.wave_send_repeat(waveID)  # transmit waveform
-            time.sleep(txTime)
-            gpio.wave_tx_stop()            # stop transmitting waveform
-            gpio.write(self.radioPin, 0)
-            gpio.wave_clear()              # clear existing waveforms
-
-            self.transmitting = False
-        else:
-            # Transmitting already
-            pass
-
-    def makeWaveform(self, sequence):
-        """
-        Create a waveform from our sequence of bytes
-        """
-        gpio.wave_clear()                   # clear existing waveforms
-        
-        # create lists of parts of the wave we need 
-        start_=[]
-        one_=[]
-        zero_=[]
-        end_=[]
-        sequence_wave=[]
-
-        # define times
-        start_bit = 1540
-        start_delay = 800
-        space = 1040
-        zero_bit = 220
-        zero_delay = space - zero_bit
-        one_bit = 740
-        one_delay = space - one_bit 
-        EOS_delay = 7600
-
-        sequence_wave.append(pigpio.pulse(1<<self.radioPin, 0, start_bit))
-        sequence_wave.append(pigpio.pulse(0, 1<<self.radioPin, start_delay))
-
-        for x in range(0, 40): #adds the sequence bits to the waveform, in order.
-            if int(sequence[x]) == 0:
-                sequence_wave.append(pigpio.pulse(1<<self.radioPin, 0, zero_bit)) ## fix
-                sequence_wave.append(pigpio.pulse(0, 1<<self.radioPin, zero_delay))
-            else:
-                sequence_wave.append(pigpio.pulse(1<<self.radioPin, 0, one_bit)) ## fix
-                sequence_wave.append(pigpio.pulse(0, 1<<self.radioPin, one_delay))
-
-        sequence_wave.append(pigpio.pulse(0, 0, EOS_delay))
-
-        gpio.wave_add_generic(sequence_wave)
-        waveID = gpio.wave_create() 
-        return waveID # save the completed wave and send wave ID to var
-
-    def makeSequence(self, txMode=4, txChannel=1):
-        """
-        Create a bytestring to transmit to the shock unit using a given mode, power, and channel
-        By default vibrates at 50 power for 1 second
-        """
-        # Need visibility of intensity so we know what power to set
-        global punishmentIntensity
-        
-        txPower = punishmentIntensity
-
-        # Power 0-2 causes errors, so we just set to vibrate mode if power is low
-        if int(txPower) < 3:    # If power is less than 3
-            txPower = 30    # Set power to 30
-            txMode = 3      # Set mode to vibrate
-        elif txMode is 1:   # Set power for LED flash
-            txPower = 10
-
-        # Check safety
-        if app.config['safetyMode'] and txMode == 4:    # If we're about to shock and safety mode is on
-            txMode = 3                                  # Vibrate instead
-
-        # Set power
-        # power_binary = '0000101'
-        power_binary = '{0:07b}'.format(int(txPower))
-        ## we convert the power value between 0-100 (After converting it to an interger) to a 7 bit binary encoded number. 
-
-        # Set channel
-        if txChannel == 2:
-            channel_sequence = '111'
-            channel_sequence_inverse = '000'
-        else: 
-            channel_sequence = '000'
-            channel_sequence_inverse = '111'
-
-        # Set mode
-        if txMode == 1:
-            # flash the ight on the collar. 
-            mode_sequnce = '1000'
-            mode_sequnce_inverse = '1110'
-        elif txMode == 3:
-            # vibrate the collar
-            mode_sequnce = '0010'
-            mode_sequnce_inverse = '1011'
-        elif txMode == 4:
-            # shock the collar 
-            mode_sequnce = '0001'
-            mode_sequnce_inverse = '0111'
-        elif txMode == 2:
-            # beep the collar
-            mode_sequnce = '0100'
-            mode_sequnce_inverse = '1101' 
-        else:
-            #mode = 2
-            # beep the collar. it was done like this so the 'else' is a beep, not a shock for safety. 
-            mode_sequnce = '0100'
-            mode_sequnce_inverse = '1101' 
-
-        # Set key
-        key_sequence = self.txKey
-
-        sequence = '1' + channel_sequence + mode_sequnce + key_sequence + power_binary + mode_sequnce_inverse + channel_sequence_inverse + '00'
-
-        return sequence
-
-    def run(self):
+    def waitLoop(self):
         global punishmentRequests                   # Get visibility of punishment requests container
-        
-        gpio.set_mode(self.radioPin, pigpio.OUTPUT) # Set up pin 22 as output
-        gpio.wave_clear()                           # clear existing waveforms
+        global punishmentIntensity                  # Get visibility of punishment intensity value
 
         punishmentCycles = 0                        # Keep track of how many punishment transmissions we've sent
         while not thread_stop_event.isSet():
             # Punish if requested
-            if True in punishmentRequests.values():
-                if punishmentCycles < self.safetyLimit: # Only punish if we're within safety bounds
-                    sequence = self.makeSequence()      # Create punishment data sequence
-                    waveID = self.makeWaveform(sequence)# Make waveform from data sequence
-                    self.transmit(waveID)               # Transmit waveform
+            if True in punishmentRequests.values():         # If any punishment request channel is set to True
+                if punishmentCycles < self.safetyLimit:     # If we're within safety limits
+                    if app.config['safetyMode']:            # If safety mode is enabled
+                        punishmentMode = 3                  # Set punishment mode to vibrate
+                    else:                                   # Otherwise,
+                        punishmentMode = 4                  # Set punishment mode to shock
+
+                    sequence = self.makeSequence(punishmentMode, punishmentIntensity)   # Create punishment data sequence
+                    waveID = self.makeWaveform(sequence)    # Make waveform from data sequence
+                    radio.transmit(waveID)                  # Transmit waveform
 
                 punishmentCycles += 1                       # Increment punishment cycles
-                socketio.emit('safetyPunishmentCycles', {   # Send punishment cycles to web client
+                socketio.emit('safetyPunishmentCycles', {   # Emit punishment cycles to web client
                     'punishmentCycles': punishmentCycles,
                 }, namespace='/control')
 
@@ -297,10 +173,10 @@ class radioThread(Thread):
                     'compliance': False,
                     'punishmentSource': punishmentSource,
                 }, namespace='/control')
-            else:                                   # No punishment requests
+            else:                                   # If there are no punishment requests
                 punishmentCycles = 0                # Reset punishment cycles counter
 
-                socketio.emit('compliance', {
+                socketio.emit('compliance', {       # Emit compliance to web client
                     'compliance': True,
                     'punishmentSource': None,
                 }, namespace='/control')
@@ -310,9 +186,15 @@ class radioThread(Thread):
                 # Unless we're already transmitting a punishment
                 t = time.localtime()
                 if t[4] % 2 == 0 and t[5] < 1:                  # Minutes are even and seconds are less than 1
-                    KAsequence = self.makeSequence(txMode=1)    # Flash LED
-                    KAwaveID = self.makeWaveform(KAsequence)
-                    self.transmit(KAwaveID, 0.5)
+                    KAsequence = self.makeSequence(txMode=1)    # Create flash sequence
+                    KAwaveID = self.makeWaveform(KAsequence)    # Create flash wave
+                    radio.transmit(KAwaveID, 0.5)               # Transmit flash
+
+    def run(self):
+        gpio.set_mode(radio.radioDataPin, pigpio.OUTPUT)# Set up radio DATA pin as output
+        gpio.wave_clear()                               # clear any existing waveforms
+
+        self.waitLoop()                                 # Begin loop
 
 # Thread: Power management and battery
 class pwrThread(Thread):
