@@ -132,7 +132,7 @@ class Sensor:
         self.historyLength = historyLength
         self.history = []
 
-    def update(self):
+    def read(self):
         newData = self.updateFunction()             # Get new data from the sensor
         for k in self.sensorData.keys():
             self.sensorData[k] = newData[k]         # Update sensor data in records
@@ -608,7 +608,7 @@ class complianceThread(Thread):
         """
         while not thread_stop_event.isSet():
             for sensor in self.sensors:
-                sensor.update()
+                sensor.read()
 
             # Check for compliance
             self.testCompliance(motion)
