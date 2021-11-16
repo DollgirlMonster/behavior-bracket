@@ -10,9 +10,7 @@ import statistics
 from flask import Flask, request, abort, redirect, render_template  # Flask
 from flask_socketio import SocketIO, emit                           # Flask-SocketIO
 
-import pigpio                                                       # piGPIO
-
-import berryimu
+import imu
 import battery
 import buzzer
 import radio
@@ -39,8 +37,6 @@ thread_stop_event = Event()
 punishmentRequests = {}     # Create empty container for punishment requests
 requestPunishment = False   # [Obsolete] If not False, signal to punish and reason we are punishing TODO: delete
 requestBeep = None          # If not None, what beep pattern to play
-
-gpio = pigpio.pi()          # Set up gpio
 
 class EdgeDetector:
     """ Detects false/true transitions on an external signal"""
@@ -229,9 +225,7 @@ class radioThread(Thread):
                     radio.transmit(KAwaveID, 0.5)               # Transmit flash
 
     def run(self):
-        gpio.set_mode(radio.radioDataPin, pigpio.OUTPUT)# Set up radio DATA pin as output
-        gpio.wave_clear()                               # clear any existing waveforms
-
+        radio.setup()                                   # Initialize GPIO
         self.waitLoop()                                 # Begin loop
 
 # Thread: Power management and battery

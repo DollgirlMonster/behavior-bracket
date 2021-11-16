@@ -10,6 +10,14 @@ txKey = '00101100101001010' # Key to pair bracket and shock unit
 radioDataPin = 25           # Board pin for radio DATA line
 transmitting = False        # Keep track of whether or not we're sending data
 
+def setup():
+    """
+    Initialize GPIO pin
+    """
+    gpio.set_mode(radioDataPin, pigpio.OUTPUT)      # Set up radio DATA pin as output
+    gpio.wave_clear()                               # clear any existing waveforms
+
+
 def transmit(self, waveID, txTime=1):
     """
     Transmit the radio signal in the background
