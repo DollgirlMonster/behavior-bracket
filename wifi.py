@@ -1,6 +1,7 @@
 import os
 import socket
 import dbus
+from time import sleep
 
 sudo_mode = 'sudo '
 
@@ -127,14 +128,14 @@ def restartWiFiAdapter():
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
-    time.sleep(2)
+    sleep(2)
 
     print("Restarting wlan0 interface...")
     cmd = sudo_mode + 'ifup wlan0'
     cmd_result = os.system(cmd)
     print(cmd + " - " + str(cmd_result))
 
-    time.sleep(10)
+    sleep(10)
 
     print("Running iwconfig for wlan0...")
     cmd = 'iwconfig wlan0'
