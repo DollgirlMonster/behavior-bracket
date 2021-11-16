@@ -296,7 +296,7 @@ class pwrThread(Thread):
             # If charge is under the low battery level, emit a warning to the user
             if avgBattPercent < self.LOW_BATT_LEVEL and self.charging.value == False:
                 if not self.hasShownLowBatteryWarning:      # If we haven't shown the warning before
-                    socket.emit('modal',
+                    socketio.emit('modal',
                     {
                         'title': "Low Battery",
                         'body': "Behavior Bracket's battery is running low. Charge the device soon, or it will shut down."
@@ -306,7 +306,7 @@ class pwrThread(Thread):
             # If charge is under the critical low battery level, shut down the device
             if avgBattPercent < self.CRITICAL_BATT_LEVEL:
                 requestBeep = 'notify'
-                socket.emit('modal',
+                socketio.emit('modal',
                 {
                     'title': "Critical Battery",
                     'body': "Behavior Bracket's battery has been depleted. The device is now shutting down."
@@ -389,7 +389,7 @@ class complianceThread(Thread):
 
         self.sensors = [self.imu, self.mic] # Bundle sensors in a list for convenient access
 
-        self.stickyPunishment = False   # Bool to punish user "until something happens"
+        self.stickyPunishment = False       # Bool to punish user "until something happens"
 
         # TODO: These would be better as some kind of Exercise() class
         self.wearerInRestPosition = EdgeDetector(True)      # Exercise mode: Keep track of whether the wearer is at rest
@@ -423,7 +423,7 @@ class complianceThread(Thread):
             return True
         else: return False
 
-    def getMotionDelta(self):
+    def motionDelta(self):
         """ Find change in recent movement """
         # Get the mean of the motion history values
         m = 0 
@@ -462,7 +462,7 @@ class complianceThread(Thread):
         """
         Freeze/Statue mode: user is not allowed to move
         """
-        Mdelta = self.getMotionDelta()
+        Mdelta = self.motionDelta()
 
         motionThreshold = 3    # Activation threshold
 
@@ -482,7 +482,7 @@ class complianceThread(Thread):
             if t[5] < 1:    # Seconds less than 1
                 self.stickyPunishment = True
 
-        Mdelta = self.getMotionDelta()
+        Mdelta = self.motionDelta()
 
         # Check values against threshold
         motionThreshold = 80
@@ -596,22 +596,20 @@ class complianceThread(Thread):
                 requestBeep = 'noncompliant'            # Request noncompliance beep
 
 
-    def getMotion(self):
+    def updateSensors(self):
         """
-        Fetch motion data from the IMU
+        Fetch motion data from the sensors
         """
-        while not thread_stop_event.isSet():
-            for sensor in self.sensors:
-                sensor.read()
-
-            # Check for compliance
-            self.testCompliance(motion)
+        for sensor in self.sensors:
+            sensor.read()
 
     def run(self):
         global punishmentRequests                   # Get visibility of punishment requests
         punishmentRequests['interaction'] = False   # Register sensor channel in punishment requests
 
-        self.getMotion()
+        while not thread_stop_event.isSet():
+            self.updateSensors()    # Read sensor data
+            self.testCompliance()   # Test compliance based on current mode and sensor data
 
 
 # oooooo   oooooo     oooo            .o8       ooooo     ooo ooooo 
