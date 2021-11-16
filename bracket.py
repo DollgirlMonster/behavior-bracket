@@ -153,6 +153,7 @@ app.config.update(
     INTERNET_CONNECTED = False,                 # TODO: remove -- temporarily testing without internet
 
     mode =              'off',                  # Operation mode for the device -- decides what logic is used for compliance determination
+
     safetyMode =        True,                   # If true, shocks will instead be delivered as vibrations
     warnBeforeShock =   False,                  # Whether to give a warning beep before punishing for noncompliance
     punishmentIntensity = 50,                   # Intensity of the shock -- if 3 or under, we will switch to vibrate mode
@@ -690,7 +691,9 @@ def test_connect():
 # Mode selection
 @socketio.on('mode', namespace='/control')
 def mode_select(msg):
-    app.config.update(mode = msg['mode'])   # Update mode setting with new value
+    app.config.update(
+        mode = msg['mode'],         # Update mode setting with new value
+    )
 
 # Intenstiy setting
 @socketio.on('intensity', namespace='/control')
