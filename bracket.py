@@ -13,7 +13,7 @@ from flask_socketio import SocketIO, emit                           # Flask-Sock
 import imu
 import battery
 import buzzer
-import radio
+import radio as r
 import wifi
 import update
 
@@ -174,9 +174,9 @@ app.config.update(
 # Thread: Radio communication
 class radioThread(Thread):
     def __init__(self):
-        radio.radioDataPin = 25 # Board pin 22
-
         self.safetyLimit = 10               # Number of punishment cycles until emergency auto-off
+
+        self.radio = r.Radio()                   # Initialize radio
 
         super(radioThread, self).__init__()
 
@@ -193,12 +193,12 @@ class radioThread(Thread):
                     else:                                   # Otherwise,
                         punishmentMode = 4                  # Set punishment mode to shock
 
-                    sequence = self.makeSequence(punishmentMode, app.config['punishmentIntensity'])   # Create punishment data sequence
-                    waveID = self.makeWaveform(sequence)    # Make waveform from data sequence
-                    radio.transmit(waveID)                  # Transmit waveform
+                    sequence = self.radio.makeSequence(punishmentMode, app.config['punishmentIntensity'])   # Create punishment data sequence
+                    waveID = self.radio.makeWaveform(sequence)  # Make waveform from data sequence
+                    self.radio.transmit(waveID)                 # Transmit waveform
 
-                punishmentCycles += 1                       # Increment punishment cycles
-                socketio.emit('safetyPunishmentCycles', {   # Emit punishment cycles to web client
+                punishmentCycles += 1                           # Increment punishment cycles
+                socketio.emit('safetyPunishmentCycles', {       # Emit punishment cycles to web client
                     'punishmentCycles': punishmentCycles,
                 }, namespace='/control')
 
@@ -222,10 +222,9 @@ class radioThread(Thread):
                 if t[4] % 2 == 0 and t[5] < 1:                  # Minutes are even and seconds are less than 1
                     KAsequence = self.makeSequence(txMode=1)    # Create flash sequence
                     KAwaveID = self.makeWaveform(KAsequence)    # Create flash wave
-                    radio.transmit(KAwaveID, 0.5)               # Transmit flash
+                    self.radio.transmit(KAwaveID, 0.5)          # Transmit flash
 
     def run(self):
-        radio.setup()                                   # Initialize GPIO
         self.waitLoop()                                 # Begin loop
 
 # Thread: Power management and battery
