@@ -10,8 +10,9 @@ import statistics
 from flask import Flask, request, abort, redirect, render_template  # Flask
 from flask_socketio import SocketIO, emit                           # Flask-SocketIO
 
-import imu
 import battery
+import imu
+import mic
 import buzzer
 import radio as r
 import wifi
@@ -354,10 +355,10 @@ class beepThread(Thread):
 # Thread: Compliance update thread
 class complianceThread(Thread):
     def __init__(self):
-        berryimu.init() # Initialize IMU
+        imu.init() # Initialize IMU
         self.imu = Sensor(   # Set up IMU as Sensor
             name = 'IMU',
-            updateFunction = berryimu.getValues(app.config['motionAlgorithm']),
+            updateFunction = imu.getValues(app.config['motionAlgorithm']),
             sensorData = [
                 'accX',
                 'accY',
@@ -378,7 +379,7 @@ class complianceThread(Thread):
 
         self.mic = Sensor(   # Set up mic as sensor
             name = "Microphone",
-            updateFunction = None,
+            updateFunction = None,  # TODO: Set update function -- something like mic.getSound() or something
             sensorData = [
                 'audio',
                 'level',
